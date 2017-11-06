@@ -24,30 +24,30 @@
 % **************************************************
 % Information and Commands for Reuse
 % **************************************************
-\newcommand{\thesisTitle}{The Clean Thesis Style}
-\newcommand{\thesisName}{Ricardo Langner}
-\newcommand{\thesisSubject}{Documentation}
-\newcommand{\thesisDate}{August 26, 2015}
-\newcommand{\thesisVersion}{My First Draft}
+\newcommand{\thesisTitle}{Implementing a system/architecture for implicit user feedback using event sourcing}
+\newcommand{\thesisName}{Janis Krasemann}
+\newcommand{\thesisSubject}{Proposal}
+\newcommand{\thesisDate}{November 20, 2017}
+\newcommand{\thesisVersion}{0.1}
 
-\newcommand{\thesisFirstReviewer}{Jane Doe}
-\newcommand{\thesisFirstReviewerUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisFirstReviewerDepartment}{Department of Clean Thesis Style}
+\newcommand{\thesisFirstReviewer}{Prof. Gregor Engels}
+\newcommand{\thesisFirstReviewerUniversity}{\protect{University of Paderborn}}
+\newcommand{\thesisFirstReviewerDepartment}{Software Innovation Campus Paderborn}
 
 \newcommand{\thesisSecondReviewer}{John Doe}
-\newcommand{\thesisSecondReviewerUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisSecondReviewerDepartment}{Department of Clean Thesis Style}
+\newcommand{\thesisSecondReviewerUniversity}{\protect{University of Paderborn}}
+\newcommand{\thesisSecondReviewerDepartment}{Software Innovation Campus Paderborn}
 
-\newcommand{\thesisFirstSupervisor}{Jane Doe}
-\newcommand{\thesisSecondSupervisor}{John Smith}
+\newcommand{\thesisFirstSupervisor}{Björn Senft}
+\newcommand{\thesisSecondSupervisor}{Prof. Gregor Engels}
 
-\newcommand{\thesisUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisUniversityDepartment}{Department of Clean Thesis Style}
-\newcommand{\thesisUniversityInstitute}{Institut for Clean Thesis Dev}
-\newcommand{\thesisUniversityGroup}{Clean Thesis Group (CTG)}
-\newcommand{\thesisUniversityCity}{City}
-\newcommand{\thesisUniversityStreetAddress}{Street address}
-\newcommand{\thesisUniversityPostalCode}{Postal Code}
+\newcommand{\thesisUniversity}{\protect{University of Paderborn}}
+\newcommand{\thesisUniversityDepartment}{???}
+\newcommand{\thesisUniversityInstitute}{???}
+\newcommand{\thesisUniversityGroup}{???}
+\newcommand{\thesisUniversityCity}{Paderborn}
+\newcommand{\thesisUniversityStreetAddress}{Warburger Stra{\ss}e 100}
+\newcommand{\thesisUniversityPostalCode}{33098}
 
 % **************************************************
 % Load and Configure Packages
@@ -120,12 +120,12 @@
 \setcounter{page}{1}			% set page counter
 \pagestyle{maincontentstyle} 	% fancy header and footer
 
-\input{content/chapter-introduction} % INCLUDE: introduction
-\input{content/chapter-motivation} % INCLUDE: related work
-\input{content/chapter-objectives}	% INCLUDE: system
-\input{content/chapter-approach} % INCLUDE: concepts
-\input{content/chapter-outline} % INCLUDE: outline
-\input{content/chapter-workplan} % INCLUDE: conclusion
+\input{content/chapter-introduction}
+\input{content/chapter-related-work}
+\input{content/chapter-objectives}
+\input{content/chapter-approach}
+\input{content/chapter-outline}
+\input{content/chapter-workplan}
 \cleardoublepage
 
 % --------------------------
@@ -137,7 +137,7 @@
 \setlength{\biblabelsep}{0pt}
 \setlength{\bibitemsep}{0.5\baselineskip plus 0.5\baselineskip}
 \printbibliography[nottype=online]
-\printbibliography[heading=subbibliography,title={Webseiten},type=online,prefixnumbers={@}]
+\printbibliography[heading=subbibliography,title={Websites},type=online,prefixnumbers={@}]
 }
 \cleardoublepage
 
