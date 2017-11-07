@@ -1,28 +1,52 @@
-% !TEX root = ../thesis-example.tex
+% !TEX root = ../proposal.tex
 %
 \chapter{Related Work}
 \label{sec:related}
 
-\cleanchapterquote{A picture is worth a thousand words. An interface is worth a thousand pictures.}{Ben Shneiderman}{(Professor for Computer Science)}
+[insert fluff piece about related work here]
 
-\Blindtext[2][1]
+\section{Experimentation in the software development process}
+\label{sec:related:experimentation}
 
-\section{Related Work Section 1}
-\label{sec:related:sec1}
+\cite{Olsson2012}
 
-\Blindtext[2][2]
+\section{Continuous experimentation surveys}
+\label{sec:related:surveys}
 
-\section{Related Work Section 2}
-\label{sec:related:sec2}
+\cite{lindgren2015software}
 
-\Blindtext[3][2]
+\cite{Bosch2012}
 
-\section{Related Work Section 3}
-\label{sec:related:sec3}
+\section{Frameworks and models for continuous experimentation}
+\label{sec:related:frameworks}
 
-\Blindtext[4][2]
+In a recent paper, \citeauthor{Johanssen2017} talk about stuff~\citet{Johanssen2017}.
+Breiterer Rahmen und etwas theoretischer, aber Teil des Papers ist ein System zum Sammeln von impliziten User Feedback und Anreicherung des expliziten UF mit dem impliziten
 
-\section{Conclusion}
-\label{sec:related:conclusion}
+\cite{Lindgren2015}
+-a little too meta for my needs
+-seems to be a more detailed version of "Software development as an experiment system: a qualitative survey on the state of the practice"
+-similar findings in the end, but more detailed explanation etc.
+-read in more depth when necessary
 
-\Blindtext[2][1]
+\cite{Fagerholm2014} Describes a theoretical framework for an experimentation infrastructure (organization-wide).
+Could use this as a building block for my experimentation infrastructure, or at least in the fundamentals / related work.
+
+\cite{Fagerholm2017}
+- model for continuous experimentation
+- broader context for my experimentation architecture
+
+\section{Continuous experimentation at large scale}
+\label{sec:related:large}
+
+Several companies have published their findings about experimentation-driven software development in the form of scientific papers or blog posts.
+Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cite{Tang2010}, Facebook~\cite{Bakshy2014}, and Netflix~\cite{WEB:Netflix:2016} issued reports about best practices and pitfalls that they experienced.
+Due to the immense size of the companies that leverage these systems, the scope of the architectures described in these publications is much bigger than what will be developed in this thesis.
+Also, none of the implementations make use of event sourcing.
+
+\section{Event sourcing \& CQRS}
+\label{sec:related:event}
+
+\cite{WEB:Fowler:2005}
+
+\cite{WEB:Fowler:2011}
