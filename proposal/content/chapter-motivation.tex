@@ -8,27 +8,26 @@ Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cit
 Also, several authors have published scientific papers in which they propose models and architectures for experimental software development~\cite{Fagerholm2014,Fagerholm2017,Johanssen2017,Lindgren2015}.
 Although practicioners in the software industry often claim that they embrace experimentation in general and continuous experimentation in particular, these practices are still not fully adopted according to a study by \citet{lindgren2015software}; especially the systematic and continuous aspects of experimentation lack adoption.
 
+% Problem für Motivation ist hier: Wenn ich nicht direkt auf Event Sourcing Bezug nehme (d.h. es offen lasse ob Event Sourcing verwendet wird oder nicht) wird der Scope zu groß: "Wie kann an eine Experimentier-Plattform implementieren" haben andere Leute schon beantwortet.
+While the overall area of experimentation-driven software development is thus well researched, no one has as of today researched how to combine experimentation with event sourcing.
+This combination is believed to be a good fit for the following reasons:
+
+\begin{enumerate}
+\item Event replayability can be used to further mitigate the risk of experimentation: If an experimental change in the software causes some faulty event to be created for whatever reason, it can later be modified or deleted.
+Contrary to classical relational databases, the overall application state in an event store would not be corrupted by this.
+It is also possible to create separate event stores just for the experiment, which could later be applied to the main event store by replaying the events from the experimental store.
+\item When an experiment has to be analysed, temporal queries can be used for retrieving all events in the experiments time frame.
+\item Event sourcing and \ac{CQRS} advocate a distributed system architecture -- which is also true for \ac{EDSD}~\cite{source?}.
+\end{enumerate}
+
+For these reasons, it is to be expected that an experimentation system using an event store for storage is a promising alternative to existing systems.
+In particular, the temporal query feature could render additional aggregation services such as ElasticSearch obsolete.
+Additional backup systems that roll back changes issued by an experiment could also possibly be removed because of an event stores inherent ability to roll back and redo changes.
+These assumptions would have to be validated over the course of the actual thesis.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-(1) In particular, no one has as of today researched how to combine experimentation with event sourcing.
-(2) In particular, no one has as of today implemented a more distributed experimentation system.
-(3) In particular, research about concrete architectures, which are in addition validated by a user study, is slim.
-
- TODO: What exactly is the reason for starting this thesis at this point? (1) already implicates more than I thought I would assume at this point, but seems to be the best choice for now...
-
-
- 
-
+%(1) In particular, no one has as of today researched how to combine experimentation with event sourcing.
+%(2) In particular, no one has as of today implemented a more distributed experimentation system.
+%(3) In particular, research about concrete architectures, which are in addition validated by a user study, is slim.
+%
+% TODO: What exactly is the reason for starting this thesis at this point? (1) already implicates more than I thought I would assume at this point, but seems to be the best choice for now...
