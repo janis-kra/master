@@ -22,7 +22,7 @@ This approach is contrary to classical software development methods\todo{really 
 Due to the fast release cycles and incremental development that is fundamental when doing continuous experimentation, this comes with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
 In particular, monolithic software systems do not go well with experimentation; instead, small services that communicate with each other through a well defined but lightweight API are recommended for experimentation to succeed.
 Such distributed systems have been shown to work very well with event sourcing based state modifications~\cite{???}.
-Event Sourcing is a concept in which the state of an application is composed exclusively of multiple events which modify business objects~\cite{WEB:Fowler:2005}.
+Event Sourcing is a concept in which the state of an application is composed exclusively of multiple immutable events stored in an event store~\cite{WEB:Fowler:2005}.
 The most obvious advantage of this approach is that the event log represents a complete log of all transactions.
 More importantly however, this also allows for execution of temporal queries which compute the application state at any given point in time, and the ability to replay events, possibly after modifying the application state at a certain point in time.
 A consequence of event replayability is that events can be received in any given sequence, which otherwise is a common problem in asynchronous systems.

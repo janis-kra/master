@@ -1,28 +1,44 @@
-% !TEX root = ../thesis-example.tex
+% !TEX root = ../proposal.tex
 %
-\chapter{Concepts: This text is here to test a very long title, to simulate the line break behavior, to show that an extremely long tilte also works}
-\label{sec:concepts}
+\chapter{Approach}
+\label{sec:approach}
 
-\cleanchapterquote{Users do not care about what is inside the box, as long as the box does what they need done.}{Jef Raskin}{about Human Computer Interfaces}
+In order to achieve the objectives described in \cref{sec:objectives}, the working time of the thesis will roughly be divided into three segments: Research, implementation and evaluation.
+Putting the gained findings into writing is part of each of these segments.
 
-\Blindtext[2][1]
+A huge part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively event sourcing, \ac{CQRS}, experimentation-driven software engineering, passive user feedback and controlled experiments.
+Aside from that, some decisions regarding the architecture and used technology require additional research.
+This involves researching, comparing and finally choosing an event store implementation, which will presumably be the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, as well as a solution for aggregating the event store data and for data analysis.
+In order to achieve high platform independence and flexibility, some container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research as to which platform to use.
+In order to be able to decide wether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
 
-\section{Concepts Section 1}
-\label{sec:concepts:sec1}
+The first task in the implementation phase will be to finalise the system architecture.
+While the architecture is not expected to be overly complex and a first draft already exists at the time of writing, some alterations are possible.
+This task also involves deciding which data to save to the event store and which logical structure these events have to have.
+When those decisions are executed, the actual implementation can begin, which first of all involves setting up and configuring the event store.
+If user feedback events are to be generated from a client application and not using the RICO dataset, the actual event logging has to be implemented as well.
+Depending on the choice of aggregation service, if any, this service also has to be set up and / or implemented; the same holds for the analysis solution.
 
-\Blindtext[2][2]
+Finally, the implemented solution will be evaluated by executing some kind of experiment.
+One experiment for the evaluation is a questionnaire in which usability experts answer questions about a given application.
+The results of the questionnaire will be compared to the passive user feedback of the given application.
+Depending on the means of collecting this user data, an experiment has to be designed and executed with some test subjects; this is not necessary if the RICO dataset is used as the source of user data.
+The experiments have to be planned and executed carefully in order to have high internal and external validity~\cite{Huitt2010}.
+Existing studies about best practices and pitfalls of running controlled experiments can be useful here~\cite{Kohavi2009}.
 
-\section{Concepts Section 2}
-\label{sec:concepts:sec2}
-
-\Blindtext[3][2]
-
-\section{Concepts Section 3}
-\label{sec:concepts:sec3}
-
-\Blindtext[4][2]
-
-\section{Conclusion}
-\label{sec:concepts:conclusion}
-
-\Blindtext[2][1]
+%* Research storage solutions --> choose Event Store
+%    - also includes researching\&comparing event store implementations
+%* Research aggregation solutions --> Pure Event Store, Elasticsearch or some other service like ES
+%* Research analysis solutions --> (probably) choose Kibana
+%* Event structure - "what is logged"
+%* Implementation / Configuration / Setup:
+%    - Event Store + Sync to aggregation
+%    - Elasticsearch
+%    - Kibana
+%* Evaluation Custom exp. vs. RICO
+%    - Design experiment (validity *and* relevance!)
+%        + validity: see notes in "Internal and external validity"
+%        + relevance: see Kohavi2009
+%    - Implement exp.
+%    - Execute exp.
+%    - Evaluate exp.
