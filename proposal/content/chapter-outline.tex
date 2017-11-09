@@ -1,21 +1,55 @@
-% !TEX root = ../thesis-example.tex
+% !TEX root = ../proposal.tex
 %
-\chapter{Conclusion}
-\label{sec:conclusion}
+\chapter{Outline}
+\label{sec:outline}
 
-\Blindtext[2][1]
+This chapter comprises a preliminary outline of the thesis to write.
+Items marked with * will only be present if the RICO dataset~\cite{Deka:2017:Rico} is used for evaluation.
+If this is not the case, the items marked with ** will be present instead.
 
-\section{System Section 1}
-\label{sec:conclusion:sec1}
-
-\Blindtext[2][2]
-
-\section{System Section 2}
-\label{sec:conclusion:sec2}
-
-\Blindtext[3][2]
-
-\section{Future Work}
-\label{sec:conclusion:future}
-
-\Blindtext[2][2]
+\begin{enumerate}[noitemsep,label=\arabic*.]
+\item Abstract
+\item Introduction
+\item Fundamentals
+	\begin{enumerate}[noitemsep,label=\arabic*.]
+	\item Experimentation-oriented software development
+	\item Controlled Experiments \& A/B testing
+	\item Event Sourcing
+	\item CQRS
+	\item The RICO dataset *
+	\end{enumerate}
+\item Related Work
+\item Implementation
+	\begin{enumerate}[noitemsep,label=\arabic*.]
+	\item System Architecture
+	\item Event Store Setup
+	\item Aggregation Service
+	\item Analysis Application
+	\item Client Application **
+	\end{enumerate}
+\item Evaluation
+	\begin{enumerate}[noitemsep,label=\arabic*.]
+	\item Experiment Design
+		\begin{enumerate}[noitemsep,label=\arabic*.]
+		\item Usability Expert Questionnaire
+		\item End User Experiment
+		\end{enumerate}
+	\item Experiment Results
+		\begin{enumerate}[noitemsep,label=\arabic*.]
+		\item Usability Expert Questionnaire
+		\item End User Experiment
+		\end{enumerate}	
+	\end{enumerate}
+\item Future Work
+\item Conclusion
+\item Appendix
+	\begin{enumerate}[noitemsep,label=\arabic*.]
+	\item Source Code: Event Store Configuration
+	\item Source Code: Aggregation Service
+	\item Source Code: Analysis Application
+	\item Source Code: Client Application **
+	\item End User Experiment **
+	\item Usability Expert Questionnaire
+	\item Usability Expert Questionnaire Results
+	\end{enumerate}
+\end{enumerate}
