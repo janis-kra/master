@@ -3,25 +3,24 @@
 \chapter{Introduction}
 \label{sec:intro}
 
-\todo{Wording for experimentational SW dev., cont. experimentation etc.}
-
 Best practices in software development changed dramatically since its origins in the 1950's~\cite{boehm2006view}.
 Software engineering in most of the 20th century was largely based on careful planning and specification and therefore rather slow-paced and unflexible.
 Since twenty years however, these plan-driven development methods have been frustrating many people because the influencing circumstances change more and more rapidly -- not least due to the growing importance of the internet~\cite{Williams2003}.
 A result of this rapid change of the environment was that product features, which were perfectly valid at the time of their envisioning, became outdated, irrelevant or otherwise undesirable during the planning or implementation phase.
 This insight often only was gained when the feature was shipped to the customer.
 As a consequence, short release cycles and fast customer feedback have steadily grown in importance.
-These values are emphasised in agile software development~\cite{fowler2001agile} in general and in experimental software development in particular, which can be considered as an evolution of agile methods~\cite{Bosch2012}.
+These values are emphasised in agile software development~\cite{fowler2001agile} in general and in \ac{EDSD} in particular, which can be considered as an extension of agile methods~\cite{Bosch2012}.
 
-The core premise in experimental software development is envisioning, implementing and validating assumptions about envisioned features in short sprints~\cite{Bosch2012}.
+The core premise in \ac{EDSD} is the implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Lindgren2015}.
 The results of such an experiment are then used for deciding wether the feature should become a part of the final product, if it is a new feature.
 Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
 Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
-This approach is contrary to classical software development methods\todo{really 'methods' or sth. else, like 'approach'?}, in which the stakeholders make certain assumptions which result in the envisioning of a feature, without consulting a customer first~\cite{Bosch2012}.
+This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
 
-Due to the fast release cycles and incremental development that is fundamental when doing continuous experimentation, this comes with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
+The continuous experimentation and agile work methods in \ac{EDSD} come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
 In particular, monolithic software systems do not go well with experimentation; instead, small services that communicate with each other through a well defined but lightweight API are recommended for experimentation to succeed.
-Such distributed systems have been shown to work very well with event sourcing based state modifications~\cite{???}.
+Such distributed systems have been shown to work very well with event sourcing based state modifications~\cite{source?}.
+\todo{Uebergang zu Event Sourcing etwas holprig - wie besser machen?}
 Event Sourcing is a concept in which the state of an application is composed exclusively of multiple immutable events stored in an event store~\cite{WEB:Fowler:2005}.
 The most obvious advantage of this approach is that the event log represents a complete log of all transactions.
 More importantly however, this also allows for execution of temporal queries which compute the application state at any given point in time, and the ability to replay events, possibly after modifying the application state at a certain point in time.

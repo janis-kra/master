@@ -3,7 +3,8 @@
 % **************************************************
 \documentclass[%
 	paper=A4,					% paper size --> A4 is default in Germany
-	twoside=true,				% onesite or twoside printing
+	%	twoside=true,
+	twoside=false,				% onesite or twoside printing
 	openright,					% doublepage cleaning ends up right side
 	parskip=full,				% spacing value / method for paragraphs
 	chapterprefix=true,			% prefix for chapter marks
@@ -24,27 +25,27 @@
 % **************************************************
 % Information and Commands for Reuse
 % **************************************************
-\newcommand{\thesisTitle}{Implementing a system/architecture for implicit user feedback using event sourcing}
+\newcommand{\thesisTitle}{Implementing a system for passive user feedback using event sourcing}
 \newcommand{\thesisName}{Janis Krasemann}
 \newcommand{\thesisSubject}{Proposal}
-\newcommand{\thesisDate}{November 20, 2017}
+\newcommand{\thesisDate}{November 14, 2017}
 \newcommand{\thesisVersion}{0.1}
 
 \newcommand{\thesisFirstReviewer}{Prof. Gregor Engels}
-\newcommand{\thesisFirstReviewerUniversity}{\protect{University of Paderborn}}
+\newcommand{\thesisFirstReviewerUniversity}{\protect{Paderborn University}}
 \newcommand{\thesisFirstReviewerDepartment}{Software Innovation Campus Paderborn}
 
 \newcommand{\thesisSecondReviewer}{John Doe}
-\newcommand{\thesisSecondReviewerUniversity}{\protect{University of Paderborn}}
+\newcommand{\thesisSecondReviewerUniversity}{\protect{Paderborn University}}
 \newcommand{\thesisSecondReviewerDepartment}{Software Innovation Campus Paderborn}
 
 \newcommand{\thesisFirstSupervisor}{Björn Senft}
 \newcommand{\thesisSecondSupervisor}{Prof. Gregor Engels}
 
-\newcommand{\thesisUniversity}{\protect{University of Paderborn}}
-\newcommand{\thesisUniversityDepartment}{???}
-\newcommand{\thesisUniversityInstitute}{???}
-\newcommand{\thesisUniversityGroup}{???}
+\newcommand{\thesisUniversity}{\protect{Paderborn University}}
+\newcommand{\thesisUniversityDepartment}{Faculty for Computer Science, Electrical Engineering and Mathematics}
+\newcommand{\thesisUniversityInstitute}{Computer Science}
+\newcommand{\thesisUniversityGroup}{Database and Information System}
 \newcommand{\thesisUniversityCity}{Paderborn}
 \newcommand{\thesisUniversityStreetAddress}{Warburger Stra{\ss}e 100}
 \newcommand{\thesisUniversityPostalCode}{33098}
@@ -103,18 +104,18 @@
 \pagenumbering{roman}			% roman page numbing (invisible for empty page style)
 \pagestyle{empty}				% no header or footers
 \input{content/titlepages}		% INCLUDE: all titlepages
-\cleardoublepage
+\clearpage
 
 \pagestyle{plain}				% display just page numbers
 \input{content/abstract}		% INCLUDE: the abstracts (english and german)
-\cleardoublepage
+\clearpage
 %
 %\input{content/acknowledgement} % INCLUDE: acknowledgement
-%\cleardoublepage
+%\clearpage
 %
 \setcounter{tocdepth}{2}		% define depth of toc
 \tableofcontents				% display table of contents
-\cleardoublepage
+\clearpage
 
 % --------------------------
 % Body matter
@@ -129,7 +130,7 @@
 \input{content/chapter-approach}
 \input{content/chapter-outline}
 \input{content/chapter-workplan}
-\cleardoublepage
+\clearpage
 
 % --------------------------
 % Back matter
@@ -142,21 +143,10 @@
 \printbibliography[nottype=online]
 \printbibliography[heading=subbibliography,title={Websites},type=online,prefixnumbers={@}]
 }
-\cleardoublepage
-
-\listoffigures
-\cleardoublepage
-
-\listoftables
-\cleardoublepage
-
-\input{content/colophon}
-\cleardoublepage
+\clearpage
 
 \input{content/declaration}
 \clearpage
-\newpage
-\mbox{}
 
 % **************************************************
 % End of Document CONTENT
