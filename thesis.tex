@@ -24,30 +24,30 @@
 % **************************************************
 % Information and Commands for Reuse
 % **************************************************
-\newcommand{\thesisTitle}{The Clean Thesis Style}
-\newcommand{\thesisName}{Ricardo Langner}
-\newcommand{\thesisSubject}{Documentation}
-\newcommand{\thesisDate}{August 26, 2015}
-\newcommand{\thesisVersion}{My First Draft}
+\newcommand{\thesisTitle}{Implementing a system for passive user feedback using event sourcing}
+\newcommand{\thesisName}{Janis Krasemann}
+\newcommand{\thesisSubject}{Master Thesis}
+\newcommand{\thesisDate}{March 29, 2018}
+\newcommand{\thesisVersion}{0.1}
 
-\newcommand{\thesisFirstReviewer}{Jane Doe}
-\newcommand{\thesisFirstReviewerUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisFirstReviewerDepartment}{Department of Clean Thesis Style}
+\newcommand{\thesisFirstReviewer}{Prof. Gregor Engels}
+\newcommand{\thesisFirstReviewerUniversity}{\protect{Paderborn University}}
+\newcommand{\thesisFirstReviewerDepartment}{Software Innovation Campus Paderborn}
 
 \newcommand{\thesisSecondReviewer}{John Doe}
-\newcommand{\thesisSecondReviewerUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisSecondReviewerDepartment}{Department of Clean Thesis Style}
+\newcommand{\thesisSecondReviewerUniversity}{\protect{Paderborn University}}
+\newcommand{\thesisSecondReviewerDepartment}{Software Innovation Campus Paderborn}
 
-\newcommand{\thesisFirstSupervisor}{Jane Doe}
-\newcommand{\thesisSecondSupervisor}{John Smith}
+\newcommand{\thesisFirstSupervisor}{Björn Senft}
+\newcommand{\thesisSecondSupervisor}{Prof. Gregor Engels}
 
-\newcommand{\thesisUniversity}{\protect{Clean Thesis Style University}}
-\newcommand{\thesisUniversityDepartment}{Department of Clean Thesis Style}
-\newcommand{\thesisUniversityInstitute}{Institut for Clean Thesis Dev}
-\newcommand{\thesisUniversityGroup}{Clean Thesis Group (CTG)}
-\newcommand{\thesisUniversityCity}{City}
-\newcommand{\thesisUniversityStreetAddress}{Street address}
-\newcommand{\thesisUniversityPostalCode}{Postal Code}
+\newcommand{\thesisUniversity}{\protect{Paderborn University}}
+\newcommand{\thesisUniversityDepartment}{Faculty for Computer Science, Electrical Engineering and Mathematics}
+\newcommand{\thesisUniversityInstitute}{Computer Science}
+\newcommand{\thesisUniversityGroup}{Database and Information System}
+\newcommand{\thesisUniversityCity}{Paderborn}
+\newcommand{\thesisUniversityStreetAddress}{Warburger Stra{\ss}e 100}
+\newcommand{\thesisUniversityPostalCode}{33098}
 
 % **************************************************
 % Load and Configure Packages
@@ -66,6 +66,11 @@
 	bibfile=bib-refs,%
 	bibstyle=alphabetic,%
 ]{cleanthesis}
+% JK Custom setup
+\usepackage{todonotes}
+\usepackage[printonlyused]{acronym}
+\input{./acronyms}
+\usepackage[noabbrev]{cleveref}
 
 \hypersetup{					% setup the hyperref-package options
 	pdftitle={\thesisTitle},	% 	- title (PDF meta)
@@ -134,7 +139,7 @@
 \setlength{\biblabelsep}{0pt}
 \setlength{\bibitemsep}{0.5\baselineskip plus 0.5\baselineskip}
 \printbibliography[nottype=online]
-\printbibliography[heading=subbibliography,title={Webseiten},type=online,prefixnumbers={@}]
+\printbibliography[heading=subbibliography,title={Websites},type=online,prefixnumbers={@}]
 }
 \cleardoublepage
 
