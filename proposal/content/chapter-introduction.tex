@@ -9,19 +9,20 @@ Since twenty years however, these plan-driven development methods have been frus
 A result of this rapid change of the environment was that product features, which were perfectly valid at the time of their envisioning, became outdated, irrelevant or otherwise undesirable during the planning or implementation phase.
 This insight often only was gained when the feature was shipped to the customer.
 As a consequence, short release cycles and fast customer feedback have steadily grown in importance.
-These values are emphasised in agile software development~\cite{fowler2001agile} in general and in \ac{EDSD} in particular, which can be considered as an extension of agile methods~\cite{Bosch2012}.
+These values are emphasised in agile software development~\cite{fowler2001agile} in general and in innovation experiment systems in particular, which can be considered as an extension of agile methods~\cite{Bosch2012}.
 
-The core premise in \ac{EDSD} is the implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Lindgren2015}.
+The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2012}.
 The results of such an experiment are then used for deciding wether the feature should become a part of the final product, if it is a new feature.
 Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
 Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
 This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
 
-The continuous experimentation and agile work methods in \ac{EDSD} come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
+The continuous experimentation and agile work methods in innovation experiment systems come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
 In particular, monolithic software systems do not go well with experimentation; instead, small services that communicate with each other through a well defined but lightweight API are recommended for experimentation to succeed.
-Such distributed systems have been shown to work very well with event sourcing based state modifications~\cite{source?}.
-\todo{Uebergang zu Event Sourcing etwas holprig - wie besser machen?}
-Event Sourcing is a concept in which the state of an application is composed exclusively of multiple immutable events stored in an event store~\cite{WEB:Fowler:2005}.
+\citet{ford2017building} argue that such distributed systems work well with the \emph{Parallel Model} concept introduced by \citet{WEB:Fowler:2005-2}.
+The rationale is that using Parallel Model, services can work with their own specialised read model without interfering with or complicating the overall application state.
+In order to make use of the Parallel Model, it is recommended that the system also uses \emph{Event Sourcing}~\cite{WEB:Fowler:2005,WEB:Fowler:2005-2}.
+Event Sourcing is a concept in which the state of an application is composed exclusively of multiple immutable events stored in an event store.
 The most obvious advantage of this approach is that the event log represents a complete log of all transactions.
 More importantly however, this also allows for execution of temporal queries which compute the application state at any given point in time, and the ability to replay events, possibly after modifying the application state at a certain point in time.
 A consequence of event replayability is that events can be received in any given sequence, which otherwise is a common problem in asynchronous systems.

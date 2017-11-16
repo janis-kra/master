@@ -7,17 +7,20 @@ In order to achieve the objectives described in \cref{sec:objectives}, the worki
 Putting the gained findings into writing is part of each of these segments.
 A detailed work plan can be found in \cref{sec:workplan}.
 
-A huge part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively event sourcing, \ac{CQRS}, \acl{EDSD}, passive user feedback and controlled experiments.
+A huge part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively event sourcing, \ac{CQRS}, innovation experiment systems, passive user feedback and controlled experiments.
 Aside from that, some decisions regarding the architecture and used technology require additional research.
-This involves researching, comparing and finally choosing an event store implementation, which will presumably be the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, as well as a solution for aggregating the event store data and for data analysis.
+This involves researching, comparing and finally choosing an appropriate storage solution.
+Current findings suggest that an event store, and in particular the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, is a good fit for this.
+However, this is not fixed yet.
+A solution for aggregating and analysing the data has to be researched as well.
 In order to achieve high platform independence and flexibility, some container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research as to which platform to use.
 In order to be able to decide wether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
 
 The first task in the implementation phase will be to finalise the system architecture.
 While the architecture is not expected to be overly complex and a first draft already exists at the time of writing, some alterations are possible.
-This task also involves deciding which data to save to the event store and which logical structure these events have to have.
-When those decisions are made, the actual implementation can begin, which first of all involves setting up and configuring the event store.
-If user feedback events are to be generated from a client application and not using the RICO dataset, the actual event logging has to be implemented as well.
+This task also involves deciding which data to save to the storage layer and which logical structure this data has to have.
+When those decisions are made, the actual implementation can begin, which first of all involves setting up and configuring the storage solution.
+If user feedback data is to be generated from a client application and not using the RICO dataset, the actual feedback logging has to be implemented as well.
 Depending on the choice of aggregation service, if any, this service also has to be set up and / or implemented; the same holds for the analysis solution.
 
 Finally, the implemented solution will be evaluated by executing up to two experiments.
