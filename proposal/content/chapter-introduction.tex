@@ -5,24 +5,29 @@
 
 Best practices in software development changed dramatically since its origins in the 1950's~\cite{boehm2006view}.
 Software engineering in most of the 20th century was largely based on careful planning and specification and therefore rather slow-paced and unflexible.
-Since twenty years however, these plan-driven development methods have been frustrating many people because the influencing circumstances change more and more rapidly -- not least due to the growing importance of the internet~\cite{Williams2003}.
-A result of this rapid change of the environment was that product features, which were perfectly valid at the time of their envisioning, became outdated, irrelevant or otherwise undesirable during the planning or implementation phase.
-This insight often only was gained when the feature was shipped to the customer.
-As a consequence, short release cycles and fast customer feedback have steadily grown in importance.
+Since twenty years however, these plan-driven development methods have been frustrating many people because the influencing circumstances change more and more rapidly, not least due to the growing importance of the internet~\cite{Williams2003}.
+A result of this rapid change of the environment is that product features, which were perfectly valid at the time of their envisioning, became outdated, irrelevant or otherwise undesirable while the feature was still being planned or implemented -- not to mention features that are in fact not desired by the customers in the first place.
+This insight is often not gained until the feature is shipped to the customer.
+As a consequence, short release cycles and fast customer feedback have steadily been growning in importance.
 These values are emphasised in agile software development~\cite{fowler2001agile} in general and in innovation experiment systems in particular, which can be considered as an extension of agile methods~\cite{Bosch2012}.
 
 The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2012}.
-The results of such an experiment are then used for deciding wether the feature should become a part of the final product, if it is a new feature.
+The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
 Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
 Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
 This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
 
-The continuous experimentation and agile work methods in innovation experiment systems come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
+The experimentation and agile work methods in innovation experiment systems come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
 In particular, monolithic software systems do not go well with experimentation; instead, small services that communicate with each other through a well defined but lightweight API are recommended for experimentation to succeed.
 \citet{ford2017building} argue that such distributed systems work well with the \emph{Parallel Model} concept introduced by \citet{WEB:Fowler:2005-2}.
 The rationale is that using Parallel Model, services can work with their own specialised read model without interfering with or complicating the overall application state.
-In order to make use of the Parallel Model, it is recommended that the system also uses \emph{Event Sourcing}~\cite{WEB:Fowler:2005,WEB:Fowler:2005-2}.
-Event Sourcing is a concept in which the state of an application is composed exclusively of multiple immutable events stored in an event store.
+In order to make use of Parallel Model, it is recommended that the system also uses \emph{Event Sourcing}~\cite{WEB:Fowler:2005,WEB:Fowler:2005-2}.
+Event sourcing is a storage solution in which data is stored in the form of immutable event objects representing actions on business objects; in combination, all these events represent the application state.
 The most obvious advantage of this approach is that the event log represents a complete log of all transactions.
 More importantly however, this also allows for execution of temporal queries which compute the application state at any given point in time, and the ability to replay events, possibly after modifying the application state at a certain point in time.
 A consequence of event replayability is that events can be received in any given sequence, which otherwise is a common problem in asynchronous systems.
+
+This thesis aims at combining the concepts of innovation experiment systems with a holistic approach to the problem of designing and implementing such a system; \cref{sec:objectives} describes the objectives in more detail.
+The result will be a collection of interacting services which provide the ability to collect, aggregate and analyse passive user feedback in order to facilitate experimentation in the research and development process.
+It is anticipated that this system will profit from the usage of even sourcing, but this has to be further investigated in the thesis.
+The resulting system can be adopted by individuals and companies in the software industry who want to collect and analyse passive user feedback in their solutions.
