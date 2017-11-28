@@ -7,30 +7,31 @@ In order to achieve the objectives described in \cref{sec:objectives}, the worki
 Putting the gained findings into writing is part of each of these segments.
 A detailed work plan can be found in \cref{sec:workplan}.
 
-A huge part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively event sourcing, \ac{CQRS}, innovation experiment systems, passive user feedback and controlled experiments.
+Part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively \acf{CSE}, event sourcing, \acf{CQRS} and passive user feedback as well as methods for collecting it.
 Aside from that, some decisions regarding the architecture and technology require additional research.
 This involves researching, comparing and finally choosing an appropriate storage solution.
 Current findings suggest that an event store, and in particular the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, is a good fit for this.
 The advantages for using event sourcing in this context are as follows:
 
 \begin{enumerate}
-\item Event replayability could be used to further mitigate the risk of experimentation: If an experimental change in the software causes some faulty event to be created, it can later be modified or deleted.
+\item Event replayability could be used to further mitigate the risk of creating experimental features: If a change in the software causes some faulty event to be created, it can later be modified or deleted.
 Contrary to classical relational databases, the overall application state in an event store would not be corrupted by this.
-It would also be possible to create separate event stores just for the experiment, which could later be applied to the main event store by replaying the events from the experimental store.
-\item When an experiment has to be analysed, temporal queries could be used for retrieving all events in the experiments time frame.
-\item Event sourcing and \ac{CQRS} advocate a distributed system architecture -- which is also true for innovation experiment systems~\cite{ford2017building}.
+It would also be possible to create separate event stores just for specific features, which could later be applied to the main event store by replaying the events from the experimental store.
+\item When a feature has to be analysed, temporal queries could be used for retrieving all events in a specific time frame.
+\item Event sourcing and \ac{CQRS} advocate a distributed system architecture -- which is also true for the evolutionary systems present in \ac{CSE}~\cite{ford2017building}.
 \end{enumerate}
 
 In particular, the temporal query feature could render additional aggregation services obsolete.
-Additional backup systems that roll back changes issued by an experiment could also possibly be removed because of an event stores inherent ability to roll back and redo changes.
+Additional backup systems that roll back changes issued by potential experiments could also possibly be removed because of an event stores inherent ability to roll back and redo changes.
 These assumptions would have to be validated over the course of the actual thesis.
 
-A solution for aggregating and analysing the data has to be researched as well; the aforementioned temporal query feature is one candidate for this, another is Elasticsearch\footnote{\url{https://www.elastic.co/}}.
-In order to achieve high platform independence and flexibility, a container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research as to which platform to use.
+A solution for aggregating the data has to be researched; the aforementioned temporal query feature is one candidate for this, another is Elasticsearch\footnote{\url{https://www.elastic.co/}}.
+This aggregation service has to be paired with some service or application that analyses the generated data; Kibana\footnote{\url{https://www.elastic.co/products/kibana/}} seems to be a promising solution.
+In order to achieve high platform independence and flexibility, a container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research.
 In order to be able to decide wether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
 
 The first task in the implementation phase will be to finalise the system architecture.
-While the architecture is not expected to be overly complex and a first draft already exists at the time of writing (cf. \cref{fig:system:vision}), some alterations are possible and expected.
+While the architecture is not expected to be overly complex and a first draft of its capabilities already exists at the time of writing (cf. \cref{fig:system:vision}), some alterations are possible and expected.
 This task also involves deciding which data to save to the storage layer and which logical structure this data has to have.
 When the system architecture design is finalised, the actual implementation can begin, which first of all involves setting up and configuring the storage solution.
 If user feedback data is to be generated from a client application and not using the RICO dataset, the actual feedback logging has to be implemented as well.
