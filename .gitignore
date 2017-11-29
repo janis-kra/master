@@ -14,4 +14,5 @@
 README.html
 CHANGELOG.html
 *.pdf
+!**/gfx/*.pdf
 
