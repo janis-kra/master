@@ -3,7 +3,7 @@
 \chapter{Approach}
 \label{sec:approach}
 
-In order to achieve the objectives described in \cref{sec:objectives}, the working time of the thesis will roughly be divided into three segments: Research, implementation and evaluation.
+In order to achieve the objectives described in \cref{sec:objectives}, the working time of the thesis will roughly be divided into three segments: Research, implementation, and evaluation.
 Putting the gained findings into writing is part of each of these segments.
 A detailed work plan can be found in \cref{sec:workplan}.
 
@@ -11,13 +11,14 @@ Part of the research phase will be dedicated to reading up on the central topics
 Aside from that, some decisions regarding the architecture and technology require additional research.
 This involves researching, comparing and finally choosing an appropriate storage solution.
 Current findings suggest that an event store, and in particular the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, is a good fit for this.
-The advantages for using event sourcing in this context are as follows:
+The advantages of using event sourcing in this context are as follows:
 
 \begin{enumerate}
 \item Event replayability could be used to further mitigate the risk of creating experimental features: If a change in the software causes some faulty event to be created, it can later be modified or deleted.
+Incorrect changes that are based on this faulty event can automatically be corrected using the Retroactive Event technique~\cite{WEB:Fowler:2005-3}.
 Contrary to classical relational databases, the overall application state in an event store would not be corrupted by this.
 It would also be possible to create separate event stores just for specific features, which could later be applied to the main event store by replaying the events from the experimental store.
-\item When a feature has to be analysed, temporal queries could be used for retrieving all events in a specific time frame.
+\item When a feature has to be analyzed, temporal queries could be used for retrieving all events in a specific time frame.
 \item Event sourcing and \ac{CQRS} advocate a distributed system architecture -- which is also true for the evolutionary systems present in \ac{CSE}~\cite{ford2017building}.
 \end{enumerate}
 
@@ -28,14 +29,14 @@ These assumptions would have to be validated over the course of the actual thesi
 A solution for aggregating the data has to be researched; the aforementioned temporal query feature is one candidate for this, another is Elasticsearch\footnote{\url{https://www.elastic.co/}}.
 This aggregation service has to be paired with some service or application that analyses the generated data; Kibana\footnote{\url{https://www.elastic.co/products/kibana/}} seems to be a promising solution.
 In order to achieve high platform independence and flexibility, a container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research.
-In order to be able to decide wether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
+In order to be able to decide whether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
 
-The first task in the implementation phase will be to finalise the system architecture.
-While the architecture is not expected to be overly complex and a first draft of its capabilities already exists at the time of writing (cf. \cref{fig:system:vision}), some alterations are possible and expected.
+The first task in the implementation phase will be to finalize the system architecture.
+While the architecture is not expected to be overly complex and the first draft of its capabilities already exists at the time of writing (cf. \cref{fig:system:vision}), some alterations are possible and expected.
 This task also involves deciding which data to save to the storage layer and which logical structure this data has to have.
-When the system architecture design is finalised, the actual implementation can begin, which first of all involves setting up and configuring the storage solution.
+When the system architecture design is finalized, the actual implementation can begin, which first of all involves setting up and configuring the storage solution.
 If user feedback data is to be generated from a client application and not using the RICO dataset, the actual feedback logging has to be implemented as well.
-Depending on the choice of aggregation service, if any, this service also has to be set up and / or implemented; the same holds for the analysis solution.
+Depending on the choice of aggregation service, if any, this service also has to be set up and/or implemented; the same holds for the analysis solution.
 
 Finally, the implemented solution will be evaluated by executing up to two experiments.
 The first experiment for the evaluation will be a questionnaire in which usability experts answer questions about a given application.
