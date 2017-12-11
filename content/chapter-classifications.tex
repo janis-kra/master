@@ -6,10 +6,58 @@
 \section{Storage Solutions}
 \label{sec:system:storage}
 
+The first technical decision to make is what to use as a storage solution.
+I first explain requirements which the solution has to fulfill, then present the candidates, and ultimately evaluate according to these requirements which solution is most appropriate.
+
+\subsection{Requirements}
+
+\ac{CSE} requires the storage layer of such a system to have certain capabilities, namely flexibility and scalability.
+In addition to basic storage capabilities, the storage solution has to provide some functionalities related to the use case (temporal queries).
+I have identified the following requirements for the storage solution, based on which the candidates will be evaluated:
+
+\begin{description}
+\item [Basic storage capabilities]
+The storage solution must at least provide means of creating and reading persisted data records.
+\item [Modify]
+In order to facilitate experimentation, the storage solution shall have some means of correcting faulty data records, i.e. an update and delete mechanic.
+This is desirable in cases where a change in the software introduced erroneous behaviour which has to be undone.
+%It would not be sufficient to just spin up a separate instance of the storage solution for the experiment because users should not be aware of whether they are part of the treatment group.
+\item [Cascading update]
+In addition to a regular modify feature, the storage solution ideally also has some means of correcting all data that is invalid due to being dependent on one invalid data record.
+\item [Temporal queries]
+It would presumably be useful to be able to retrieve all data records that were created within a specific time frame via some query.
+These queries have to be efficient because running an analysis must not affect the storage solution's normal operation performance.
+\todo{would this even be used with an aggregation service???}
+\item [Vertical scalability]
+For performance reasons, the storage solution shall be vertically scalable, i.e. scale \emph{up} when more computing power is added.
+%This allows have some mechanism for handling large a large amount of requests on the same data.
+\item [Horizontal scalability]
+The storage solution shall also be able to scale horizontally, i.e. scale \emph{out}, which means that it is able to increase its performance linearly by adding more computing nodes to the network.
+This is often solved via \emph{sharding}, where the data is split over multiple logical or physical storage instances, each of them shouldering a portion of the cumulative system load.
+\todo{find a more precise definition for scalability, redo these requirements}
+%Database clustering is done for various reasons. Clusters can improve availability, fault tolerance, and increase performance by applying a divide and conquer approach as work is distributed over many machines. Clustering is sometimes combined with partitioning and sharding to further break up a large complex task into smaller, more manageable units. 
+\item [HTTP interface]
+The storage solution shall have a HTTP interface, therefore allowing other services and applications to store and retrieve data via a universally supported medium.
+Using HTTP comes with a performance overhead compared to other protocols such as TCP, but as  the advantages in terms of flexibility outweigh this drawback\todo{says who??}; in cases where performance is critical, TCP could still be used if supported.
+It should be noted that almost any storage solution can be extended to have an HTTP interface by writing a wrapper in a general purpose programming language that exposes the database functionality.
+However, this introduces additional overhead and complexity, as the database wrapper has to be implemented manually -- not to mention potential security issues.
+\item [Free License]
+The designed system shall be as widely applicable as possible and therefore not impose any financial requirements on the potential applicant.
+Thus, the storage solution shall be available free for commercial use, e.g. in form of an open source license such as the GNU GPL\footnote{\url{https://www.gnu.org/licenses/gpl.html}} or Apache License\footnote{\url{https://www.apache.org/licenses/}}.
+\end{description}
+
+%I additionally rate storage solution candidates based on maturity, licensing, and applicability.
+%Maturity is a rather subjective metric but can be based at least partly on the technology's age and its popularity.
+%Licensing could be an issue if the technology has a proprietary license, or if modifications have to be made to the source code (although the latter case is rather unlikely).
+%Applicability refers to how well the technology is presumed to fit to the use case of storing, accessing and modifying multiple related user actions.
+%\todo{Be more specific - which scale?}
+
 \subsection{Candidates}
 
+Blabla
+
 \begin{enumerate}
-\item SQL Databases: Blurb about SQL databases.
+\item \ac{SQL} Databases: Blurb about SQL databases.
 \begin{enumerate}
 \item Postgres
 \item MySQL
@@ -20,39 +68,104 @@
 \item NoSQL Databases: Blurb about NoSQL databases.\cite{strauch2011nosql}
 \begin{enumerate}
 \item Document stores: Event Store, MongoDb
-\item Key-value stores: Apache Ignite
 \item Graph databases: Neo4j
 \item Column databases: Cassandra
 \end{enumerate}
+\item Other: Kafka+X (?)
 \end{enumerate}
-\subsection{Requirements}
 
-\ac{CSE} requires the storage layer of such a system to have certain capabilities.
-I have identified the following requirements for the storage solution, based on which the candidates will be evaluated:
+\subsection{Evaluation}
 
-\begin{description}
-\item [Basic storage capabilities]
-The storage solution must at least provide means of creating and reading persisted data records.
-\item [Update, Undo \& Restore]
-In order to facilitate experimentation, the storage solution shall have some means of undoing faulty data records.
-This is desirable in cases where a change in the software introduced erroneous behaviour which has to be undone.
-It would not be sufficient to just spin up a separate instance of the storage solution for the experiment because users should not be aware of whether they are part of the treatment group.
-\item [Temporal queries]
-It would presumably be useful to be able to retrieve all data records that were created within a specific time frame via some query.
-These queries have to be efficient because running an analysis must not affect the storage solutions normal operation performance.
-\item [Sharding]
-For performance reasons, the storage solution shall support \emph{sharding}.
-Sharding means that the data is split over multiple logical or physical storage instances, each of them shouldering a portion of the cumulative system load.
-\item [REST interface]
-The storage solution shall have a \ac{REST} HTTP interface such that it allows a web application to store and retrieve data.
-\end{description}
+By analyzing each of the candidates, I determined that Event Store is indeed the most appropriate solution, Neo4j and MongoDb being the most promising alternatives.
+Other solutions came short in at least one integral requirement.
+See \cref{table:classifications:storage} for the complete results of the analysis.
 
-I additionally rate storage solution candidates based on their maturity and licensing.
-Maturity is a rather subjective metric but can be based at least partly on the technology's age and its popularity.
-Licensing could be an issue if the technology has a proprietary license, or if modifications have to be made to the source code (although the latter case is rather unlikely).
+Event Store is ... whatever.
+
+All \ac{SQL} databases that I initially considered do not fulfill at least one of the mandatory requirements.
+While Postgres\footnote{\url{https://www.postgresql.org/}} does not support sharding or other horizontal scaling solutions, MySQL\footnote{\url{https://www.mysql.com/}} and Oracle database\footnote{\url{https://www.oracle.com/database/}} have proprietary license models when used in a commercial context, which makes it difficult to recommend those databases in general.
+Additionally, MySQL does not offer an own HTTP interface, which would complicate its implementation even more.
+Cascading update is also problematic with \ac{SQL} databases: Although relations between tuples are possible, none of the considered databases have an inherent mechanism for modifying a series of dependent data entries.\todo{not precise enough}
+
+Neo4j\footnote{\url{https://neo4j.com/}} appears to be a decent candidate.
+As it is a graph database, it has a more explicit mapping of relations between tuples than \ac{SQL} databases.
+This allows for concise update queries which can implement what was termed as "cascading updates" in the requirements.
+Although Neo4j does not support clustering in the non-enterprise edition, its authors claim that the graph database nevertheless scales both vertically and horizontally~\cite{...}.
+The full featured enterprise edition is not free for commercial use.
+
+MongoDB\footnote{\url{https://www.mongodb.com/}} is another promising candidate.
+It is arguably the most popular NoSQL database, especially for its great read and write performance~\cite{6625441,...} as well as scalability~\cite{...}.
+MongoDb being a document database means that the data is more loosely coupled than, for example, in a graph database such as Neo4j.
+This makes cascading updates harder to implement, but not impossible.
+\ac{REST} support is already built-in.
+In conclusion, MongoDb is, together with Event Store, the most suitable storage solution for this use case.
+
+Key-value stores such as Apache Ignite\footnote{\url{https://ignite.apache.org/}} are not suitable for this use case.
+One reason is that the concept of relations between values is in general not present in key-value stores.
+Another reason is that their dynamic data structures do not support temporal queries and cascading updates out of the box.
+
+Cassandra\footnote{\url{https://cassandra.apache.org/}} is strong in terms of performance and scalability.
+Its \ac{CQL} is modeled closely to \ac{SQL}, which means that it has the same disadvantages in terms of cascading updates.
+Another drawback is that it does not have a built-in HTTP interface.
+Cassandra heavily emphasizes and excels in scalability and fault tolerance, but sacrifices read performance for this~\cite{6625441}.
+This makes Cassandra a great choice for certain specialized use cases, but seems less suitable for a general purpose application.
+
+\begin{table}[]
+\centering
+\caption{Classification of storage solutions}
+\label{table:system:storage}
+\begin{tabular}{lllllllllll}
+\textbf{Name} & \textbf{Type} & \textbf{Casc. Updates} & \textbf{Sharding} & \textbf{HTTP} & \textbf{License} \\
+Event Store & Document & yes & yes & yes & BSD \\
+Postgres & SQL & no & no & no & PostgreSQL License \\
+MySQL & SQL & no & yes & no & GPL / Proprietary \\
+Oracle & SQL & no & yes & with addons & Proprietary \\
+MongoDB & Document & ? & yes & yes & GNU AGPLv3 \\
+Ignite & Key-Value & ? & yes & yes & Apache License v2 \\
+Neo4j & Document & yes & no & yes & GPL / Proprietary \\
+Cassandra & Document & no & yes & no & Apache License v2
+\end{tabular}
+\label{table:classifications:storage}
+\end{table}
 
 \section{Data Aggregation Solutions}
 \label{sec:system:aggregation}
 
+\subsection{Requirements}
+
+
+\begin{description}
+\item [HTTP interface]
+\item [Aggregation over time]
+\item [Aggregation over location]
+\item [Free License]
+\item [Performance and Scalability]
+\end{description}
+
+\subsection{Candidates}
+
+\begin{enumerate}
+\item Apache Lucene
+\item Apache Solr
+\item Elasticsearch
+\item Apache Hadoop
+\item Apache Spark
+\item Native Event Store aggregation functions + custom webservice
+\end{enumerate}
+
+\subsection{Evaluation}
+
 \section{Data Analysis Solutions}
 \label{sec:system:analysis}
+
+\subsection{Requirements}
+
+\subsection{Candidates}
+
+\begin{enumerate}
+\item Kibana
+\item Custom implementation
+\item ?
+\end{enumerate}
+
+\subsection{Evaluation}
