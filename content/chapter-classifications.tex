@@ -10,6 +10,7 @@ The first technical decision to make is what to use as a storage solution.
 I first explain requirements which the solution has to fulfill, then present the candidates, and ultimately evaluate according to these requirements which solution is most appropriate.
 
 \subsection{Requirements}
+\label{subsec:system:storage:req}
 
 \ac{CSE} requires the storage layer of such a system to have certain capabilities, namely flexibility and scalability.
 In addition to basic storage capabilities, the storage solution has to provide some functionalities related to the use case (temporal queries).
@@ -113,17 +114,16 @@ This makes Cassandra a great choice for certain specialized use cases, but seems
 \begin{table}[]
 \centering
 \caption{Classification of storage solutions}
-\label{table:system:storage}
 \begin{tabular}{lllllllllll}
 \textbf{Name} & \textbf{Type} & \textbf{Casc. Updates} & \textbf{Sharding} & \textbf{HTTP} & \textbf{License} \\
 Event Store & Document & yes & yes & yes & BSD \\
-Postgres & SQL & no & no & no & PostgreSQL License \\
+Postgres & SQL & no & no & no & PostgreSQL \\
 MySQL & SQL & no & yes & no & GPL / Proprietary \\
 Oracle & SQL & no & yes & with addons & Proprietary \\
 MongoDB & Document & ? & yes & yes & GNU AGPLv3 \\
-Ignite & Key-Value & ? & yes & yes & Apache License v2 \\
+Ignite & Key-Value & ? & yes & yes & Apache v2 \\
 Neo4j & Document & yes & no & yes & GPL / Proprietary \\
-Cassandra & Document & no & yes & no & Apache License v2
+Cassandra & Document & no & yes & no & Apache v2
 \end{tabular}
 \label{table:classifications:storage}
 \end{table}
@@ -135,25 +135,81 @@ Cassandra & Document & no & yes & no & Apache License v2
 
 
 \begin{description}
-\item [HTTP interface]
-\item [Aggregation over time]
-\item [Aggregation over location]
+\item [HTTP Interface]
+As flexibility is key in a distributed \ac{CSE} system (cf. \cref{subsec:system:storage:req}) and the storage solution in general communicates via HTTP, the data aggregation service must also have a HTTP interface.
+\item [Search]
+The aggregation service shall have some form of search functionality.
+At the very least, this feature should include a keyword search; more elaborate search types such as full-text or fuzzy search are useful but not mandatory.
+\item [Complex Search via DSL]
+When search queries become more complicated, it would be advantageous to have some form of \ac{DSL} which allows for combination of complex search queries.
+\item [Handle Arbitrary Data]
+The solution shall be able to handle any type of user feedback data.
+This eliminates some services which focus solely on monitoring and logging, such as Graphite\footnote{\url{https://graphiteapp.org/}}, Graylog\footnote{\url{https://www.graylog.org/}}, Splunk\footnote{\url{https://www.splunk.com/}}, and Prometeus \footnote{\url{https://prometheus.io/}}.
+\item [Aggregation Features]
+In order to combine data by date and time, the solution shall have the ability to aggregate data over time.
+For this specific use case of collecting and evaluating passive user feedback, I expect such a feature to be useful for evaluating an experiment that ran for a specific time frame or for evaluating the behavior of users at a certain time of day, e.g. at night.
+It shall also be possible to aggregate data by location if such an information is contained in the data set.
+This could be useful, for example, if an experiment with regional or cultural focus is executed, or regional differences in a global experiment are expected.
+Aggregators shall be combinable, such that more complex aggregations become possible.
+An example for this would be the aggregation of data over time and location.
 \item [Free License]
+Just as for the storage solution (cf. \cref{subsec:system:storage:req}), the aggregation service shall also be available in some form of free or even open source license.
 \item [Performance and Scalability]
+These are certainly important metrics, but hard to quantify.
+As performance is not the main focus of the system that is being designed, I do not impose some sort of, either way arguable, restriction or requirement here.
+Instead, I explicitly note if one of the solutions distinctly out- or underperforms in terms of performance or scalability.
 \end{description}
 
 \subsection{Candidates}
 
 \begin{enumerate}
-\item Apache Lucene
 \item Apache Solr
 \item Elasticsearch
 \item Apache Hadoop
 \item Apache Spark
-\item Native Event Store aggregation functions + custom webservice
+\item Custom implementation using native Event Store aggregators
 \end{enumerate}
 
 \subsection{Evaluation}
+
+
+The evaluation of the candidates introduced above yielded that Elasticsearch is the preferred data aggregation solution.
+When judged in isolation of the rest of the proposed stack, Solr would also be suitable solution, but it falls behind as none of the analysis applications (cf. \cref{sec:system:analysis}) have Solr support.
+An overview of the solutions and their support for the presented requirements is given in \cref{table:classifications:aggregation}.
+
+Apache Solr\footnote{\url{http://lucene.apache.org/solr/}} and Elasticsearch\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/}} are both built upon the Lucene\footnote{\url{http://lucene.apache.org/}} project, which is a Java-based library offering, amongst others, searching and indexing functionality.
+For this reason, they are both very similar in terms of functionality and performance; both products implement their own solutions for scaling horizontally and vertically though.
+They also both offer an HTTP interface which allows for submission of search queries.
+Although both products are similar and meet (most of) the requirements, Elasticsearch stands out because of two points. 
+First of all, Elasticsearch comes with its own \ac{DSL} for more complex queries, which can then be sent to the HTTP interface, while Solr requires using its Java API for that.
+While this is a perfectly valid concept in general, for this use case the HTTP variant is the better fit.
+Secondly, the two preferred analysis solutions (Kibana and Grafana, cf. \cref{sec:system:analysis}), both come with dedicated support for Elasticsearch, but \emph{not} for Solr.
+
+Spark\footnote{\url{http://spark.apache.org/}} is another tool by Apache, with a focus on large scale data processing.
+In contrast to Elasticsearch and Solr, Spark does not come with a HTTP interface for issuing queries; instead, searches and aggregations are implemented in Java, Scala, Python, or R.
+This allows for very efficient, complex and powerful data processing, but requires a lot more custom implementation when compared to other candidates that come with a query language or \ac{DSL}.
+
+Hadoop ...
+
+Event Store comes with its own aggregation functionality, called projections.
+Projections are written in JavaScript and submitted to the event store via HTTP.
+Using the projections feature, it is possible to write a custom aggregation service which exposes a \ac{REST} API that exposes the projection results to the analytics application.
+One drawback of this approach is that it involves considerably more custom code than the other services.
+Furthermore, projections are not as powerful as the search and aggregation functionalities of Elasticsearch or Solr, for example.
+
+\begin{table}[]
+\centering
+\caption{Classification of data aggregation solutions. Support for arbitrary data structures and combination of aggregations is not considered here since all solutions fulfill this requirement.}
+\begin{tabular}{lllllllllllllll}
+\textbf{Name} & \textbf{HTTP} & \textbf{Search} & \textbf{DSL} & \textbf{Time Aggr.} & \textbf{Loc. Aggr.} & \textbf{Scalability} & \textbf{License} \\
+Solr & yes & yes & no & yes & yes & yes & Apache v2 \\
+Elasticsearch & yes & yes & no & yes & yes & yes & Apache v2 \\
+Hadoop & ? & ? & ? & ? & ? & ? & Apache v2 \\
+Spark & no & ? & no & yes & yes & yes & Apache v2 \\
+Custom & yes & yes & yes & yes & no & no & -
+\end{tabular}
+\label{table:classifications:aggregation}
+\end{table}
 
 \section{Data Analysis Solutions}
 \label{sec:system:analysis}
@@ -164,8 +220,11 @@ Cassandra & Document & no & yes & no & Apache License v2
 
 \begin{enumerate}
 \item Kibana
+\item Grafana
 \item Custom implementation
-\item ?
 \end{enumerate}
+
+It seems that data visualization applications and services are in general rarely released as open source or free software.
+Solutions which only offer a paid plan were not considered here, such as Logmatic\footnote{\url{https://logmatic.io/}}
 
 \subsection{Evaluation}
