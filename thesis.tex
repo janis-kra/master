@@ -71,6 +71,11 @@
 \usepackage[printonlyused]{acronym}
 \input{./acronyms}
 \usepackage[noabbrev]{cleveref}
+\usepackage[toc,page]{appendix}
+\usepackage{listings}
+% Adds Cleveref support for Listing
+\crefname{lstlisting}{listing}{listings}
+\Crefname{lstlisting}{Listing}{Listings}
 
 \hypersetup{					% setup the hyperref-package options
 	pdftitle={\thesisTitle},	% 	- title (PDF meta)
@@ -127,8 +132,9 @@
 \input{content/chapter-fundamentals} % INCLUDE: fundamentals
 \input{content/chapter-related-work} % INCLUDE: related work
 \input{content/chapter-classifications}	% INCLUDE: classifications
+\input{content/chapter-design}	% INCLUDE: design
 \input{content/chapter-implementation}	% INCLUDE: implementation
-\input{content/chapter-evaluation} % INCLUDE: concepts
+\input{content/chapter-evaluation} % INCLUDE: evaluation
 \input{content/chapter-future-work} % INCLUDE: future work
 \input{content/chapter-conclusion} % INCLUDE: conclusion
 \cleardoublepage
@@ -150,6 +156,9 @@
 \cleardoublepage
 
 \listoftables
+\cleardoublepage
+
+\input{content/appendix}
 \cleardoublepage
 
 \input{content/declaration}
