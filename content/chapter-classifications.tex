@@ -21,7 +21,7 @@ I have identified the following requirements for the storage solution, based on 
 The storage solution must at least provide means of creating and reading persisted data records.
 \item [Modify]
 In order to facilitate experimentation, the storage solution shall have some means of correcting faulty data records, i.e. an update and delete mechanic.
-This is desirable in cases where a change in the software introduced erroneous behaviour which has to be undone.
+This is desirable in cases where a change in the software introduced erroneous behavior which has to be undone.
 %It would not be sufficient to just spin up a separate instance of the storage solution for the experiment because users should not be aware of whether they are part of the treatment group.
 \item [Cascading update]
 In addition to a regular modify feature, the storage solution ideally also has some means of correcting all data that is invalid due to being dependent on one invalid data record.
@@ -29,6 +29,7 @@ In addition to a regular modify feature, the storage solution ideally also has s
 It would presumably be useful to be able to retrieve all data records that were created within a specific time frame via some query.
 These queries have to be efficient because running an analysis must not affect the storage solution's normal operation performance.
 \todo{would this even be used with an aggregation service???}
+\todo{do not call this "temporal queries" as the event store already has a concept with that name}
 \item [Vertical scalability]
 For performance reasons, the storage solution shall be vertically scalable, i.e. scale \emph{up} when more computing power is added.
 %This allows have some mechanism for handling large a large amount of requests on the same data.
@@ -81,7 +82,13 @@ By analyzing each of the candidates, I determined that Event Store is indeed the
 Other solutions came short in at least one integral requirement.
 See \cref{table:classifications:storage} for the complete results of the analysis.
 
-Event Store is ... whatever.
+Using event sourcing as the technique for storing passive user feedback is a natural fit because the use case benefits greatly from the fact that not only the current state is saved, but also how this state was reached.
+By storing the events that occur when a user uses the respective application, the complete interaction trace can be computed just by querying the event store.
+Modification of the application state in general can be done simply by issuing a new event that reflects this change (e.g. an \texttt{AddressChangedEvent} if a customer's address shall be modified).
+If other changes are dependent on this change, it is also possible to make use of the event replay technique by modifying the event that introduced the erroneous change and then replaying all subsequent events.
+In terms of scalability, who knows? \todo{research}
+Event Store is available under the BSD license and thus free for personal and commercial use.
+As it checks off all requirements, Event Store is the ideal candidate for the storage solution of the passive user feedback analysis system.
 
 All \ac{SQL} databases that I initially considered do not fulfill at least one of the mandatory requirements.
 While Postgres\footnote{\url{https://www.postgresql.org/}} does not support sharding or other horizontal scaling solutions, MySQL\footnote{\url{https://www.mysql.com/}} and Oracle database\footnote{\url{https://www.oracle.com/database/}} have proprietary license models when used in a commercial context, which makes it difficult to recommend those databases in general.
@@ -98,7 +105,6 @@ MongoDB\footnote{\url{https://www.mongodb.com/}} is another promising candidate.
 It is arguably the most popular NoSQL database, especially for its great read and write performance~\cite{6625441,...} as well as scalability~\cite{...}.
 MongoDb being a document database means that the data is more loosely coupled than, for example, in a graph database such as Neo4j.
 This makes cascading updates harder to implement, but not impossible.
-\ac{REST} support is already built-in.
 In conclusion, MongoDb is, together with Event Store, the most suitable storage solution for this use case.
 
 Key-value stores such as Apache Ignite\footnote{\url{https://ignite.apache.org/}} are not suitable for this use case.
@@ -106,10 +112,10 @@ One reason is that the concept of relations between values is in general not pre
 Another reason is that their dynamic data structures do not support temporal queries and cascading updates out of the box.
 
 Cassandra\footnote{\url{https://cassandra.apache.org/}} is strong in terms of performance and scalability.
-Its \ac{CQL} is modeled closely to \ac{SQL}, which means that it has the same disadvantages in terms of cascading updates.
+However, due to its \ac{CQL} being modeled closely to \ac{SQL}, it has the same disadvantages in terms of cascading updates.
 Another drawback is that it does not have a built-in HTTP interface.
 Cassandra heavily emphasizes and excels in scalability and fault tolerance, but sacrifices read performance for this~\cite{6625441}.
-This makes Cassandra a great choice for certain specialized use cases, but seems less suitable for a general purpose application.
+These reasons make Cassandra a great choice for certain specialized use cases, but seems less suitable for a general purpose application and thus it is not used here.
 
 \begin{table}[]
 \centering

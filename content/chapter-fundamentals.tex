@@ -36,13 +36,49 @@ Thus, each group contains 50\% of the user base, and the results of the control 
 \section{Event sourcing \& CQRS}
 \label{sec:fundamentals:event}
 
-Event sourcing was first introduced by Greg Young in 200x~\cite{source/link}.
-The core premise is that, contrary to classical relational databases, all data is stored in the form of immutable events, which represent the whole application state when aggregated.
+%abstract: what is event sourcing
+The core premise of event sourcing is that all changes to the application state are stored as immutable events, in the order in which they occur.
+In aggregation, these events represent the whole application state.
+%, contrary to classical relational databases,
+Event sourcing was first introduced by Greg Young in 200x~\cite{???}.
+While literature in form of books or scientific papers regarding event sourcing is rather rare, several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{Todo:WEB:Young:200x} handle this topic.
 
+% what can you do with event sourcing: aggregation, rollback
+When all changes to the application state are introduced via event objects, various capabilities arise which are not possible if only the application state is stored.
+As \citet{WEB:Fowler:2005} describes, these are Complete Rebuild, Temporal Query, and Event Replay:
 
-\cite{WEB:Fowler:2005}
+\begin{description}
+\item [Complete Rebuild]
+The application state can be discarded and then rebuilt by querying all events that occurred since the beginning.
+\item [Temporal Query]
+Instead of doing a complete rebuild up to the present application state, the rebuild can also be done to a given date somewhere in the past.
+By doing so, the application state at the given point in time is re-created.
+\item [Event Replay]
+In another variant of the complete rebuild, it is also possible to change a certain past event and then replay all subsequent events, which yields a variant of the current application state reflecting the consequences introduced by the modified event.
+This can be done just for testing purposes, for correcting a wrong event or for fixing errors caused by events occurring in the wrong order.
+\item [Reversing Events]
+If the events are designed according to [...] it is possible to undo a given event by creating its reverse version.
+This is easy if the event encodes the difference between the occurring event and the application state at that point, for example for events that add or subtract a numeral value.
+Reversing of events is not that straightforward if this difference approach is not used -- the events should include the previous and updated value in that case, but this is not ideal in every case.
+It is important to note that event reversability can also be achieved by reverting to a given snapshot of the application state and then replaying all events \emph{except} the event that shall be undone.
+\end{description}
+
+A well known example for a system which makes use of event sourcing techniques is the version control system Git\footnote{\url{http://git-scm.com/}}.
+It does complete rebuilds when a project is checked out for the first time and uses temporal queries for introducing changes when switching to an existing branch. \todo{check if this is really how Git does this}
+
+% what can you NOT do / disadvantages
+Aside from its advantages, event sourcing is not an ideal storage solution for all use cases.
+First of all, event sourcing introduces a level of indirection to the application, which makes the system architecture more complicated.
+Additionally, as this is an altogether different concept than storing the state directly in a database, it is thus hard to grasp and thoroughly understand for most developers.
+% External Updates
+% External Queries
+
+% What about code changes?
+
+% how some of these disadvantages can be worked around (short)
 
 \cite{WEB:Fowler:2011}
+
 
 \subsection{Subscriptions}
 
