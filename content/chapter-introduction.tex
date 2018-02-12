@@ -1,49 +1,176 @@
-% !TEX root = ../thesis-example.tex
+% !TEX root = ../thesis.tex
 %
 \chapter{Introduction}
-\label{sec:intro}
+\label{ch:intro}
 
-\cleanchapterquote{You canâ€™t do better design with a computer, but you can speed up your work enormously.}{Wim Crouwel}{(Graphic designer and typographer)}
+% CONTEXT
 
-\Blindtext[2][2]
+% GAP
 
-\section{Postcards: My Address}
-\label{sec:intro:address}
+% INNOVATION
 
-\textbf{Ricardo Langner} \\
-Alfred-Schrapel-Str. 7 \\
-01307 Dresden \\
-Germany
+% copy from proposal:
+
+Best practices in software development changed dramatically since its origins in the 1950's~\cite{boehm2006view}.
+Software engineering in most of the 20th century was largely based on careful planning and specification and therefore rather slow-paced and inflexible.
+Since twenty years, however, these plan-driven development methods have been frustrating many people because the influencing circumstances change more and more rapidly, not least due to the growing importance of the internet~\cite{Williams2003}.
+A result of this rapid change of the environment is that product features, which were perfectly valid at the time of their envisioning, became outdated, irrelevant or otherwise undesirable while the feature was still being planned or implemented -- not to mention features that are in fact not desired by the customers in the first place.
+This insight is often not gained until the feature is shipped to the customer.
+As a consequence, short release cycles and fast customer feedback have steadily been growing in importance.
+These values are emphasized in \acf{CSE}~\cite{Bosch2014}, which adopts and extends the principles from \emph{DevOps} and agile software development~\cite{Fitzgerald2017,fowler2001agile}.
+
+Adopting the core premises of \ac{CSE} is considered to be a gradual process, which is represented by the \emph{Stairway to Heaven}~\cite{Olsson2012} (see~\cref{fig:stairway}).
+Starting from classical software development, the next step is agile software development.
+This step is followed by continuous integration and deployment, respectively. 
+The last step in the Stairway to Heaven is "Research \& Development as an Innovation System".
+This means that the continuity gained in the previous steps is used for frequently deploying changes to the customers.
+These changes are then assessed by analyzing user feedback data which was previously gathered using active or passive methods.
+While active user feedback, e.g. in form of surveys, can yield useful qualitative observations about the product, the fact that the user has to actively take time for giving their feedback is often problematic.
+Passive user feedback avoids this problem by automatically collecting feedback while the user works with the system; an example for this is measuring the time a user needs to perform certain actions in the software.
+An \emph{evolutionary system} as described here allows for quicker responses to market changes and more accurate estimation of customer needs.
+
+\begin{figure}[htb]
+        \includegraphics[width=\textwidth]{gfx/stairway}
+        \caption{The "stairway to heaven" evolutionary model; adapted from~\cite{Olsson2012}.}
+        \label{fig:stairway}
+\end{figure}
+
+%\cite{Bosch2014}
+
+%The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+%Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+%Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+%This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+
+%The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2014}.
+%The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+%Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+%Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+%This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+
+The agile and continuous work methods in \ac{CSE} come with several implications for the system architecture and the company culture~\cite{Lindgren2015,Olsson2012}.
+In particular, monolithic software systems are considered too cumbersome and slow to change; instead, small services that communicate with each other through a well defined but lightweight API are recommended.
+\citet{ford2017building} argue that such distributed systems work well with the \emph{Parallel Model} concept introduced by \citet{WEB:Fowler:2005-2}.
+The rationale is that using Parallel Model, services can work with their own specialized read model without interfering with or complicating the overall application state.
+In order to make use of Parallel Model, it is recommended that the system also uses \emph{Event Sourcing}~\cite{WEB:Fowler:2005,WEB:Fowler:2005-2}.
+Event sourcing is a storage solution in which data is stored in the form of immutable event objects representing actions on business objects; in combination, all these events represent the application state.
+The most obvious advantage of this approach is that the event log represents a complete log of all transactions.
+More importantly, however, this also allows for the execution of temporal queries which compute the application state at any given point in time, and the ability to replay events, possibly after modifying the application state at a certain point in time.
+A consequence of event replayability is that events can be received in any given sequence, which otherwise is a common problem in asynchronous systems.
+
+This thesis aims at taking a more holistic approach to the innovation system concept from \ac{CSE} by designing and implementing a system that allows for easy collection of passive user feedback (\cref{sec:intro:goals} describes the objectives in more detail).
+The result will be a set of interacting services which provide the ability to collect, aggregate and analyze passive user feedback in order to facilitate innovation in the research and development process.
+It is anticipated that this system will profit from the usage of even sourcing, but this has to be further investigated in the thesis.
+The resulting system can be adopted by individuals and companies in the software industry who want to fully embrace \ac{CSE} and thus take the last step in the Stairway to Heaven.
 
 
-\section{Motivation and Problem Statement}
+\section{Motivation}
 \label{sec:intro:motivation}
 
-\Blindtext[3][1] \cite{Jurgens:2000,Jurgens:1995,Miede:2011,Kohm:2011,Apple:keynote:2010,Apple:numbers:2010,Apple:pages:2010}
+%copy from proposal
 
-\section{Results}
-\label{sec:intro:results}
+The last step in the Stairway to Heaven of \acf{CSE} is introducing an innovation system, also referred to as an \emph{experiment system}~\cite{Olsson2012}.
+Several companies have published their findings about experimentation in the software development process, in the form of scientific papers or blog posts.
+Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cite{Tang2010}, Facebook~\cite{Bakshy2014}, and Netflix~\cite{WEB:Netflix:2016} issued reports about best practices and pitfalls that they experienced, all concluding that introducing experimentation into the software development process benefits both the choice about which features to implement as well as their quality.
+In addition, several authors have published scientific papers in which they propose models and architectures for experimental software development~\cite{Fagerholm2014,Fagerholm2017,Johanssen2017,Lindgren2015}.
+Although practitioners in the software industry often claim that they embrace experimentation and innovation in their research and development process, these practices are still not fully adopted according to a study by \citet{lindgren2015software}.
+Especially the systematic and continuous aspects of experimentation lack adoption.
 
-\Blindtext[1][2]
+% Problem für Motivation ist hier: Wenn ich nicht direkt auf Event Sourcing Bezug nehme (d.h. es offen lasse ob Event Sourcing verwendet wird oder nicht) wird der Scope zu groß: "Wie kann an eine Experimentier-Plattform implementieren" haben andere Leute schon beantwortet.
+While the overall area of experimentation in software development is thus well researched, most papers are either more of a report about specific best practices or a rather abstract description of an architecture.
+The same applies to the paper that initially proposed the Stairway to Heaven concept~\cite{Olsson2012}.
+This is problematic for potential applicants of \ac{CSE}, because while these reports are very practice-oriented, they lack a more general view on the problem at hand, and the other way around for the architecture-focused papers.
+Therefore, the aim of this thesis is to bridge this gap and provide a more holistic view on collecting, aggregating and analyzing passive user feedback.
+This will enable applicants to implement their own innovation / experiment systems as described in \ac{CSE}, based on a scientifically tested architecture.
 
-\subsection{Some References}
-\label{sec:intro:results:refs}
-\cite{WEB:GNU:GPL:2010,WEB:Miede:2011}
+
+\section{Goals}
+\label{sec:intro:goals}
+
+% copy from proposal
+
+The goal of the thesis is to design, implement and validate a system for passive user feedback with a more holistic view of the problem than in existing publications.
+Using this system, it shall be possible to visualize and analyze passive user feedback that was previously supplied to its storage layer.
+In order to accomplish this task, a system with functionalities as pictured in \cref{fig:system:vision} has to be implemented.
+The concrete goals are as follows:
+
+\begin{enumerate}
+\item Classify existing solutions and approaches for establishing passive user feedback.
+\item Design and implement a system that allows the collection of passive user feedback with considerably low effort.
+This part of the system is comprised of the storage layer, an aggregation service and a hypothetical client application which logs events to storage whenever the user performs certain actions (cf. 4.).
+%It also features two users: The end user of the client application, and the analyst who wants to evaluate the user feedback.
+These events can be purely UI related, such as click or hover events, but can also be related to the business logic, like executing transactions or creating content.
+In order to forward the user feedback data to the analysis application (cf. 3.), the aggregation service has to fetch the appropriate data from the store.
+While making use of a caching mechanism during this step would certainly make sense, such a feature will presumably not be part of the final solution due to the additional complexity; if this is the case, the system shall be easily extensible for introducing such a feature.
+This objective involves researching and assessing fitting infrastructure and tooling solutions.
+\item Design this system such that it also allows analysis of collected user feedback, and implement this as well.
+When someone wants to evaluate the collected user feedback via the analysis application, the application shall display the corresponding data in an appropriate format, which it fetches from the aggregation service.
+The best approach for displaying the data has yet to be evaluated but will involve some graphical representation in form of charts and/or graphs.
+This objective also implicates research and choosing of appropriate solutions that shall be used for this part of the system.
+\item Evaluate how this system performs, which involves collecting user feedback and analyzing it.
+Implementation of the client application itself will not be done for the purpose of this thesis.
+Instead, some existing application shall be extended in order to log the appropriate events or an existing data set such as the one presented by \citet{Deka:2017:Rico} shall be used.
+In the latter case, some application or script has to be written which imports the needed UI interaction data to the database.
+\item As an additional requirement, the developed system shall be platform independent, i.e. run on the most widely used operating systems Linux, MacOS, and Windows.
+\end{enumerate}
+
+\begin{figure}[htb]
+        \includegraphics[width=1.1\textwidth]{gfx/architecture-3}
+        \caption{The activities that the envisioned system is able to perform.}
+        \label{fig:system:vision}
+\end{figure}
+
+%\section{Motivation and Problem Statement}
+%\label{sec:intro:motivation}
+
+\section{Approach}
+\label{sec:intro:approach}
+
+% copy from proposal
+
+In order to achieve the objectives described in \cref{sec:intro:goals}, the working time of the thesis will roughly be divided into three segments: Research, implementation, and evaluation.
+Putting the gained findings into writing is part of each of these segments.
+
+Part of the research phase will be dedicated to reading up on the central topics for this thesis, namely but not exclusively \acf{CSE}, event sourcing, \acf{CQRS} and passive user feedback as well as methods for collecting it.
+Aside from that, some decisions regarding the architecture and technology require additional research.
+This involves researching, comparing and finally choosing an appropriate storage solution.
+Current findings suggest that an event store, and in particular the Event Store reference implementation\footnote{\url{https://eventstore.org/}}, is a good fit for this.
+The advantages of using event sourcing in this context are as follows:
+
+\begin{enumerate}
+\item Event replayability could be used to further mitigate the risk of creating experimental features: If a change in the software causes some faulty event to be created, it can later be modified or deleted.
+Incorrect changes that are based on this faulty event can automatically be corrected using the Retroactive Event technique~\cite{WEB:Fowler:2005-3}.
+Contrary to classical relational databases, the overall application state in an event store would not be corrupted by this.
+It would also be possible to create separate event stores just for specific features, which could later be applied to the main event store by replaying the events from the experimental store.
+\item When a feature has to be analyzed, temporal queries could be used for retrieving all events in a specific time frame.
+\item Event sourcing and \ac{CQRS} advocate a distributed system architecture -- which is also true for the evolutionary systems present in \ac{CSE}~\cite{ford2017building}.
+\end{enumerate}
+
+In particular, the temporal query feature could render additional aggregation services obsolete.
+Additional backup systems that roll back changes issued by potential experiments could also possibly be removed because of an event stores inherent ability to roll back and redo changes.
+These assumptions would have to be validated over the course of the actual thesis.
+
+A solution for aggregating the data has to be researched; the aforementioned temporal query feature is one candidate for this, another is Elasticsearch\footnote{\url{https://www.elastic.co/}}.
+This aggregation service has to be paired with some service or application that analyses the generated data; Kibana\footnote{\url{https://www.elastic.co/products/kibana/}} seems to be a promising solution.
+In order to achieve high platform independence and flexibility, a container platform such as Docker\footnote{\url{https://www.docker.com/}} will be used which also requires some research.
+In order to be able to decide whether to use the RICO dataset~\cite{Deka:2017:Rico} instead of a custom client application for the evaluation part, this dataset will have to be assessed further.
+
+The first task in the implementation phase will be to finalize the system architecture.
+While the architecture is not expected to be overly complex and the first draft of its capabilities already exists at the time of writing (cf. \cref{fig:system:vision}), some alterations are possible and expected.
+This task also involves deciding which data to save to the storage layer and which logical structure this data has to have.
+When the system architecture design is finalized, the actual implementation can begin, which first of all involves setting up and configuring the storage solution.
+If user feedback data is to be generated from a client application and not using the RICO dataset, the actual feedback logging has to be implemented as well.
+Depending on the choice of aggregation service, if any, this service also has to be set up and/or implemented; the same holds for the analysis solution.
+
+Finally, the implemented solution will be evaluated by executing up to two experiments.
+The first experiment for the evaluation will be a questionnaire in which usability experts answer questions about a given application.
+The results of the questionnaire will be compared to the passive user feedback data of the given application.
+Depending on the means of collecting this user data, an experiment for collecting this data has to be designed and executed with some test subjects; this is not necessary if the RICO dataset is chosen as the source of user data.
+The experiments have to be planned and executed carefully in order to have high internal and external validity~\cite{Huitt2010}.
+Existing studies about best practices and pitfalls of running controlled experiments can be useful here~\cite{Kohavi2009}.
+
 
 \section{Thesis Structure}
 \label{sec:intro:structure}
 
-\textbf{Chapter \ref{sec:related}} \\[0.2em]
-\blindtext
-
-\textbf{Chapter \ref{sec:system}} \\[0.2em]
-\blindtext
-
-\textbf{Chapter \ref{sec:concepts}} \\[0.2em]
-\blindtext
-
-\textbf{Chapter \ref{sec:concepts}} \\[0.2em]
-\blindtext
-
-\textbf{Chapter \ref{sec:conclusion}} \\[0.2em]
-\blindtext
+% blabla

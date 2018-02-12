@@ -61,6 +61,8 @@ If the events are designed according to [...] it is possible to undo a given eve
 This is easy if the event encodes the difference between the occurring event and the application state at that point, for example for events that add or subtract a numeral value.
 Reversing of events is not that straightforward if this difference approach is not used -- the events should include the previous and updated value in that case, but this is not ideal in every case.
 It is important to note that event reversability can also be achieved by reverting to a given snapshot of the application state and then replaying all events \emph{except} the event that shall be undone.
+\item [Delayed Application]
+% or whatever it is called
 \end{description}
 
 A well known example for a system which makes use of event sourcing techniques is the version control system Git\footnote{\url{http://git-scm.com/}}.
@@ -76,6 +78,8 @@ Additionally, as this is an altogether different concept than storing the state 
 % What about code changes?
 
 % how some of these disadvantages can be worked around (short)
+As events are immutable, event sourcing does not have a delete operation.
+It is however possible to create explicit removal events -- for example a \texttt{CustomerRemoved} event for deleting a customer -- which in the end results in an application state where the item in question is not present anymore.
 
 \cite{WEB:Fowler:2011}
 

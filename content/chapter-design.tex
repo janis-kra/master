@@ -2,3 +2,121 @@
 %
 \chapter{System Design}
 \label{ch:design}
+
+\section{Goals}
+\label{sec:design:goals}
+
+- user feedback can be analyzed in "near real-time" i.e. within a few seconds, at the absolute most a minute \todo{kind of arbitrary}
+
+\section{Choosing a User Data Source}
+
+% why the RICO data set was not used
+
+\section{Event Structure}
+\label{sec:design:event-structure}
+
+Regardless of the specific event type, some attributes are always of interest and therefore included in every event; this is the \texttt{GenericEvent} interface in \cref{fig:event-structure}.
+These attributes are:
+
+\begin{description}
+\item[@timestamp] The time at which the event occurred; the @ prefix is given in order to have Elasticsearch automatically detect this as the timestamp.
+\item[EventType] This denotes the event type; maps to the \texttt{EventType} of the event in the event store.
+\item[Data] This field contains the event's contents, which depend on the event type.
+\item[User] Anonymized user data is added to the event, such that it is possible to recreate an interaction trace of the given user, if needed.
+\end{description}
+
+There are X different event types, which inherit the event structure from \texttt{GenericEvent} and provide different data.
+The event types are \texttt{UserClicked}, \texttt{MessageSent}, ... and \texttt{PostCreated} (WIP).
+
+\texttt{UserClicked} events are used to capture all clicks that a user performs in the application.
+The intention is that for any application, these events give an analyst enough information to identify what the user was doing at that point.
+The \texttt{UserClicked} event contains information about the clicked element such as the HTML attributes \texttt{class} and \texttt{id} as well as its inner text.
+There may still be cases where this is not enough to identify the action that the user performed, which is why the event is amended with the click's position within the application, the window's height and width, and the current URL.
+Using this information, the analyst can exactly identify the position where the user clicked at the given point in time.
+
+Parts of this data may be redundant and/or unspecific in some cases, but helps to recreate the user's steps if this is needed.
+The specificity of these events can be improved by assigning unique ids to every element - or at least to the ones which are of special interest.
+
+\section{Event Store-Elasticsearch Bridge}
+\label{sec:design:bridge}
+
+In order to move the event data to Elasticsearch and afterwards into Kibana, an application is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
+The two applications have different concepts of storing their data though.
+On the one hand, in Event Store, data is stored as events in streams.
+Each event always has an event type and a distinct number within that stream.
+On the other hand, in Elasticsearch, data is managed in indices which contain documents.
+Each Elasticsearch document is assigned a document type.
+These two concepts can be assigned 1:1 to each other -- each stream maps to an index, each event type maps to a document type within its respective index, and each event maps to a document (cf. \cref{table:design:bridge}).
+Thus, for every event that is posted to the store, a new document of the same type shall be created in the index of the same name as the Event Store's stream.
+A delay of a few seconds between the arrival of the event and its posting to Elasticsearch is acceptable.
+
+\begin{table}[]
+\centering
+\caption{Mapping of Event Store to Elasticsearch data types}
+\label{table:design:bridge}
+\begin{tabular}{l|l}
+\textbf{Event Store} & \textbf{Elasticsearch} \\ \cline{1-2}
+Stream & Index \\
+Event Type & Document Type \\
+Event & Document
+\end{tabular}
+\end{table}
+
+One possible and seemingly convenient solution would be using Logstash\footnote{\url{https://www.elastic.co/products/logstash}} as the bridge; this is not applicable in this exact scenario though.
+Logstash is another application from the Elastic stack; it serves the exact purpose to integrate data from various sources into Elasticsearch.
+It is possible to consume Atom feeds via Logstash's \ac{RSS} plugin, which Event Store offers an interface for.
+This is not feasible for this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which Event Store does.
+Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to abandon Logstash as a possible solution.
+
+Instead of using an existing service that listens to Atom feeds such as Logstash, a custom implementation is the better approach here.
+This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows amongst others for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.\todo{ugly acronym expansion}
+The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}\cite{WEB:EvtSt-Which-Api}.
+
+Assuming the Event Store stream already exists, setting up the bridge to transfer new events to an Elasticsearch index would then be a two-step process.
+First, a persistent subscription has to be created within the Event Store administration overlay.
+Then, an instance of the bridge application has to be started, configured to listen to the newly created subscription.
+This would cause the bridge to transfer all existing events to an Elasticsearch index of the same name as the stream, and then also posting all subsequent events to this index.
+It would also be possible to implement the bridge in a way that allows it to listen to multiple subscriptions, but this does not scale as good\cite{src?} as the single-subscription variant, and introduces an unnecessary implementation overhead.
+Thanks to persistent subscriptions, it is possible to temporarily take the bridge instance offline -- as the subscription state is persisted on the server side, the bridge can transfer all events that occurred while it was offline as soon as it comes online again.
+Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern\cite{WEB:Microsoft-Competing-Consumers}.
+This advanced use case is not considered further though.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
