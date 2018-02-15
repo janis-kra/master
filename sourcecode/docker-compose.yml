@@ -1,5 +1,74 @@
+version: "3.4"
 services:
-  server:
-    build: .
+  # client:
+  #   build: client/
+  #   container_name: client
+  #   ports:
+  #     - 8000:80
+  #   networks:
+  #     - feedback-net
+  eventstore:
+    image: eventstore/eventstore
+    container_name: eventstore
     ports:
-      - 8000:80
+      - 2113:2113
+    networks:
+      - feedback-net
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+    command: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - elasticdata:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - feedback-net
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.1.1
+    container_name: kibana
+    ports:
+      - 5601:5601
+    volumes:
+      - kibanadata:/usr/share/kibana/data
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      - cluster.name=docker-cluster
+    networks:
+      - feedback-net
+  evt-es-bridge:
+    build: dotnet-event-elastic-bridge
+    container_name: evt-es-bridge
+    environment:
+      - STREAM_NAME=mattermost
+      - STREAM_URL=eventstore
+      - ELASTIC_NAME=elasticsearch
+      - EVENTSTORE_NAME=eventstore
+      - USER=admin
+      - PW=changeit
+    networks:
+      - feedback-net
+  # nginx:
+  #   image: nginx
+  #   container_name: nginx
+  #   ports:
+  #     - 6601:6601
+  #   volumes:
+  #     - ./nginx/conf.d/:/etc/nginx/conf.d/
+  #   networks:
+  #     - feedback-net
+volumes:
+  elasticdata:
+    driver: local
+  kibanadata:
+    driver: local
+
+networks:
+  feedback-net:

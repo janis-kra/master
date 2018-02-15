@@ -10,17 +10,20 @@ Appendix \cref{ch:appendix:source} contains the source code of the services and 
 \label{sec:implementation:orchestration}
 
 All services run in their own Docker containers in order to facilitate distribution of the system.
-Orchestration of the containers is done via \emph{Docker Compose} (short \emph{Compose}).
-Compose is nice because reasons\todo{insert blurb about Compose}.
+Orchestration of the containers is done via \emph{Docker Compose} (short \emph{Compose}), which offers a straightforward way of describing the services of an application and how they interact with each other in a single file (cf. \cref{appendix:code:docker:docker-compose} for the source code of the \texttt{docker-compose.yml} file).
+???
 
 Docker allows to assign each container a custom network which allows for virtualization of distinct and separated networks even though the containers are all on the same server.
-This is done via the \texttt{networks} setting for all container definitions, in this case setting the network to \texttt{esnet}.
-The \texttt{esnet} network is a default bridge network, thus ...
+This is done via the \texttt{networks} setting for all container definitions, in this case setting the network to \texttt{feedback-net}.
+The \texttt{feedback-net} network is a default bridge network, which means that it is an isolated network running in its respective Docker host.
+Containers running on the same Docker host and bridge network are thus able to communicate with each other via another containers IP address or name.
+For example, client application can post events to the Event Store instance via the URL \texttt{http://eventstore:2113/}, where the port 2113 denotes the port at which the Event Store container exposes its \ac{HTTP} interface.
 
 \section{Client Application}
 \label{sec:implementation:client}
 
 \subsection{Technical Problems with Click Tracking}
+\label{subsec:implementation:client:problems}
 
 When tracking clicks in a web application, the technical idiosyncrasies of reliably sending data via \ac{XHR} requests using JavaScript can become problematic.
 For various reasons, which are discussed below, there are no valid alternatives to doing asynchronous \ac{XHR} requests for click tracking for this use case though.
@@ -37,7 +40,10 @@ Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt
 Attaching custom headers via the \texttt{sendBeacon} method is not supported though.
 
 For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
-This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a single-page application, this is not a problem.
+This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem.
+
+Technically, there exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
+Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
 
 \section{Storage Configuration}
 \label{sec:implementation:storage}

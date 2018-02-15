@@ -6,11 +6,37 @@
 \section{Goals}
 \label{sec:design:goals}
 
-- user feedback can be analyzed in "near real-time" i.e. within a few seconds, at the absolute most a minute \todo{kind of arbitrary}
+\begin{enumerate}
+\item A web application sends passive user feedback data to specifiable streams of the Event Store instance.
+The type of application is not important, but should be geared toward typical end users (instead of a business application).
+Instead of implementing an application from scratch, an existing open source application shall be modified to send this data in order to save the additional time for creating the application.
+The reasons why a web application is used as a data source, and not, as initially planned, the Rico data set, are explained in the following \cref{sec:design:data-source}
+\item The usability of the web application can be evaluated via some metrics, which have to be created in the process.\todo{read up on UX testing, specify further}
+\item Elasticsearch is fed with all events that are created while users interact with the application.
+It can be specified which streams this data shall come from, as it is plausible that other data is saved to the event store.
+\item The collected user feedback can be analyzed via Kibana.
+For this purpose, one or more graphical representations of the usability metrics are created.
+\item The passive feedback system can be deployed on any machine which supports Docker, i.e. Windows, Linux and MacOS.
+\item User feedback can be accessed within Kibana within a few seconds from occurrence of the user action; at the absolute most this may take half a minute (30s).
+This is to allow for fast reactions to critical \ac{UX} errors such as a button invoking a critical action becoming unavailable.
+\end{enumerate}
+
 
 \section{Choosing a User Data Source}
-
+\label{sec:design:data-source}
 % why the RICO data set was not used
+
+Die Interaction Traces versprechen, dass alle UIs der Apps dort hinterlegt sind, in der Realitaet haben die Nutzer und/oder der Crawler aber oft total komische Aktionen ausgefuehrt oder sind nicht ueber das Setup der App hinaus gekommen (stichpunktartige Ueberpruefung der Daten).
+Dadurch sind sowohl die Interaction Traces als auch die UI-Daten ansich oft nicht "richtig".
+Ausserdem existiert oft nur 1, ansonsten meist nur 2, Interaction Traces.
+
+Fazit: Leider unbrauchbar!
+Alternative: bestehende Applikation um *Listener* erweitern. Literatur von Kohavi et al lesen um Hinweise zu erhalten wie man das implementieren kann
+
+Instead, it was decided that an existing web application shall be modified such that it sends passive user feedback via \ac{HTTP} to the event store.
+This application is the cloud-based messaging application Mattermost\footnote{\url{https://about.mattermost.com/}}.
+As the Mattermost server as well as the client application is open source and offers the possibility to be hosted on a private server, it fits the requirements for the data source listed in \cref{sec:design:goals}.
+Apart from that, this decision was at least partly based on personal preference due to familiarity with Mattermost and the web application being implemented in React\footnote{\url{https://reactjs.org/}}.
 
 \section{Event Structure}
 \label{sec:design:event-structure}
@@ -41,11 +67,11 @@ The specificity of these events can be improved by assigning unique ids to every
 \label{sec:design:bridge}
 
 In order to move the event data to Elasticsearch and afterwards into Kibana, an application is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
-The two applications have different concepts of storing their data though.
-On the one hand, in Event Store, data is stored as events in streams.
-Each event always has an event type and a distinct number within that stream.
-On the other hand, in Elasticsearch, data is managed in indices which contain documents.
-Each Elasticsearch document is assigned a document type.
+This application is the Event Store-Elasticsearch Bridge (short just "bridge" in this context).
+
+Intuitively, it seems problematic that Event Store and Elasticsearch have different concepts of storing their data.
+On the one hand, in Event Store, data is stored as events in streams; each event always has an event type and a distinct number within that stream.
+On the other hand, in Elasticsearch, data is managed in indices which contain documents; each Elasticsearch document is assigned a document type.
 These two concepts can be assigned 1:1 to each other -- each stream maps to an index, each event type maps to a document type within its respective index, and each event maps to a document (cf. \cref{table:design:bridge}).
 Thus, for every event that is posted to the store, a new document of the same type shall be created in the index of the same name as the Event Store's stream.
 A delay of a few seconds between the arrival of the event and its posting to Elasticsearch is acceptable.
@@ -81,8 +107,13 @@ Thanks to persistent subscriptions, it is possible to temporarily take the bridg
 Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern\cite{WEB:Microsoft-Competing-Consumers}.
 This advanced use case is not considered further though.
 
+\section{Final Architecture}
 
-
+\begin{figure}[htb]
+        \includegraphics[width=\textwidth]{gfx/docker-architecture}
+        \caption{}
+        \label{}
+\end{figure}
 
 
 

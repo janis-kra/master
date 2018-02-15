@@ -1,7 +1,7 @@
 % !TEX root = ../thesis.tex
 %
 \chapter{Fundamentals}
-\label{sec:fundamentals}
+\label{ch:fundamentals}
 
 [insert fluff piece about fundamentals here]
 
@@ -30,7 +30,7 @@ Although the reasons were not known during that moment, the experiment was a suc
 This anecdote is an example for the simplest type of controlled experiment, in which users are randomly assigned to either the control or the treatment group.
 While the treatment group is treated with the new version of the system that is being tested, the control group experiences the same system as before, without the modification.
 Thus, each group contains 50\% of the user base, and the results of the control group can be used in order to control wether the treatment had any statistically significant effect~\cite{Kohavi2009}.
-\todo{enough about controlled experiments?}
+\todo{not enough about controlled experiments}
 %The test that detects wether two variants are statistically different is called the \emph{null hypothesis}.
 
 \section{Event sourcing \& CQRS}
@@ -42,6 +42,9 @@ In aggregation, these events represent the whole application state.
 %, contrary to classical relational databases,
 Event sourcing was first introduced by Greg Young in 200x~\cite{???}.
 While literature in form of books or scientific papers regarding event sourcing is rather rare, several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{Todo:WEB:Young:200x} handle this topic.
+
+
+\subsection{Features}
 
 % what can you do with event sourcing: aggregation, rollback
 When all changes to the application state are introduced via event objects, various capabilities arise which are not possible if only the application state is stored.
@@ -78,7 +81,7 @@ Additionally, as this is an altogether different concept than storing the state 
 % What about code changes?
 
 % how some of these disadvantages can be worked around (short)
-As events are immutable, event sourcing does not have a delete operation.
+As events are immutable, event sourcing does not have a delete operation, because immutability prohibits deletion.
 It is however possible to create explicit removal events -- for example a \texttt{CustomerRemoved} event for deleting a customer -- which in the end results in an application state where the item in question is not present anymore.
 
 \cite{WEB:Fowler:2011}
@@ -106,8 +109,8 @@ Therefore, it is possible to set up multiple worker services for feeding event s
 \end{description}
 
 
-\section{CQRS}
-\label{sec:fundamentals:CQRS}
+%\section{CQRS}
+%\label{sec:fundamentals:CQRS}
 
 \section{Evaluation Fundamentals}
 \label{sec:fundamentals:evaluation}
@@ -145,7 +148,7 @@ However, building and running images and containers via the Docker \ac{CLI} beco
 The image is then built, and the container subsequently run, via two commands as shown in \cref{code:fundamentals:docker:compose-run}.
 While the approach using the Docker CLI may seem more concise in this limited example, Compose's advantages when combining multiple interconnected services become apparent when doing more complex container composition (cf. \cref{sec:implementation:orchestration}).
 
-\lstinputlisting[label={code:fundamentals:docker:compose-yml},caption={Example docker-compose.yml}]{sourcecode/docker-compose.yml}
+\lstinputlisting[label={code:fundamentals:docker:compose-yml},caption={Example docker-compose.yml}]{sourcecode/docker-compose-example.yml}
 \lstinputlisting[label={code:fundamentals:docker:compose-run},caption={Build and run the NGINX example container via Compose},language=bash]{sourcecode/run-via-compose.sh}
 
 The container architecture of Docker solves two challenges when creating distributed systems: application independence and bridging the development-operations gap.
