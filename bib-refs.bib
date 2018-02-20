@@ -1161,21 +1161,6 @@ ISSN={1555-5798},
 	Title = {Competing Consumers pattern},
 	Url = {https://docs.microsoft.com/en-us/azure/architecture/patterns/competing-consumers},
   urldate = {2018-02-10}
-}@article{Kohavi2010,
-abstract = {Tracking users' online clicks and form submits (e.g., searches) is critical for web analytics, controlled experiments, and business intelligence. Most sites use web beacons to track user actions, but waiting for the beacon to return on clicks and submits slows the next action (e.g., showing search results or the destination page). One possibility is to use a short timeout and common wisdom is that the more time given to the tracking mechanism (suspending the user action), the lower the data loss. Research from Amazon, Google, and Microsoft showed that small delays of a few hundreds of milliseconds have dramatic negative impact on revenue and user experience (Kohavi, et al., 2009 p. 173), yet we found that many websites allow long delays in order to collect click. For example, until March 2010, multiple Microsoft sites waited for click beacons to return with a 2-second timeout, introducing a delay of about 400msec on user clicks. To the best of our knowledge, this is the first published empirical study of the subject under a controlled environment. While we confirm the common wisdom about the tradeoff in general, a surprising result is that the tradeoff does not exist for the most common browser family, Microsoft Internet Explorer (IE), where no delay suffices. This finding has significant implications for tracking users since no waits is required to prevent data loss for IE browsers and it could significantly improve revenue and user experience. The recommendations here have been implemented by the MSN US home page and Hotmail.},
-annote = {-very technical paper about implementation details of user tracking
--could use this to argue why it is nice to have user tracking out-of-the-box via event-sourcing
--should also use a more recent paper as a reference though},
-author = {Kohavi, Ron and Messner, David and Eliot, Seth and Ferres, Juan Lavista and Henne, Randy and Kannappan, Vignesh and Wang, Justin},
-file = {:Users/jk/Documents/Uni/master/refs/kohavi2010pdf.pdf:pdf},
-journal = {Search},
-keywords = {motivation,skimmed},
-mendeley-groups = {Master Thesis},
-mendeley-tags = {motivation,skimmed},
-number = {2009},
-pages = {1--14},
-title = {{Tracking Users ' Clicks and Submits : Tradeoffs between User Experience and Data Loss}},
-year = {2010}
 }
 @article{Kohavi2012,
 abstract = {Online controlled experiments are often utilized to make data- driven decisions at Amazon, Microsoft, eBay, Facebook, Google, Yahoo, Zynga, and at many other companies. While the theory of a controlled experiment is simple, and dates back to Sir Ronald A. Fisher's experiments at the Rothamsted Agricultural Experimental Station in England in the 1920s, the deployment and mining of online controlled experiments at scale—thousands of experiments now—has taught us many lessons. These exemplify the proverb that the difference between theory and practice is greater in practice than in theory. We present our learnings as they happened: puzzling outcomes of controlled experiments that we analyzed deeply to understand and explain. Each of these took multiple-person weeks to months to properly analyze and get to the often surprising root cause. The root causes behind these puzzling results are not isolated incidents; these issues generalized to multiple experiments. The heightened awareness should help readers increase the trustworthiness of the results coming out of controlled experiments. At Microsoft's Bing, it is not uncommon to see experiments that impact annual revenue by millions of dollars, thus getting trustworthy results is critical and investing in understanding anomalies has tremendous payoff: reversing a single incorrect decision based on the results of an experiment can fund a whole team of analysts. The topics we cover include: the OEC (Overall Evaluation Criterion), click tracking, effect trends, experiment length and power, and carryover effects.},
@@ -1204,4 +1189,44 @@ mendeley-groups = {Master Thesis},
 pages = {1427--1436},
 title = {{A Dirty Dozen: Twelve Common Metric Interpretation Pitfalls in Online Controlled Experiments}},
 year = {2017}
+}
+@book{newman2015building,
+  title={Building Microservices: Designing fine-grained systems},
+  author={Newman, Sam},
+  year={2015},
+  publisher={" O'Reilly Media, Inc."}
+}
+@article{Claypool2001,
+abstract = {Recommender systems provide personalized suggestions about items that users will find interesting. Typically, recommender systems require a user interface that can ``intelligently'' determine the interest of a user and use this information to make suggestions. The common solution, ``explicit ratings'', where users tell the system what they think about a piece of information, is well-understood and fairly precise. However, having to stop to enter explicit ratings can alter normal patterns of browsing and reading. A more ``intelligent'' method is to useimplicit ratings, where a rating is obtained by a method other than obtaining it directly from the user. These implicit interest indicators have obvious advantages, including removing the cost of the user rating, and that every user interaction with the system can contribute to an implicit rating. Current recommender systems mostly do not use implicit ratings, nor is the ability of implicit ratings to predict actual user interest well-understood. This research studies the correlation between various implicit ratings and the explicit rating for a single Web page. A Web browser was developed to record the user's actions (implicit ratings) and the explicit rating of a page. Actions included mouse clicks, mouse movement, scrolling and elapsed time. This browser was used by over 80 people that browsed more than 2500 Web pages. Using the data collected by the browser, the individual implicit ratings and some combinations of implicit ratings were analyzed and compared with the explicit rating. We found that the time spent on a page, the amount of scrolling on a page and the combination of time and scrolling had a strong correlation with explicit interest, while individual scrolling methods and mouse-clicks were ineffective in predicting explicit interest.},
+annote = {hier steht was f{\"{u}}r Metriken ich untersuchen kann},
+archivePrefix = {arXiv},
+arxivId = {31},
+author = {Claypool, Mark and Le, Phong and Wased, Makoto and Brown, David},
+doi = {10.1145/359784.359836},
+eprint = {31},
+file = {:Users/jk/Documents/Uni/master/refs/Implicit Interest Indicators.pdf:pdf},
+isbn = {1581133251},
+issn = {10959203},
+journal = {Proceedings of the 6th international conference on Intelligent user interfaces  - IUI '01},
+mendeley-groups = {Master Thesis},
+pages = {33--40},
+pmid = {18356530},
+title = {{Implicit interest indicators}},
+url = {http://portal.acm.org/citation.cfm?doid=359784.359836},
+year = {2001}
+}
+@article{Joachims2005,
+abstract = {This paper examines the reliability of implicit feedback generated from clickthrough data in WWW search. Analyzing the users' decision process using eyetracking and comparing implicit feedback against manual relevance judgments, we conclude that clicks are informative but biased. While this makes the interpretation of clicks as absolute relevance judgments difficult, we show that relative preferences de- rived from clicks are reasonably accurate on average.},
+author = {Joachims, Thorsten and Granka, Laura and Pan, Bing and Hembrooke, Helene and Gay, Geri},
+doi = {10.1145/1076034.1076063},
+file = {:Users/jk/Documents/Uni/master/refs/10.1.1.147.2481.pdf:pdf},
+isbn = {1595930345},
+journal = {Proceedings of the 28th annual international ACM SIGIR conference on Research and development in information retrieval - SIGIR '05},
+keywords = {clickthrough,eyetracking,implicit feedback,www search},
+mendeley-groups = {Master Thesis},
+pages = {154},
+pmid = {2342},
+title = {{Accurately interpreting clickthrough data as implicit feedback}},
+url = {http://dl.acm.org/citation.cfm?doid=1076034.1076063},
+year = {2005}
 }
