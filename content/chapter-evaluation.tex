@@ -2,3 +2,34 @@
 %
 \chapter{Evaluation}
 \label{ch:evaluation}
+
+- give user a test document with login information for Mattermost
+
+- test document contains explicit tasks such as "send a DM to user Janis"
+
+- task: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
+
+- test document also contains more open-ended tasks such as "browser a channel that is of interest to you"(?).
+This allows for predictions which content is more interesting for the users
+
+- feel free to browse the chat history (this leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001})
+
+% aus \cite{Easterbrook2008a} - What kind of research question are you asking?
+
+\section{Validity}
+\label{sec:evaluation:validity}
+
+\cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
+
+\section{Experimentation Guidelines}
+
+This section describes how different types of experiments can be executed using \ac{PUFAS}.
+
+\begin{description}
+\item[A/B test]
+\item[Null hypothesis] aka A/A test \cite{Kohavi2009}
+\item[Collecting metrics] i.e. usage data in general, e.g. scroll time
+\item[Collecting performance metrics(?)] (unclear, maybe into future work)
+\item[Survey(?)] (maybe into future work, POC: Create user interview via \ac{PUFAS})
+\end{description}
+

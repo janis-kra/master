@@ -10,6 +10,15 @@
 
 \cite{Olsson2012}
 
+\section{Implicit User Feedback}
+\label{sec:fundamentals:implicit}
+
+\cite{Kelly:2003:IFI:959258.959260}
+
+Gathering implicit user feedback via eye tracking software is a valid alternative to using clickthrough data, but is not considered in this thesis for two reasons.
+First, requiring an eye tracker for gathering implicit user feedback of generic web applications would be impractical.
+Second, cursor movement was shown to be a good approximation of where the user's gaze is located~\cite{Huang2011}, thus it is expected that using an eye tracker would not yield significant additional in the given context anyway.
+
 \section{Continuous experimentation surveys}
 \label{sec:related:surveys}
 
@@ -32,8 +41,9 @@ While the treatment group is treated with the new version of the system that is 
 Thus, each group contains 50\% of the user base, and the results of the control group can be used in order to control wether the treatment had any statistically significant effect~\cite{Kohavi2009}.
 \todo{not enough about controlled experiments}
 %The test that detects wether two variants are statistically different is called the \emph{null hypothesis}.
+% more details in Kohavi2009
 
-\section{Event sourcing \& CQRS}
+\section{Event sourcing}
 \label{sec:fundamentals:event}
 
 %abstract: what is event sourcing
@@ -108,14 +118,11 @@ It is not relevant which of the services handle a specific message, as each beha
 Therefore, it is possible to set up multiple worker services for feeding event store data into a consuming service and thus enable horizontal scalability.
 \end{description}
 
-
-%\section{CQRS}
-%\label{sec:fundamentals:CQRS}
-
 \section{Evaluation Fundamentals}
 \label{sec:fundamentals:evaluation}
 
 ISTQB fundamental testing process~\cite{graham2008foundations}
+Dwell Time(?)~\cite{Liu2010}\cite{Kim2014}
 
 \section{Docker}
 \label{sec:fundamentals:docker}

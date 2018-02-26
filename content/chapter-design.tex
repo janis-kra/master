@@ -3,6 +3,18 @@
 \chapter{System Design}
 \label{ch:design}
 
+\section{Assumptions}
+\label{sec:design:assumptions}
+
+Certain assumptions and restrictions are made in order to limit the complexity of \ac{PUFAS} without reducing the results' significance.
+
+\begin{description}
+\item[HTML \& JS Client] The client application which is used for generating data for testing and evaluation purposes will be a web application using \ac{HTML} and JavaScript.
+This choice is influenced by personal preference, but is backed by research on experimentation~\cite{Dmitriev2017,Kohavi2013a} and implicit user feedback~\cite{Joachims2005,Huang2011} also specifically targeting web applications.
+As the data is sent via \ac{HTTP}, the passive user feedback could in theory also be implemented in any other programming language which supports \ac{HTTP}, such as Java or C\#.
+\item [...]
+\end{description}
+
 \section{Goals}
 \label{sec:design:goals}
 
@@ -38,6 +50,16 @@ This application is the cloud-based messaging application Mattermost\footnote{\u
 As the Mattermost server as well as the client application is open source and offers the possibility to be hosted on a private server, it fits the requirements for the data source listed in \cref{sec:design:goals}.
 Apart from that, this decision was at least partly based on personal preference due to familiarity with Mattermost and the web application being implemented in React\footnote{\url{https://reactjs.org/}}.
 
+\section{Metrics Selection}
+\label{sec:design:metrics}
+
+WIP
+\cite{Kelly:2003:IFI:959258.959260}
+\cite{Claypool2001}
+
+% Identifying the metrics to evaluate created customer value and product success was a challenge both in relation to dedicated experiments and to the general observation of product usage \cite{lindgren2015software}
+
+
 \section{Event Structure}
 \label{sec:design:event-structure}
 
@@ -66,8 +88,10 @@ The specificity of these events can be improved by assigning unique ids to every
 \section{Event Store-Elasticsearch Bridge}
 \label{sec:design:bridge}
 
-In order to move the event data to Elasticsearch and afterwards into Kibana, an application is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
-This application is the Event Store-Elasticsearch Bridge (short just "bridge" in this context).
+In order to move the event data to Elasticsearch and afterwards into Kibana, a service is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
+This service is the Event Store-Elasticsearch Bridge (short just "bridge" in this context).
+
+%\subsection{The Need for a Bridge Service}
 
 Intuitively, it seems problematic that Event Store and Elasticsearch have different concepts of storing their data.
 On the one hand, in Event Store, data is stored as events in streams; each event always has an event type and a distinct number within that stream.
@@ -95,17 +119,32 @@ This is not feasible for this scenario as Logstash's \ac{RSS} plugin is not able
 Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to abandon Logstash as a possible solution.
 
 Instead of using an existing service that listens to Atom feeds such as Logstash, a custom implementation is the better approach here.
-This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows amongst others for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.\todo{ugly acronym expansion}
+This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows amongst others for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.
 The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}\cite{WEB:EvtSt-Which-Api}.
+It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all due to the technology heterogeneity that a microservice architecture allows\cite[Key Benefits,pp.~4f]{newman2015building}.
 
 Assuming the Event Store stream already exists, setting up the bridge to transfer new events to an Elasticsearch index would then be a two-step process.
 First, a persistent subscription has to be created within the Event Store administration overlay.
-Then, an instance of the bridge application has to be started, configured to listen to the newly created subscription.
+Then, an instance of the bridge service has to be started, configured to listen to the newly created subscription.
 This would cause the bridge to transfer all existing events to an Elasticsearch index of the same name as the stream, and then also posting all subsequent events to this index.
-It would also be possible to implement the bridge in a way that allows it to listen to multiple subscriptions, but this does not scale as good\cite{src?} as the single-subscription variant, and introduces an unnecessary implementation overhead.
+
+It would also be possible to implement the bridge in a way that allows the service to listen to multiple subscriptions simultaneously.
+This would require a more complex service which introduces two problems.
+First, it introduces an unnecessary implementation overhead, and second, its additional complexity could lead to scaling problems.
+Writing complex, large serices is in general discouraged to do in a microservice architecture\cite[Key Benefits,pp.~5f]{newman2015building}.
+Instead, multiple instances of the same service should be executed alongside each other, with their respective configuration for listening to a specific stream.
+
 Thanks to persistent subscriptions, it is possible to temporarily take the bridge instance offline -- as the subscription state is persisted on the server side, the bridge can transfer all events that occurred while it was offline as soon as it comes online again.
 Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern\cite{WEB:Microsoft-Competing-Consumers}.
 This advanced use case is not considered further though.
+
+\subsection{Mapping Event Store Rebuilds to Elasticsearch}
+\label{subsec:design:bridge:mapping}
+
+Problem: Elasticsearch does not support Complete Rebuild and its variants (temporal query, event replay, reversing events, delayed application(?)).
+Solution: Delete index and then set up a new subscription.
+The downside is that this renders the analytics application practically useless for the time span until the Elasticsearch index is repopulated with the Event Store data.
+Some implementation details regarding this problem can be found in \cref{subsec:implementation:bridge:mapping}
 
 \section{Final Architecture}
 

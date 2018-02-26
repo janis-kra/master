@@ -3,11 +3,13 @@
 \chapter{Classifications}
 \label{ch:classifications}
 
+\todo{include goals here, as the requirements relate to this?}
+
 \section{Storage Solutions}
 \label{sec:classifications:storage}
 
 The first technical decision to make is what to use as a storage solution.
-I first explain requirements which the solution has to fulfill, then present the candidates, and ultimately evaluate according to these requirements which solution is most appropriate.
+First, the requirements which the solution has to fulfill are explained, then the candidates are presented and ultimately evaluated according to these requirements, in order to find the solution is most appropriate.
 
 \subsection{Requirements}
 \label{subsec:classifications:storage:req}
@@ -39,10 +41,12 @@ This is often solved via \emph{sharding}, where the data is split over multiple 
 \todo{find a more precise definition for scalability, redo these requirements}
 %Database clustering is done for various reasons. Clusters can improve availability, fault tolerance, and increase performance by applying a divide and conquer approach as work is distributed over many machines. Clustering is sometimes combined with partitioning and sharding to further break up a large complex task into smaller, more manageable units. 
 \item [HTTP interface]
-The storage solution shall have a HTTP interface, therefore allowing other services and applications to store and retrieve data via a universally supported medium.
-Using HTTP comes with a performance overhead compared to other protocols such as TCP, but as  the advantages in terms of flexibility outweigh this drawback\todo{says who??}; in cases where performance is critical, TCP could still be used if supported.
-It should be noted that almost any storage solution can be extended to have an HTTP interface by writing a wrapper in a general purpose programming language that exposes the database functionality.
-However, this introduces additional overhead and complexity, as the database wrapper has to be implemented manually -- not to mention potential security issues.
+The storage solution shall have a \ac{HTTP} interface, therefore allowing other services and applications to store and retrieve data via a universally supported medium.
+As most solutions considered in this chapter do indeed offer a \ac{HTTP} interface, this is the most straightforward way of interconnecting the different services and applications.
+\ac{HTTP} may have worse performance than protocols operating on lower levels in the \ac{OSI}\footnote{\url{https://support.microsoft.com/en-us/help/103884/the-osi-model-s-seven-layers-defined-and-functions-explained}} stack, such as \ac{TCP} or \ac{UDP}\todo{acro expansions everywhere :O}, but the advantages in terms of flexibility make \ac{HTTP} the favored solution.
+%In cases where performance is critical, TCP could still be used if supported.
+It should be noted that almost any storage solution can be extended to have an \ac{HTTP} interface by writing a wrapper in a general purpose programming language that exposes the database functionality.
+However, this introduces additional overhead and complexity, as the database wrapper would have to be implemented manually -- not to mention potential security issues.
 \item [Free License]
 The designed system shall be as widely applicable as possible and therefore not impose any financial requirements on the potential applicant.
 Thus, the storage solution shall be available free for commercial use, e.g. in form of an open source license such as the GNU GPL\footnote{\url{https://www.gnu.org/licenses/gpl.html}} or Apache License\footnote{\url{https://www.apache.org/licenses/}}.
@@ -186,7 +190,7 @@ An overview of the solutions and their support for the presented requirements is
 Apache Solr\footnote{\url{http://lucene.apache.org/solr/}} and Elasticsearch\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/}} are both built upon the Lucene\footnote{\url{http://lucene.apache.org/}} project, which is a Java-based library offering, amongst others, searching and indexing functionality.
 For this reason, they are both very similar in terms of functionality and performance; both products implement their own solutions for scaling horizontally and vertically though.
 They also both offer an HTTP interface which allows for submission of search queries.
-Although both products are similar and meet (most of) the requirements, Elasticsearch stands out because of two points. 
+Although both products are similar and meet most of the requirements, Elasticsearch stands out because of two points. 
 First of all, Elasticsearch comes with its own \ac{DSL} for more complex queries, which can then be sent to the HTTP interface, while Solr requires using its Java API for that.
 While this is a perfectly valid concept in general, for this use case the HTTP variant is the better fit.
 Secondly, the two preferred analysis solutions (Kibana and Grafana, cf. \cref{sec:classifications:analysis}), both come with dedicated support for Elasticsearch, but \emph{not} for Solr.
@@ -195,16 +199,20 @@ Secondly, the two preferred analysis solutions (Kibana and Grafana, cf. \cref{se
 
 Spark\footnote{\url{http://spark.apache.org/}} is another tool by Apache, with a focus on large scale data processing.
 In contrast to Elasticsearch and Solr, Spark does not come with a HTTP interface for issuing queries; instead, searches and aggregations are implemented in Java, Scala, Python, or R.
-This allows for very efficient, complex and powerful data processing, but requires a lot more custom implementation when compared to other candidates that come with a query language or \ac{DSL}, therefore restricting flexibility.
-The data analysis solutions that are proposed in \cref{sec:classifications:analysis} 
+This allows for very efficient, complex, and powerful data processing, but requires a lot more custom implementation when compared to other candidates that come with a query language or \ac{DSL}, therefore restricting flexibility.
+Of the storage solutions proposed in \cref{sec:classifications:storage}, Spark only supports only Cassandra.
+Overall, Spark is not as suitable Elasticsearch or Solr due to its shortcomings in terms of flexibility and supported data sources..
+%The data analysis solutions that are proposed in \cref{sec:classifications:analysis} 
 
-Hadoop ...
+Hadoop\footnote{\url{http://hadoop.apache.org/}}, also an Apache project, is very similar to Spark.
+It also focuses on scalability, reliability, and speed, but has similar disadvantages in terms of flexibility.
+Therefore, Hadoop is not suited for this use case.
 
 Event Store comes with its own aggregation functionality, called projections.
 Projections are written in JavaScript and submitted to the event store via HTTP.
 Using the projections feature, it is possible to write a custom aggregation service which exposes a \ac{REST} API that exposes the projection results to the analytics application.
 One drawback of this approach is that it involves considerably more custom code than the other services.
-Furthermore, projections are not as powerful as the search and aggregation functionalities of Elasticsearch or Solr, for example.
+Furthermore, projections are not as powerful as the search and aggregation functionalities of Elasticsearch or Solr.
 
 \begin{table}[]
 \centering
@@ -225,6 +233,17 @@ Custom & yes & yes & yes & yes & no & no & -
 
 \subsection{Requirements}
 
+\begin{description}
+\item[Data Exploration] All data from the aggregation service can be freely explored in the analysis application.
+It is possible to filter this data, for example by date or keyword.
+\item[Data Visualization] It is possible to create visualizations of chosen data, such as pie charts, line graphs etc.
+These can later be used to efficiently assess relevant statistics and experiments.
+This effectively enables what \citet{Bosch2012} calls \emph{data-based decision making}.
+\item[Browser Based] Any current web browser can be used to access the application.
+\item[Speed] New data available from the aggregation service within a few, at most ten, seconds.
+\item[Free License] The analysis application is also available under a free license (cf.~\cref{subsec:classifications:storage:req}).
+\end{description}
+
 \subsection{Candidates}
 
 \begin{enumerate}
@@ -241,4 +260,4 @@ Solutions which only offer a paid plan were not considered here, such as Logmati
 ...
 
 In the end, Kibana was favored for its powerful integration with Elasticsearch, which I expect will improve both the speed of development and the overall quality of the prototype system.
-Kibana could easily be replaced by Grafana though, as they offer very similar functionality and Grafana comes with an Elasticsearch plugin.
+Kibana could -- presumably -- easily be replaced by Grafana though, as they offer very similar functionality and Grafana comes with an Elasticsearch plugin.

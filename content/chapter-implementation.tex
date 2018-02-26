@@ -22,7 +22,7 @@ For example, client application can post events to the Event Store instance via 
 \section{Client Application}
 \label{sec:implementation:client}
 
-\subsection{Technical Problems with Click Tracking}
+\subsection{Implementing Click Tracking}
 \label{subsec:implementation:client:problems}
 
 When tracking clicks in a web application, the technical idiosyncrasies of reliably sending data via \ac{XHR} requests using JavaScript can become problematic.
@@ -65,6 +65,11 @@ Thus, the client application can post events via HTTP to \url{http://evenstore:2
 \label{sec:implementation:bridge}
 
 Because Elasticsearch does not have dedicated support for importing data from an event store, an additional service had to be implemented which serves as a bridge between the two services.
+
+\subsection{Implementing Mapping of Advanced Event Store Features to Elasticsearch}
+\label{subsec:implementation:bridge:mapping}
+
+WIP
 
 \section{Aggregation Service}
 \label{sec:implementation:aggregation}
