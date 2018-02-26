@@ -53,6 +53,11 @@ In aggregation, these events represent the whole application state.
 Event sourcing was first introduced by Greg Young in 200x~\cite{???}.
 While literature in form of books or scientific papers regarding event sourcing is rather rare, several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{Todo:WEB:Young:200x} handle this topic.
 
+Inherent to event sourcing is the lack of an explicit schema, just as in NoSQL databases\cite{?}.
+Instead, the schema is represented implicitly within the application itself.
+This is advantageous because ...
+\citet{Overeem2017} investigate the problems that arise when this implicit schema changes.
+\ac{IFAS} assumes that the implicit schema is not changed after its initial launch.
 
 \subsection{Features}
 
@@ -141,7 +146,7 @@ It is very important to note that the Docker engine saves image layers as diffs,
 This results in high reusability of image layers: When the \texttt{COPY} instruction in the example Dockerfile is changed, only the second image layer has to be rebuilt, allowing for much faster build times.
 %This suffices to bootstrap the containers itself, but in most cases additional configuration files are loaded into the container via volumes.
 
-\lstinputlisting[label={code:fundamentals:docker:dockerfile},caption={Example Dockerfile}]{sourcecode/Dockerfile}
+\lstinputlisting[label={code:fundamentals:docker:dockerfile},caption={Example Dockerfile}]{sourcecode/Dockerfile.txt}
 
 Containers can be created and run via the Docker \ac{CLI}.
 For example, the NGINX image previously described in \cref{code:fundamentals:docker:dockerfile} would first be containerized and then executed via the instructions given in \cref{code:fundamentals:docker:cli}.
