@@ -47,16 +47,18 @@ Thus, each group contains 50\% of the user base, and the results of the control 
 \label{sec:fundamentals:event}
 
 %abstract: what is event sourcing
-The core premise of event sourcing is that all changes to the application state are stored as immutable events, in the order in which they occur.
+The core premise of event sourcing~\cite{WEB:Fowler:2005} is that all changes to the application state are stored as immutable events, in the order in which they occur.
 In aggregation, these events represent the whole application state.
 %, contrary to classical relational databases,
-Event sourcing was first introduced by Greg Young in 200x~\cite{???}.
-While literature in form of books or scientific papers regarding event sourcing is rather rare, several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{Todo:WEB:Young:200x} handle this topic.
+\citet{Overeem2017} and \citet{Erb2016} have done some research on event sourcing and \citet{evans2004domain} grazes the topic in his book, stating that event sourcing is useful for X.
+Apart from these few examples, literature in form of books or scientific papers regarding event sourcing is rather rare.
+Several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{young2010whyeventsourcing} explain the concepts and methods in great extensive though.
+\todo{vertiefen}
 
-Inherent to event sourcing is the lack of an explicit schema, just as in NoSQL databases\cite{?}.
+Inherent to event sourcing is the lack of an explicit schema, just as in NoSQL databases~\cite{fowler2013schemaless}.
 Instead, the schema is represented implicitly within the application itself.
-This is advantageous because ...
-\citet{Overeem2017} investigate the problems that arise when this implicit schema changes.
+This enables more flexibility, as any type of data can be saved in storage without defining a schema first.
+However, it also comes with some drawbacks, especially when this implicit schema changes; \citet{Overeem2017} investigate these.
 \ac{IFAS} assumes that the implicit schema is not changed after its initial launch.
 
 \subsection{Features}
