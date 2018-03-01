@@ -3,16 +3,37 @@
 \chapter{Evaluation}
 \label{ch:evaluation}
 
+%Research question for \acf{IFAS}, WIP: "\todo{not specific enough}Can \ac{IFAS} be used to capture and analyze passive user feedback?"
+
+Checks wether the goals in \cref{sec:design:goals} are fulfilled.
+
+[Blurb about user tests ...]
+
+Additionally, a performance test shall ensure that \ac{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
+For this purpose, 10.000\todo{number not final} \texttt{UserClicked} events with random click coordinates are created and sent to Event Store by an application explicitly built for this objective.
+Details about this test can be found in \cref{sec:evaluation:performance}.
+
+% aus \cite{Easterbrook2008a} - What kind of research question are you asking?
+
+\section{User Test}
+\label{sec:evaluation:user}
+
+
 - give user a test document with login information for Mattermost
 
 - test document contains explicit tasks such as "send a DM to user Janis"
 
-- task: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
+- task 1: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
 
-- test document also contains more open-ended tasks such as "browser a channel that is of interest to you"(?).
-This allows for predictions which content is more interesting for the users
+- task 2: Another controlled experiment, similar to task 1.
 
-- feel free to browse the chat history (this leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001})
+- Task 3: A more open-ended tasks such as "browse a channel that is of interest to you for one minute"(?).
+Each channel has some channel history (need some content for this, maybe some images or short stories (in chat form) under public domain).
+This allows for predictions which content is more interesting for the users.
+This leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001}.
+
+- This also leads to general usage of the chat application, which allows for general passive user feedback via \texttt{UserClicked} events etc.
+Need more data, what to collect?
 
 % Thoughts regarding \cite{dumas2009usability}
 % is this a diagnostic test, i.e. no statistically relevant outcome can be concluded from them?
@@ -21,8 +42,46 @@ This allows for predictions which content is more interesting for the users
 %
 % this is an asynchronous remote test
 
+\section{Performance Test}
+\label{sec:evaluation:performance}
 
-% aus \cite{Easterbrook2008a} - What kind of research question are you asking?
+For the purpose of testing the performance of \ac{IFAS}, a high number of \texttt{UserClicked} events was created and sent to the Event Store instance in rapid succession.
+This causes a dedicated persistent subscription, which the Event Store-Elasticsearch bridge listens on, to forward the events, which causes the events being fed into Elasticsearch as fast as possible.
+A visualization of the coordinates of the click events in Kibana, with auto-refresh set to 5 seconds, causes Kibana to continually poll the current state of the Elasticsearch index.
+As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 30 seconds.
+
+Kibana offers the possibility to view detailed statistics for every visualization via the \emph{Visualization Spy}, including query duration, request duration and number of hits.
+These statistics are useful for measuring the performance for different reasons:
+
+\begin{description}
+\item[Query Duration] This is the time Elasticsearch needed to complete process the query; it thus represents the time it takes Elasticsearch to handle the aggregation itself, without any networking overhead.\footnote{\url{https://discuss.elastic.co/t/what-is-query-duration-and-request-duration-in-kibana/50553}}
+If the aggregation is complex, the query duration is usually high.
+\item[Request Duration] In order to execute an aggregation and get its result, the request has to be sent to the Elasticsearch instance, which introduces additional overhead such as serializing and deserializing \ac{JSON} objects.
+The request duration thus represents the duration from the point in time where Kibana decides to send the aggregation query, to the point where the results arrive in deserialized form back in Kibana.
+As aggregation requests are usually of roughly the same size, the response can potentially contain a lot of complex data.
+Thus, the request duration is a representation of how costly sending the data to Kibana is.
+\item[Number of Hits] This represents the amount of documents that match the criteria given in the aggregation query.
+As more data means more complex aggregation responses, this correlates with the request duration, but does not necessarily represent the complexity of the aggregation query.
+For example, a query that matches all documents of an index would have a high number of hits, and a query matching only the document with index 1 would only have one hit -- but both queries are not complex and thus have a low query duration.
+\end{description}
+
+In addition to the visualization statistics, the overall performance of the Elasticsearch cluster was monitored.
+Monitoring Elasticsearch cluster health out of the box is a feature of the X-Pack\footnote{\url{https://www.elastic.co/products/x-pack}} extension for the Elastic stack.
+X-Pack bundles various complementary capabilities such as security, reporting, and monitoring -- the latter of which could also be achieved manually via Elasticsearch's node stats API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html}}.
+Although X-Pack is a commercial product, its basic license is free and the code is open source.
+Additionally, the monitoring feature from X-Pack that is used in this thesis, is merely used for evaluation purposes and thus \ac{IFAS} itself remains a combination of completely free and open sourced software products, without the need of registering for a license of any kind.
+
+...
+
+In the end, the \emph{total visualization time} is calculated as follows:
+
+$$t_\text{startES} - t_\text{startGen}+ d_\text{ESSave} + d_\text{VisDelay} + d_\text{VisRequest}$$
+
+\todo{per Zeitstrahl oder so visualisieren}
+
+\section{Null Hypothesis}
+
+TODO: Do I need to do this??? cf. \cite{Kohavi2009}
 
 \section{Validity}
 \label{sec:evaluation:validity}
@@ -31,13 +90,13 @@ This allows for predictions which content is more interesting for the users
 
 \section{Experimentation Guidelines}
 
-This section describes how different types of experiments can be executed using \ac{PUFAS}.
+This section describes how different types of experiments can be executed using \ac{IFAS}.\todo{this is a kind of "subjective evaluation" -- maybe not the right place for this?}
 
 \begin{description}
 \item[A/B test]
 \item[Null hypothesis] aka A/A test \cite{Kohavi2009}
 \item[Collecting metrics] i.e. usage data in general, e.g. scroll time
 \item[Collecting performance metrics(?)] (unclear, maybe into future work)
-\item[Survey(?)] (maybe into future work, POC: Create user interview via \ac{PUFAS})
+\item[Survey(?)] (maybe into future work, POC: Create user interview via \ac{IFAS})
 \end{description}
 

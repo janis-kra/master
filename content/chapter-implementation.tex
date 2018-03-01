@@ -19,6 +19,30 @@ The \texttt{feedback-net} network is a default bridge network, which means that 
 Containers running on the same Docker host and bridge network are thus able to communicate with each other via another containers IP address or name.
 For example, client application can post events to the Event Store instance via the URL \texttt{http://eventstore:2113/}, where the port 2113 denotes the port at which the Event Store container exposes its \ac{HTTP} interface.
 
+...
+
+\subsection{Operating the System}
+
+The final setup of \ac{IFAS} enables the following Compose commands, which can either be issued with a specific service name, or without this parameter which causes the command to be executed for all applicable services:
+
+\begin{itemize}
+\item Create and start containers for the services defined in the Compose file, via \texttt{docker-compose up [service]}; the additional \texttt{-d} parameter runs the containers in detached mode, i.e. in the background
+\item Start the containers that are already created, via \texttt{docker-compose start [service]}
+\item Stop and remove containers defined in the Compose file, as well as their volumes and networks, via \texttt{docker-compose down}
+\item Stop containers defined in the Compose file, via \texttt{docker-compose stop}
+\item Show logging information for a container, via \texttt{docker-compose logs [service]}; the additional \texttt{-f} parameter follows the logs as new ones appear, instead of just printing them once to the  console
+\end{itemize}
+
+A user of \ac{IFAS} would usually create and start the containers via \texttt{docker-compose up -d} and then optionally attach to the logs via \texttt{docker-compose logs -f}.
+If the system or specific services would have to be taken offline, this could be done via \texttt{docker-compose down}.
+For example, the Elasticsearch container would be stopped via \texttt{docker-compose stop elasticsearch}.
+Subsequently, the Elasticsearch container would be started again via the \texttt{start} command if no changes to the container are made, e.g. via its service definition, or via the \texttt{up} command if the container has to be recreated.
+The \texttt{down} command should only be used if a backup of the relevant Docker volumes was made -- otherwise, all data would be lost.
+
+\subsection{Clustering}
+
+...
+
 \section{Client Application}
 \label{sec:implementation:client}
 
