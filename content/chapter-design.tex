@@ -105,8 +105,9 @@ Intuitively, it seems problematic that Event Store and Elasticsearch have differ
 On the one hand, in Event Store, data is stored as events in streams; each event always has an event type and a distinct number within that stream.
 On the other hand, in Elasticsearch, data is managed in indices which contain documents; each Elasticsearch document is assigned a document type.
 These two concepts can be assigned 1:1 to each other -- each stream maps to an index, each event type maps to a document type within its respective index, and each event maps to a document (cf. \cref{table:design:bridge}).
-Thus, for every event that is posted to the store, a new document of the same type shall be created in the index of the same name as the Event Store's stream.
+Thus, for every event that is posted to the store, a new document of the same type shall be created in the index of the same name as the Event Store's stream.\todo{doesnt work like that anymore!}
 A delay of a few seconds between the arrival of the event and its posting to Elasticsearch is acceptable.
+% https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html
 
 \begin{table}[]
 \centering

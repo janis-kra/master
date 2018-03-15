@@ -9,7 +9,7 @@ Checks wether the goals in \cref{sec:design:goals} are fulfilled.
 
 [Blurb about user tests ...]
 
-Additionally, a performance test shall ensure that \ac{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
+Additionally, a performance test shall ensure that \acf{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
 For this purpose, 10.000\todo{number not final} \texttt{UserClicked} events with random click coordinates are created and sent to Event Store by an application explicitly built for this objective.
 Details about this test can be found in \cref{sec:evaluation:performance}.
 
@@ -23,6 +23,8 @@ Details about this test can be found in \cref{sec:evaluation:performance}.
 
 - test document contains explicit tasks such as "send a DM to user Janis"
 
+- task 0: If you have not used Mattermost before, please go through the brief tutorial (number of users who do the tutorial is monitored)
+
 - task 1: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
 
 - task 2: Another controlled experiment, similar to task 1.
@@ -33,7 +35,7 @@ This allows for predictions which content is more interesting for the users.
 This leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001}.
 
 - This also leads to general usage of the chat application, which allows for general passive user feedback via \texttt{UserClicked} events etc.
-Need more data, what to collect?
+Need more data, what to collect? (e.g. amount of messages, types of messages)
 
 % Thoughts regarding \cite{dumas2009usability}
 % is this a diagnostic test, i.e. no statistically relevant outcome can be concluded from them?
@@ -42,13 +44,43 @@ Need more data, what to collect?
 %
 % this is an asynchronous remote test
 
+\subsection{Experimental Set-Up}
+
+\subsection{Execution}
+
+\subsection{Results}
+
 \section{Performance Test}
 \label{sec:evaluation:performance}
 
-For the purpose of testing the performance of \ac{IFAS}, a high number of \texttt{UserClicked} events was created and sent to the Event Store instance in rapid succession.
-This causes a dedicated persistent subscription, which the Event Store-Elasticsearch bridge listens on, to forward the events, which causes the events being fed into Elasticsearch as fast as possible.
+For the purpose of testing the performance of \ac{IFAS}, a predefined number of \texttt{UserClicked} events was created and sent to the Event Store instance in rapid succession.
+This causes a dedicated persistent subscription, which the Event Store-Elasticsearch bridge listens on, to forward the events, which in turn causes the events being fed into Elasticsearch as fast as possible.
 A visualization of the coordinates of the click events in Kibana, with auto-refresh set to 5 seconds, causes Kibana to continually poll the current state of the Elasticsearch index.
 As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 30 seconds.
+
+\subsection{Experiment Set-Up}
+
+\citet{Henze2011} collected 120,626,225 touch events in their experiment about touch performance of smartphone users, so if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
+Thus, one variant of the performance test generates 150,000,000 events and pushes them -- via Event Store and the bridge -- through to Elasticsearch.
+A number of metrics is recorded during this procedure:
+
+\begin{description}
+\item[Generation Duration] The amount of seconds it takes to generate all events and send a \ac{HTTP} POST request to the Event Store instance, enqueueing the event for saving.
+\item[Event Store Save Duration] The amount of seconds it takes to save all events in the Event Store instance, beginning at the point in time where the first event is enqueued for saving.
+\item[Elasticsearch Save Duration] The amount of seconds it takes to save all events in Elasticsearch, beginning at the point in time where the first document is enqueued for saving.
+\item[Total Saving Duration] The amount of seconds it takes to save all events in \ac{IFAS}.
+This value is similar to the Elasticsearch Save Duration, but takes into account the time it takes Event Store to process the first event and the bridge to forward the event to Elasticsearch.
+Thus, the Total Saving Duaration also includes potential delays due to network latency when \ac{HTTP} requests are made.
+As all Docker containers run in the same bridge network, the effect that this has on the Total Saving Duration is probably marginal.
+\end{description}
+
+As it is not realistic that 150,000,000 events are created nearly instantaneously -- in the referenced experiment~\cite{Henze2011} the events occurred over a timespan of a few months -- it is not required in this experiment to reach the 30s threshold mentioned earlier.
+Instead, a number of smaller experiments is conducted in which the threshold has to be reached.
+The performance test is thus repeated with the amount of generated events decreasing by one order of magnitude for each experiment (i.e. the experiment is performed with 15 / 150 / 1,500 / 15,000 / ... events).
+For experiments with 150,000 events or lower, the 30s threshold of all data being available in Kibana has to be reached.
+For the bigger experiments, this value is still monitored, but would not result in a failed experiment.
+
+...\todo{how is this measured in ES/EvtS?}
 
 Kibana offers the possibility to view detailed statistics for every visualization via the \emph{Visualization Spy}, including query duration, request duration and number of hits.
 These statistics are useful for measuring the performance for different reasons:
@@ -79,16 +111,39 @@ $$t_\text{startES} - t_\text{startGen}+ d_\text{ESSave} + d_\text{VisDelay} + d_
 
 \todo{per Zeitstrahl oder so visualisieren}
 
+\subsection{Execution}
+
+\subsection{Results}
+
+When running the performance tests for 15.000 events and above, it was observed that after initially processing a few thousand events per second, event processing at the bridge then subsequently slowed down to as low as 200 events per second.
+\Cref{todo} illustrates the mean processing times for the bridge application for increasing event numbers with a single Event Store instance.
+[Description of the plot]
+The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance often suddenly increased again after about ten to twenty seconds made a memory leak very unlikely.
+Inspection of the docker containers' resources via `docker stats` revealed that the single Event Store instance suffered heavy CPU load of up to 200\% (i.e. the container used two cores worth of CPU load).
+In simpler terms, the processing complexity of managing a persistent subscription was identified as a bottleneck.
+A possible solution for this could be to make use of sharding in order to distribute the CPU load onto multiple Event Store instances.
+While this would very likely still result in 200\% CPU usage, distributing the processing complexity onto multiple shards is expected to result in overall faster processing times for the bridge application.
+However, this is not the case as \cref{todo} shows.
+[Description of the second plot with multiple shards]
+Instead the messages per second rate was improved by tweaking several settings of the persistent subscription itself as well as the buffer size on the client side (i.e. the amount of messages per transaction that the client tells the server it can handle -- more buffer size means more messages per transaction, but could potentially overburden the client).
+
 \section{Null Hypothesis}
 
-TODO: Do I need to do this??? cf. \cite{Kohavi2009}
+%short: what is the null hypothesis -- cf. \cite{Kohavi2009}
+%\cite{Kohavi2013a}: To validate an experimentation system, we recommend that A/A tests be run regularly to test that the experimental setup and randomization mechanism is working properly. An A/A test, sometimes called a null test (Peterson 2004), exercises the experimentation system, assigning users to one of two groups, but exposes them to exactly the same experience.
+
+% experimental set-up
+
+% execution
+
+% results
 
 \section{Validity}
 \label{sec:evaluation:validity}
 
 \cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
 
-\section{Experimentation Guidelines}
+\section{Experimentation Guidelines for IFAS}
 
 This section describes how different types of experiments can be executed using \ac{IFAS}.\todo{this is a kind of "subjective evaluation" -- maybe not the right place for this?}
 
