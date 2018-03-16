@@ -1,0 +1,210 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[german]{babel} % German language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+% JK custom setup
+\usepackage[noabbrev]{cleveref}
+\usepackage{hyperref}
+\usepackage{graphicx}
+% end JK custom setup
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Universität Paderborn} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Usability Test -- Implicit Feedback Analysis System \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Janis Krasemann} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	Usability Test
+%----------------------------------------------------------------------------------------
+
+Dies ist ein Test zur Benutzerfreundlichkeit einer angepassten Version der "Mattermost" Chatanwendung.
+%You are asked to do a usability test on a customized version of the Mattermost chat application.
+[Blabla über usability testing...]
+Für gewöhnlich wird zunächst eine bestimmte Herangehensweise erläutert und anschlie\ss end eine Aufgabe gegeben.
+Alle durchzuführenden Aktionen sind explizit mit ,,\textbf{Aufgabe}'' gekennzeichnet.
+
+Bitte versuchen Sie, die Aufgaben so präzise wie möglich durchzuführen.
+Führen Sie die Aufgaben nach bestem Wissen und Gewissen durch, Ihre Leistung wird allerdings in keiner Weise bewertet.
+Einige ihrer Aktionen werden automatisch über das ,,Implicit User Feedback Analysis System'' erfasst und analysiert, diese Daten sind jedoch komplett anonymisiert.
+Tatsächlich müssen wie überhaupt keine persönlichen Daten angeben -- stattdessen wurde ein anonymer Benutzername und Passwort bereits für Sie erstellt und in \ref{task0} abgedruckt.
+
+%------------------------------------------------
+
+\section{Anmeldung}
+\label{task0}
+
+Öffnen Sie einen Internet Browser Ihrer Wahl mit dem Sie vertraut sind -- etwa Google Chrome, Firefox, oder Safari -- und navigieren sie zu \url{http://localhost}.
+Nach Laden der Seite sehen Sie einen Anmeldebildschirm.
+
+\textbf{Aufgabe:} Geben Sie die folgenden Benutzerdaten ein und klicken Sie anschlie\ss end auf den mit ,,Anmelden'' betitelten Knopf:
+
+\begin{itemize}
+\item Benutzername: jibem
+\item Passwort: 12345678
+\end{itemize}
+
+\textbf{Wichtig:} Prüfen Sie bitte, ob Sie auf der linken Seite des Fenster ein blaues Menü sehen können.
+Falls nicht, vergrö\ss ern Sie Ihr Browserfenster bis das Menü auf der linken Seite erscheint (s. Bildschirmfoto \ref{menu-example}).
+Anschlie\ss end können Sie zu Aufgabe \ref{task1} weitergehen.
+
+\begin{figure}[htb]
+        \includegraphics[width=\textwidth]{menu-example}
+        \caption{If needed, resize your browser window such that the blue side menu appears. TODO: Update}
+        \label{menu-example}
+\end{figure}
+
+
+%------------------------------------------------
+
+\section{Einführung}
+\label{task1}
+
+Falls Sie noch nie eine webbasierte Chatanwendung verwendet haben oder einfach nur eine kurze Einführung in Mattermost erhalten möchten, können Sie sich jetzt entscheiden, ob Sie eine kurze Einführung durchlaufen möchten.
+
+\textbf{Aufgabe}: Falls Sie die Einführung durchlaufen möchten, können Sie jetzt den Einführungstext von Mattermost lesen und danach auf den ,,Weiter'' betitelten Knopf anklicken.
+Wenn Sie die Einführung überspringen möchten, klicken Sie einfach auf ,,Tutorial überspringen''. //TODO: Prüfen ob die Button Texte richtig sind
+
+Wenn Sie damit fertig sind und ein Chatfenster mit Katzenbildern sehen können (weil Sie initial im "Katzen" Kanal landen), können sie mit Aufgabe \ref{task2} weitermachen.
+
+%------------------------------------------------
+
+\section{Kanal wechseln}
+\label{task2}
+
+Im Menü auf der linken Seite des Fenster können Sie eine Liste öffentlicher Kanäle sehen.
+Ein Kanal ist eine Chatgruppe der Sie beitreten können um dort Nachrichten lesen und schreiben zu können.
+Es gibt im Moment nur zwei Kanäle: ,,Katzen'' und ,,Hunde''.
+Sie sind aktuell im Katzen Kanal.
+
+\textbf{Aufgabe}: Klicken Sie im linksseitigen Menü den Eintrag für den Hunde Kanal an, um den Kanal zu wechseln.
+Wenn sich die Inhalte des Hauptfensters verändern und dort Hundebilder zu sehen sind, war der Kanalwechsel erfolgreich.
+
+\subsection{Verwendung des Kanalwechslers}
+
+Man kann auch den ,,Kanalwechsler'' verwenden, um zu einem anderen Kanal zu wechseln.
+Sie können den Kanalwechsler aufrufen, in dem sie entweder auf ,,Kanal wechseln'' in der unteren linken Ecke des Fenster klicken, oder Strg+K bzw. Cmd+K drücken (je nachdem ob Sie einen Windows PC oder Mac verwenden).
+Im Kanalwechsler können Sie den Namen des gewünschten Kanals eingeben (oder nur einen Teil des Namens) und dann auf den Kanal klicken in den Sie wechseln wollen.
+
+\textbf{Aufgabe}: Rufen Sie den Kanalwechsler auf in dem Sie auf ,,Kanal wechseln'' klicken; geben Sie dann ,,Katzen'' ein und klicken sie auf den erscheinenden Kanal.
+Wenn Sie wieder die eingangs gezeigten Katzenbilder sehen, war der Kanalwechsel erfolgreich.
+
+\subsection{Ein letztes mal den Kanal wechseln}
+
+Da Hunde ganz offensichtlich besser sind als Katzen, wollen wir jetzt zurück zum Hunde Kanal wechseln.
+
+\textbf{Aufgaben}: Bitte wechseln Sie also jetzt wieder zum Hunde Kanal, Sie können hierbei frei wählen über welche der erlenten Techniken das  passieren soll: Entweder über den Kanalwechsler unten links, oder über das linksseitige Menü.
+
+Wenn Sie das getan haben, machen Sie bitte mit der finalen Aufgabe \ref{task4} weiter.
+
+%------------------------------------------------
+
+\section{Eine Nachricht senden}
+\label{task4}
+
+Natürlich ermöglich Mattermost auch das Verfassen und Versenden von Nachrichten in einem beliebigen Kanal.
+Das können Sie tun, indem Sie in die Textbox am unteren Rand des Fensters klicken, Ihre Nachricht eintippen und anschlie\ss end die Enter-Taste drücken.
+
+\textbf{Aufabe}: Wählen Sie zunächst einen der beiden kennengelernten Kanäle aus.
+Schreiben Sie dann in diesem Kanal eine beliebige Nachricht und drücken Sie die Enter-Taste um die Nachricht zu versenden.
+Der Inhalt der Nachricht ist nicht wichtig, ein einfaches ,,Hallo'' ist ausreichend.
+
+%------------------------------------------------
+
+\section{Wrap-up}
+\label{wrapup}
+
+???
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 2
+%----------------------------------------------------------------------------------------
+%
+%\section{Lists}
+%
+%%------------------------------------------------
+%
+%\subsection{Example of list (3*itemize)}
+%\begin{itemize}
+%	\item First item in a list 
+%		\begin{itemize}
+%		\item First item in a list 
+%			\begin{itemize}
+%			\item First item in a list 
+%			\item Second item in a list 
+%			\end{itemize}
+%		\item Second item in a list 
+%		\end{itemize}
+%	\item Second item in a list 
+%\end{itemize}
+%
+%%------------------------------------------------
+%
+%\subsection{Example of list (enumerate)}
+%\begin{enumerate}
+%\item First item in a list 
+%\item Second item in a list 
+%\item Third item in a list
+%\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
