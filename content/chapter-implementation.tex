@@ -60,8 +60,12 @@ These delays can be a reason to make the user abandon the application altogether
 In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used for this use case for two reasons.
 The concept of the \texttt{sendBeacon} method is that it can be used to asynchronously send a small amount of data to a server prior to the user leaving the page, in a reliable way.
 However, this is not implemented yet in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
-Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id.
-Attaching custom headers via the \texttt{sendBeacon} method is not supported though.
+Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id -- attaching custom headers via the \texttt{sendBeacon} method is not supported though.
+
+Another possibility for delivering implicit user feedback is the web beacon technique, which work by sending a request for a special 1x1 pixel image on a server.
+While this was a very popular method a few years ago, improvements in web browser and the JavaScript language make web beacons rather outdated.
+\citet{Kohavi2012} report additional problems with browsers aborting requests which are made via the web beacon technique.
+The consequence is that web beacons are not a suitable alternative for sending the feedback to the server.
 
 For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
 This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem.
