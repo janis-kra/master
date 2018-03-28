@@ -18,6 +18,23 @@ Details about this test can be found in \cref{sec:evaluation:performance}.
 \section{User Test}
 \label{sec:evaluation:user}
 
+In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a usability test was executed.
+This testing method was chosen because usability tests allow for very specific guidance of the user through the application.
+However, it should be explicitly noted that this test does not have the goal of evaluating the usability of the modified Mattermost client.
+Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
+
+The experiment serves to prove three features of \ac{IFAS}.
+First, the system can be used to monitor application usage in general.
+This is shown by visualizing click events and data about sent chat messages.
+Second, the system can be used to monitor the users' acceptance of specific application features.
+This is shown by capturing usage data of two different mechanics for achieving the same result (switching chat channels).
+Third, the system allows experimenters to perform controlled experiments, especially A/B tests.
+This is shown by performing an A/B test within the usability test.
+It should be noted that while the sample size for this experiment is sufficient for a usability test, it is way too low if a real world A/B test where to be executed because the collected data would be statistically irrelevant.
+This is not a problem because the experiment is merely used to prove that \ac{IFAS} allows for collection and analysis of A/B test data; the performance test (cf. \cref{sec:evaluation:performance}) proves that the system is also able to handle enough events for an A/B test to be statistically relevant.
+An A/A test is also done in order to prove the validity of the randomization unit.
+
+Sample size of 10 user -- more than enough~\cite{Turner2006}.
 
 - give user a test document with login information for Mattermost
 
@@ -46,12 +63,47 @@ Need more data, what to collect? (e.g. amount of messages, types of messages)
 
 \subsection{Experimental Set-Up}
 
+For the experiment, the web version of the Mattermost client was modified in order to send the desired events to \ac{IFAS}.
+This involves both implicit feedback events in general as well as very specific events for controlled experiments.
+I detail, the experiment involves the following aspects\todo{?}:
+
+\begin{description}
+\item[Click analysis (monitoring)] Every click that the user does during the usability test is sent to \ac{IFAS} as a \texttt{UserClickedEvent}.
+This data is visualized in two ways in Kibana.
+First, a click heatmap (cf. \cref{fig:evaluation:user:click-heatmap}) visualizes where the users interact with the application.
+Second, in a line chart which displays a users click rate over time
+\item[Channel usage (monitoring)]
+\item[Usage of the channel switcher (feature analysis)]
+\item[Click rate of a modified tutorial button (A/B test)]
+\item[Click rate of the login button (A/A test]
+\end{description}
+
+
+ % explain how this does not suffice as a real controlled experiment (for example, sample size is not large enough) but still suffices to *simulate* a controlled experiment and prove that the necessary results are measured in IFAS -- use some Kohavi ref.
+
 \subsection{Execution}
 
 \subsection{Results}
 
+\paragraph{Click Analysis}
+
+...
+
+It should be noted that the created click heatmap assumes a resolution of 1920x1080 pixels, which very certainly differs from the actual window size that the test subjects use.
+Thus, if such a visualization where to be used in a production environment, the click coordinates would have to be normalized by a factor dependent on the user's window size.
+This should be possible with relative ease using Elasticsearch's bucket aggregations, but was not implemented for this thesis due to its additional complexity and resulting time constraints.
+
+%\begin{figure}[htb]
+%        \includegraphics[width=\textwidth]{gfx/click-heatmap}
+%        \caption{Click Heatmap}
+%        \label{fig:evaluation:user:click-heatmap}
+%\end{figure}
+
+
 \section{Performance Test}
 \label{sec:evaluation:performance}
+
+TODO: Do the performance test for an A/B test!
 
 For the purpose of testing the performance of \ac{IFAS}, a predefined number of \texttt{UserClicked} events was created and sent to the Event Store instance in rapid succession.
 This causes a dedicated persistent subscription, which the Event Store-Elasticsearch bridge listens on, to forward the events, which in turn causes the events being fed into Elasticsearch as fast as possible.
@@ -111,13 +163,44 @@ $$t_\text{startES} - t_\text{startGen}+ d_\text{ESSave} + d_\text{VisDelay} + d_
 
 \todo{per Zeitstrahl oder so visualisieren}
 
+...
+
+EventStore offers various configuration options when setting up a persistent subscription and also when connecting to such a subscription.
+These settings are as follows:
+
+\begin{description}
+\item[Live Buffer Size] %The size of the live buffer (in memory) before resorting to paging.
+\item[Buffer Size] % The number of messages that should be buffered when in paging mode.
+\item[Read Batch Size] % The size of the read batch when in paging mode.
+\item[Client-Side Buffer Size] %The number of in-flight messages this client is allowed.
+\end{description}
+
+\begin{table}
+\centering
+\begin{tabular}{lllll}
+Config                                      & \begin{tabular}[c]{@{}l@{}}Live Buffer Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Buffer Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Read Batch Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Client-Side Buffer Size\\\end{tabular}  \\
+\begin{tabular}[c]{@{}l@{}}0\\\end{tabular} & 500                                                        & \begin{tabular}[c]{@{}l@{}}500\\\end{tabular}         & \begin{tabular}[c]{@{}l@{}}20\\\end{tabular}              & \begin{tabular}[c]{@{}l@{}}40\\\end{tabular}                       \\
+\begin{tabular}[c]{@{}l@{}}1\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}1000\\\end{tabular}             & 1000                                                  & 40                                                        & 80                                                                 \\
+2                                           & 2000                                                       & \begin{tabular}[c]{@{}l@{}}2000\\\end{tabular}        & \begin{tabular}[c]{@{}l@{}}80\\\end{tabular}              & 160                                                                \\
+3                                           & 4000                                                       & 4000                                                  & 160                                                       & 320                                                                \\
+4                                           & 8000                                                       & 8000                                                  & 320                                                       & 640                                                                \\
+5                                           & 16000                                                      & 16000                                                 & 640                                                       & 1280                                                               \\
+6                                           & 32000                                                      & 32000                                                 & 1280                                                      & 2560                                                               \\
+7                                           & 64000                                                      & 64000                                                 & 2560                                                      & 5120                                                               \\
+8                                           & 128000                                                     & 128000                                                & 5120                                                      & 10240                                                              \\
+9                                           & 256000                                                     & 256000                                                & 10240                                                     & 20480                                                             
+\end{tabular}
+\end{table}
+
 \subsection{Execution}
 
 \subsection{Results}
 
-When running the performance tests for 15.000 events and above, it was observed that after initially processing a few thousand events per second, event processing at the bridge then subsequently slowed down to as low as 200 events per second.
-\Cref{todo} illustrates the mean processing times for the bridge application for increasing event numbers with a single Event Store instance.
+When running the performance tests for 10.000 events and above with the standard configurations for the subscription, a performance bottleneck was observed.
+The observation is that after initially processing a few thousand events per second, event processing at the bridge then subsequently slowed down to as low as 200 events per second.
+\Cref{fig:evaluation:performance:config-comparison_100k} illustrates the mean processing times for the bridge application for increasing event numbers with a single Event Store instance and 100.000 events.
 [Description of the plot]
+
 The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance often suddenly increased again after about ten to twenty seconds made a memory leak very unlikely.
 Inspection of the docker containers' resources via `docker stats` revealed that the single Event Store instance suffered heavy CPU load of up to 200\% (i.e. the container used two cores worth of CPU load).
 In simpler terms, the processing complexity of managing a persistent subscription was identified as a bottleneck.
@@ -126,6 +209,13 @@ While this would very likely still result in 200\% CPU usage, distributing the p
 However, this is not the case as \cref{todo} shows.
 [Description of the second plot with multiple shards]
 Instead the messages per second rate was improved by tweaking several settings of the persistent subscription itself as well as the buffer size on the client side (i.e. the amount of messages per transaction that the client tells the server it can handle -- more buffer size means more messages per transaction, but could potentially overburden the client).
+
+\begin{figure}[htb]
+        \includegraphics[width=\textwidth]{gfx/config-comparison_100k}
+        \caption{}
+        \label{fig:evaluation:performance:config-comparison_100k}
+\end{figure}
+
 
 \section{Null Hypothesis}
 
