@@ -115,15 +115,21 @@ This should be possible with relative ease using Elasticsearch's bucket aggregat
 As it is somewhat complicated to test the performance of the whole \ac{IFAS} stack at once because of its many interconnected services and applications, the performance test is split into three parts:
 
 \begin{enumerate}
-\item Performance, i.e. events over time, of Event Store and Elasticsearch with the bridge application in between (cf. \cref{subsec:evaluation:performance:evt-es-bridge})
+\item Event processing performance, i.e. amount of processed events over time, of Event Store and Elasticsearch with the bridge application in between (cf. \cref{subsec:evaluation:performance:evt-es-bridge})
 \item Indexing time of Elasticsearch (cf. \cref{subsec:evaluation:performance:elasticsearch})
-\item Rendering time of a visualization with data points 2,000,000 documents in Kibana (cf. \cref{subsec:evaluation:performance:kibana})
+\item Rendering time of a visualization in Kibana (cf. \cref{subsec:evaluation:performance:kibana})
 \end{enumerate}
 
 In combination, this results in a fitting evaluation of the \ac{IFAS} stack's performance in general.
 The combined insights from these experiments are explained in \cref{subsec:evaluation:performance:insights}.
 
-All statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}
+During the planning phase of the experiments, it became apparent that it is problematic to come up with a realistic and representative number of events that \ac{IFAS} should be able to process.
+For this reason, a study by \citet{Henze2011} was taken into consideration which presents an experiment about touch performance of smartphone users.
+\citeauthor{Henze2011} collected 120,626,225 touch events, so if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
+As it is unrealistic that 120 million events are created within a few seconds or minutes, the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
+Both the tests for the indexing time of Elasticsearch and for the rendering time of Kibana are executed with an index of 120 million documents.
+
+If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}
 
 \subsection{Client to Event Store to Elasticsearch}
 \label{subsec:evaluation:performance:evt-es-bridge}
@@ -140,15 +146,13 @@ Firstly, this is highly dependent on the type of client application, and secondl
 An earlier version of the bridge application was using the rather simple approach of immediately issuing an \ac{HTTP} POST request for every event upon arrival.
 Early tests showed that this is not a fitting approach because the multitude of HTTP requests introduced a huge overhead in terms of computational effort an latency.
 This resulted in an unsatisfactory performance of the bridge application (multiple minutes for 100,000 events).
-Instead of using this naive implementation of the bridge application, a more sophisticated mechanic was introduced which involves buffering mulitple events in the bridge and then doing a bulk indexing call on Elasticsearch.
+Instead of using this naive implementation of the bridge application, a more sophisticated mechanic was introduced which involves buffering mulitple events in the bridge and then doing a bulk indexing call to Elasticsearch.
 The specifics of this implementation are explained in \cref{sec:implementation:bridge}.
 
 \subsubsection{Experiment Set-Up}
 
-As there is only scarce documentation about Event Store's various configuration options, the tests were executed with different settings for the persistent subscription that the bridge application listens to.
-Event Store offers various configuration options when setting up a persistent subscription and also when connecting to such a subscription.
-All these size values are assumed to be in Kilobyte, but this is only an educated guess as this is not documented anywhere.
-For this reason, the values are always given without any unit at all in order to avoid errors.
+As there is only scarce documentation about Event Store's various configuration options for persistent subscriptions in general and about tuning persistent subscriptions for ideal event throughput in particular, the tests were executed with different subscription settings.
+Event Store has configuration options for the persistent subscription itself on the server side, as well as for the connection on the client side, i.e. on the bridge.
 These settings are as follows (descriptions taken from the Event Store documentation\footnote{\url{https://eventstore.org/docs/dotnet-api/competing-consumers/}}):
 
 \begin{description}
@@ -158,11 +162,15 @@ These settings are as follows (descriptions taken from the Event Store documenta
 \item[Client-Side Buffer Size] The number of in-flight messages this client is allowed.
 \end{description}
 
-The configurations used in the performance tests are given in \cref{table:evaluation:performance:evt-es-bridge:configs}.
+All these values are \emph{assumed} to be in Kilobyte, but this is only an educated guess as this is not documented anywhere.
+For this reason, the values are always given without any unit at all in order to avoid potential errors.
+
+The configurations used in the performance tests are given in \cref{table:configs}.
 For configuration 0 the default settings were used, and then subsequently doubled for the next configuration.
 Thus, the formula for the values in any configuration is $ 2^c * v $ with configuration number $c$ and the respecting initial value $v$ (e.g. 500 for the live buffer size).
-When executing the tests, it was observed that the bridge application would sometimes stop receiving events although the subscription status indicated that there were still events in flight, i.e. being transmitted.
-The exact reason for this is unknown, but this behavior only occured if the client-side buffer size was set to 1280 or higher, and never for values less than or equal to 640. For this reason, the client-side buffer size was fixed to 640 for all configurations.
+When executing the tests, the bridge application would sometimes stop receiving events although the subscription status indicated that there were still events in flight, i.e. being transmitted.
+The exact reason for this is unknown, but this behavior only occurred if the client-side buffer size was set to 1280 or higher, and never for values less than or equal to 640.
+For this reason, the client-side buffer size was fixed to 640 for all configurations.
 
 For values higher than configuration level 9, the experiment suffered similar problems and thus configuration levels are capped to that number.
 Again, the reasons for this are unknown and could be implementation-specific, but are not further investigated because digging too deep into Event Store performance optimization is out of scope for this thesis (cf. \cref{ch:future-work}).
@@ -170,10 +178,10 @@ Again, the reasons for this are unknown and could be implementation-specific, bu
 \begin{table}
 \centering
 \begin{tabular}{lllll}
-Config                                      & \begin{tabular}[c]{@{}l@{}}Live Buffer Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Buffer Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Read Batch Size\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}Client-Side Buffer Size\\\end{tabular}  \\
-\begin{tabular}[c]{@{}l@{}}0\\\end{tabular} & 500                                                        & \begin{tabular}[c]{@{}l@{}}500\\\end{tabular}         & \begin{tabular}[c]{@{}l@{}}20\\\end{tabular}              & \begin{tabular}[c]{@{}l@{}}640\\\end{tabular}                       \\
-\begin{tabular}[c]{@{}l@{}}1\\\end{tabular} & \begin{tabular}[c]{@{}l@{}}1000\\\end{tabular}             & 1000                                                  & 40                                                        & 640                                                                 \\
-2                                           & 2000                                                       & \begin{tabular}[c]{@{}l@{}}2000\\\end{tabular}        & \begin{tabular}[c]{@{}l@{}}80\\\end{tabular}              & 640                                                                \\
+\textbf{Config}                                      & \textbf{Live Buffer Size} & \textbf{Buffer Size} & \textbf{Read Batch Size} & \textbf{Client-Side Buffer Size}  \\
+0 & 500                                                        & 500         & 20              & 640                       \\
+1 & 1000             & 1000                                                  & 40                                                        & 640                                                                 \\
+2                                           & 2000                                                       & 2000        & 80              & 640                                                                \\
 3                                           & 4000                                                       & 4000                                                  & 160                                                       & 640                                                                \\
 4                                           & 8000                                                       & 8000                                                  & 320                                                       & 640                                                                \\
 5                                           & 16000                                                      & 16000                                                 & 640                                                       & 640                                                               \\
@@ -182,21 +190,20 @@ Config                                      & \begin{tabular}[c]{@{}l@{}}Live Bu
 8                                           & 128000                                                     & 128000                                                & 5120                                                      & 640                                                              \\
 9                                           & 256000                                                     & 256000                                                & 10240                                                     & 640                                                             
 \end{tabular}
-\label{table:evaluation:performance:bridge:configs}
 \caption{Configuration table}
+\label{table:configs}
 \end{table}
-\todo{update}
-\todo{fix table label}
 
-All experiments are executed for 50,000, 100,000 and 150,000 events for every configuration available.
-This yields 30 different experiments in total, which are each repeated 15 times\todo{update number?} in order to eliminate the impact of statistical outliers as good as possible.
+All experiments are executed for 50,000 (50k), 100,000 (100k) and 150,000 (150k) events for every configuration available.
+This yields 30 different experiments in total, which are each repeated 15 times\todo{update number?} in order to eliminate the impact of statistical outliers.
 
 The experiments were executed on a 2012 Macbook Pro featuring an Intel Core i7 2.7 GHz and 16GB memory.
-Docker was configured to be allowed to use 4 out of 8 possible threads from the CPU (Intel's i7 processor has 4 CPUs, each of which managing 2 execution threads), 4 GiB of memory and a swap space of 1 GiB.
+Docker was configured to be allowed to use 4 out of 8 possible threads from the CPU; Intel's i7 processor has 4 CPUs, each of which manages 2 execution threads
+Docker's memory was set to 4 GiB, with a swap space of 1 GiB.
 
 \subsubsection{Execution}
 
-The experiment was executed using two custom bash scripts (cf. \cref{appendix:code:evaluation:performance:exec-perftests} and \cref{appendix:code:evaluation:performance:performance}.
+The experiment was executed using two custom bash scripts (cf. \cref{appendix:code:evaluation:performance:exec-perftests} and \cref{appendix:code:evaluation:performance:performance}).
 The \texttt{performance.sh} script starts the event generator and bridge application with a given set of configuration parameters, then saves the output of the latter to a CSV file.
 Just before connecting to the persistent subscription, the current timestamp is logged to the file, thus later allowing to compute the total duration of the operation for the respective configuration and size.
 Each subsequent line of this CSV file is generated by the bridge application for each bulk indexing operation that is sent to Elasticsearch.
@@ -210,11 +217,11 @@ The resulting CSV file has four columns:
 \end{description}
 
 The \texttt{performance.sh} script is called by the \texttt{exec-perftest.sh} script.
-This script loops over all possible combinations of size and configuration and calls \texttt{performance.sh} with the resulting parameters.
-This is repeated for a given amount of runs.
+This script loops over all possible combinations of size and configuration as given in \cref{table:configs} and calls \texttt{performance.sh} with the resulting parameters.
+This is repeated for a given amount of runs, in this case 15.
 
-One observation when executing the experiments was that performance gradually decreased the more experiments had already been executed.
-In order eliminate crossover effects from other experiment runs, the \texttt{exec-perftest.sh} script invokes \texttt{docker-compose down} prior to executing the experiment, thus tearing down all relevant containers and volumes that existed before.
+A gradual decrease in performance was observed during the first runs of the experiment, which got worse the more experiments had already been executed.
+In order eliminate such crossover effects from other experiment runs, the \texttt{exec-perftest.sh} script invokes \texttt{docker-compose down} prior to executing the experiment, thus tearing down all relevant containers and volumes that existed before.
 This guarantees identical starting conditions for each experiment run.
 
 \subsubsection{Results}
@@ -222,34 +229,16 @@ This guarantees identical starting conditions for each experiment run.
 The results of the performance experiment are visualized in two ways.
 First, the total indexing duration of each configuration and size is described using the box plots given in \cref{fig:evaluation:performance:mean-durations-50k,fig:evaluation:performance:mean-durations-100k,fig:evaluation:performance:mean-durations-150k}.
 Second, the amount of sent events over time for each configuration and size is visualized in the line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k}.
-These are used for giving additional insight as to how the discrepancies in the total indexing durations can be explained, as well as describing an interesting phenomenom regarding the performance over time of a persistent subscription.
+These are used for giving additional insight as to how the discrepancies in the total indexing durations can be explained.
+This evaluation yields an an interesting phenomenon regarding a subscription's performance over time.
 
 \paragraph{Total indexing duration}
 
 The box plots given in \cref{fig:evaluation:performance:mean-durations-50k,fig:evaluation:performance:mean-durations-100k,fig:evaluation:performance:mean-durations-150k} visualize the total amount of time it took each configuration to process the respective amount of events and send them to Elasticsearch for indexing.
 The x-axes indicate the configuration number representing the settings that were used.
-\Cref{table:evaluation:performance:bridge:configs} can be used to look up what exact settings the configuration number stands for.
+\Cref{table:configs} can be used to look up what exact settings each configuration number stands for.
 The y-axes of the box plots indicate the total duration in seconds for processing the events and sending them to Elasticsearch.
-Whiel the x-axes use a continuous scale, the y-axes use a logarithmic scale in order to better illustrate differences between the faster configurations.
-
-The boxes in these plots represent the distribution of the indexing duration over multiple repetitions of the experiment as follows:
-First of all, the median over all 15\todo{update} runs is indicated by the bold black line in the middle of each box.
-The box itself spans all values between the first and third quartile, and the solid black lines -- also called ``whiskers'' -- extend from the box to the largest / lowest value that is no further than $ 1.5 * \text{IQR} $ from the top / bottom of the box.
-$\text{IQR}$ is the ``inter-quartile range'', i.e. the distance between the first and third quartiles.
-All data points that are outside of these ranges are called outliers, represented by a black dot.
-
-One interesting observation is that there seems to be a threshold at which performance increases considerably.
-This threshold is between configurations 5 and 6, while lower configurations perform more or less at the same level.
-The assumption is that the buffer sizes and read batch size are the main performance bottleneck bottleneck for the lower configurations, and thus all configurations with buffer sizes below 32,000 and read batch size below 1,280 should be avoided.
-
-Another observation is that there is no \emph{best} configuration for all experiment sizes.
-Instead, for 50,000 events (cf. \ref{fig:evaluation:performance:mean-durations-50k}), configuration number 6 is by a thin margin better than configurations 7 to 9.
-Not only is its median duration slightly better, the minimum duration -- see the outlier at the bottom of the plot for configuration 6 -- is also considerably lower than for other configurations.
-In contrast to that, for 100,000 events configuration 7 is the best, not taking into account the outlier for configuration 3.
-Configuration 8 is fastest for 150,000 by a fairly large margin.
-It seems that the more events have to be processed by a subscription, the more efficiently Event Store can make use of the allocated resources for this subscription -- while a surplus of resources lowers performance.
-Although this is an interesting observation that could be taken into account when designing a performance-critical system using persistent subscriptions, in the case of \ac{IFAS} it is safe to just pick the configuration which performs best on average.
-This is configuration 8, with a buffer size and live buffer size of 128,000, read batch size of 10,240 and client-side buffer size of 640.
+While the x-axes use a continuous scale, the y-axes use a logarithmic scale in order to better illustrate differences between the faster configurations.
 
 \begin{figure}[htb]
         \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-50k.pdf}
@@ -269,37 +258,36 @@ This is configuration 8, with a buffer size and live buffer size of 128,000, rea
         \label{fig:evaluation:performance:mean-durations-150k}
 \end{figure}
 
-\paragraph{Events over time}
+The boxes in these plots represent the distribution of the indexing duration over multiple repetitions of the experiment as follows:
+First of all, the median over all 15 runs is indicated by the bold black line in the middle of each box, the box itself spans all values between the first and third quartile.
+The solid black lines -- also called ``whiskers'' -- extend from a box to the largest / lowest value that is no further than $ 1.5 * \text{IQR} $ away from the top / bottom of the box.
+$\text{IQR}$ is the ``inter-quartile range'', i.e. the distance between the first and third quartiles.
+All data points that are outside of these ranges are called outliers, represented by a plus sign.
+
+One interesting observation is that there seems to be a threshold at which the event processing performance increases considerably.
+This threshold lies between configurations 5 and 6, while lower configurations perform more or less at the same level.
+The resulting assumption is that the buffer sizes and the read batch size are the main performance bottlenecks for the lower configurations (0-5).
+Thus, all configurations with buffer sizes below 32,000 and read batch size below 1,280 should be avoided if the expected rate at which user feedback is generated surpasses 50k events over 20 seconds, as some outliers in \cref{fig:evaluation:performance:mean-durations-50k} reach the 20 second limit.
+
+Another observation is that there is no \emph{best} configuration for all experiment sizes.
+Instead, for 50k events (cf. \cref{fig:evaluation:performance:mean-durations-50k}), configuration number 6 is by a thin margin better than configurations 7 to 9.
+Not only is its median duration slightly better, the minimum duration is also considerably lower than for other configurations.
+This can be seen in \cref{fig:evaluation:performance:mean-durations-50k}, where the vertical line extending from the bottom of the box for configuration 6 represents the fastest run for 50k events over all configurations.
+In contrast to that, for 100k events configuration 7 is the best both in median and minimum.
+This applies to configuration 8 for the 150k events run.
+
+It seems that the more events in total are processed by a subscription, the more efficiently Event Store can make use of the allocated resources for this subscription.
+A surplus of resources, however, seems to lower performance.
+The effect is not very strong, but clearly visible in the plots; this can for example be seen when comparing configurations 7 and 8 in the 100k variant of the experiment, and when comparing configurations 8 and 9 in the 150k variant.
+Although this is an interesting observation that could be taken into account when designing a performance-critical system using persistent subscriptions, in the case of \ac{IFAS} it is safe to just pick the configuration which performs sufficiently well in all experiment sizes.
+This ideal configuration is configuration 8, with a buffer size and live buffer size of 128,000, read batch size of 10,240 and client-side buffer size of 640.
+With such a configuration \ac{IFAS} is able to handle up to 150k events in 30 seconds, i.e. 5,000 events per second.
+For more demanding use cases, more research into Event Store performance tuning would have to be conducted.
+
+\paragraph{Event processing rate over time}
 
 The line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k} illustrate the amount of processed events over time for the respective experiment sizes.
 These plots do not show a median or average distribution; instead, a specific experiment run was chosen that serves best for explaining the observations about the different configurations that were made earlier.
-
-For each experiment size, the processed events over time are visualized in a separate line plot for each configuration, which are then merged in one figure.
-The x-axes of all the plots indicates the time in seconds, while the y-axes indicate the amount of events that were processed and sent.
-In this case, both axes use a continuous scale.
-For improved visibility of patterns in the plots, an additional red line displays the smoothed conditional mean for each configuration.
-
-When looking at the configurations for all experiment sizes and especially for the 100k and 150k experiments, it becomes apparent that for the lower configurations, the event processing rate drops low after a few seconds into the experiment.
-This happens for configuration 5 and lower in the 50k experiment, for configuration 6 and lower in the 100k experiment and for configuration 7 and lower for the 150k experiment.
-Thus, the more events have to be processed, the higher the buffer sizes and read batch size has to be in order to avoid this processing rate drop.
-
-The earlier evaluation of the total processing duration already yielded the result that the configurations 0 to 5 perform poorly for all experiments.
-When looking at the line plots, especially in \cref{fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k}, the reason for this becomes apparent:
-Most of the time, the event processing rate at the bridge is extremely low, in some cases only 80 events were processed per second.
-However, when the end of the subscription is near, the processing rate goes up dramatically -- even the lowest configuration peaks at over 6,000 events, a value which even the highest configuration never achieves in some runs.
-It can additionally be observed that configurations 3 to 6 initially process a few thousand events per second, but afterwards the processing rate drops down low as well.
-While the initial peak and subsequent dropdown can be explained by the computational complexity of managing the subscription, the peak near the respective goal remains mysterious.
-
-The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance often suddenly increased again after about ten to twenty seconds made a memory leak very unlikely.
-Inspection of the docker containers' resources via \texttt{docker stats} revealed that the single Event Store instance suffered heavy CPU load of up to 200\% (i.e. half of the CPU resources allocated to Docker).
-Thus, the complexity of managing a persistent subscription and the resulting computation time was identified as a bottleneck.
-An assumed possible solution for this was to make use of sharding in order to distribute the CPU load onto multiple Event Store instances.
-While this would very likely still result in 200\% CPU usage, distributing the processing complexity onto multiple shards was expected to result in overall faster processing times for the bridge application.
-In order to test this assumption, the experiment was repeated for 100,000 events and configuration 5, which shows a particularly strong occurence of this phenomenom.
-As \cref{todo} shows, setting up an Event Store cluster does not improve performance of persistent subscriptions.
-The assumption is that persistent subscriptions are managed by one shard only, maybe even only at the master shard, but this cannot be validated at this point.
-
-%Instead, the messages per second rate was improved by tweaking several settings of the persistent subscription itself as well as the buffer size on the client side (i.e. the amount of messages per transaction that the client tells the server it can handle -- more buffer size means more messages per transaction, but could potentially overburden the client).
 
 \begin{figure}[htb]
         \includegraphics[width=\textwidth]{gfx/config-comparison_50k.pdf}
@@ -319,9 +307,41 @@ The assumption is that persistent subscriptions are managed by one shard only, m
         \label{fig:evaluation:performance:config-comparison_150k}
 \end{figure}
 
+For each experiment size, the processed events over time are visualized in a separate line plot for each configuration, which are then merged in one figure.
+The x-axes of all the plots indicate the time in seconds, while the y-axes indicate the amount of events that were processed by the bridge application.
+In this case, both axes use a continuous scale.
+For improved visibility of patterns in the plots, an additional red line displays the smoothed conditional mean for each configuration.
+
+When looking at the configurations for all experiment sizes and especially for the 100k and 150k experiments, it becomes apparent that for the lower configurations, the event processing rate drops low after a few seconds into the experiment.
+This happens for configuration 5 and lower in the 50k experiment, for configuration 6 and lower in the 100k experiment and for configuration 7 and lower for the 150k experiment.
+Thus, the more events have to be processed, the higher the buffer sizes and read batch size has to be in order to avoid this processing rate drop.
+
+The earlier evaluation of the total processing duration already yielded that the configurations 0 to 5 perform rather poorly for all experiments.
+When looking at the line plots, especially in \cref{fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k}, the reason for this becomes apparent:
+Most of the time, the event processing rate at the bridge is extremely low; in some cases, only 80 events were processed per second.
+However, when the end of the subscription is near, the processing rate goes up dramatically -- even the configuration 0 peaks at over 7,000 events, a value which the higher configurations never achieve in most runs.
+It can additionally be observed that configurations 3 to 6 initially process a few thousand events per second, but afterwards the processing rate drops down low as well.
+The initial peak and subsequent dropdown can partly be explained by the computational complexity of managing such a large amount of events over a long timespan.
+But the peak near the respective end of the plot remains mysterious.
+
+The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance suddenly increases again near the end of the subscription made this very unlikely.
+Instead, inspection of the docker containers' resources via the \texttt{docker stats} command revealed that the single Event Store instance suffered heavy CPU load, most of the time near 200\% (i.e. half of the CPU resources allocated to Docker).
+Both the bridge application and Elasticsearch had no problems with handling the amount of events that came in -- CPU load, memory consumption and network activity remained within acceptable bounds.
+Thus, the complexity of managing a persistent subscription and the resulting CPU load seems to be the bottleneck.
+An assumed possible solution for this was to make use of sharding in order to distribute the CPU load onto multiple Event Store instances.
+However, after a few tests it became apparent that this is not the case: One of the shards showed an identical CPU usage pattern, while the other shards remained mostly inactive.
+%While this would very likely still result in 200\% CPU usage, distributing the processing complexity onto multiple shards was expected to result in overall faster processing times for the bridge application.
+%In order to test this assumption, the experiment was repeated for 100k events and configuration 7, which shows a particularly strong occurence of this phenomenon (cf. \cref{fig:evaluation:performance:config-comparison_100k,fig:evaluation}).
+%As \cref{todo} shows, setting up an Event Store cluster does not improve performance of persistent subscriptions.
+The assumption is that persistent subscriptions are managed by one shard only, but this cannot be validated at this point.
+If this effect degrades performance too much, a possible solution could be to partition the events into more different event types and send these to different Event Store shards
+Each shard could then manage separate persistent subscriptions that multiple instances of the bridge application could then listen to.
+
+%Instead, the messages per second rate was improved by tweaking several settings of the persistent subscription itself as well as the buffer size on the client side (i.e. the amount of messages per transaction that the client tells the server it can handle -- more buffer size means more messages per transaction, but could potentially overburden the client).
+
 While the experiments were running, Docker's ressources were manually monitored using the \texttt{docker stats} command.
 The results are that the allocated ressources were sufficient for the experiments:
-While cumulative CPU usage peaked at 300\%, i.e. three of the four possible threads were fully occupied, memory usage was rather low with about 1.5 GB for all containers.
+While cumulative CPU usage peaked at 300\%, where 400\% would be the maximum, memory usage was rather low with about 1.5 GB for all containers.
 As the resources that were made available to Docker were never fully used, it can be deducted that both CPU and memory were sufficiently high in order to not have a negative impact on the experiments.
 
 \subsection{Elasticsearch Indexing Time}
@@ -331,6 +351,19 @@ As the resources that were made available to Docker were never fully used, it ca
 
 \subsubsection{Experiment Set-Up}
 
+The test for Elasticsearch's indexing performance uses a modified version of the Event Store-Elasticsearch bridge application.
+Instead of reading the events from an Event Store subscription, this modified bridge just generates the events on its own and sends them via the same bulk indexing call to Elasticsearch.
+The modified bridge application generates 10,000 events, then sends them to Elasticsearch and waits for a response.
+This procedure is repeated until 120 million events are sent and indexed as documents in Elasticsearch.
+As a result, the Event Store performance is isolated from this test, which allows for more accurate evaluation of the capabilities of Elasticsearch.
+
+The test yields an indexing rate, i.e. the amount of indexed documents per second.
+If this value is well above the processing rate of Event Store and the Event Store-Elasticsearch bridge, then Elasticsearch is suited to handle the rate at which the former supply events for indexing.
+
+Elasticsearch was run with the standard settings of \ac{IFAS}, which uses the default settings aside from the heap size, which is set to 512 MB.
+% the values \texttt{index_total} and \texttt{index_time_in_millis}
+
+
 %In addition to the visualization statistics, the overall performance of the Elasticsearch cluster was monitored.
 %Monitoring Elasticsearch cluster health out of the box is a feature of the X-Pack\footnote{\url{https://www.elastic.co/products/x-pack}} extension for the Elastic stack.
 %X-Pack bundles various complementary capabilities such as security, reporting, and monitoring -- the latter of which could also be achieved manually via Elasticsearch's node stats API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html}}.
@@ -339,8 +372,29 @@ As the resources that were made available to Docker were never fully used, it ca
 
 \subsubsection{Execution}
 
+The experiment was executed by first running the modified bridge application which successively sends events in batches of size 10,000 until 120 million documents are indexed in Elasticsearch.
+After the indexing is completed, Elasticsearch's Indices API allows for fetching of statistics about the index that the documents were previously written to.
+This yields, among others values, the total amount of indexed documents and the time that Elasticsearch spent indexing these documents, which in turn allows for computation of the indexing rate.
+
 \subsubsection{Results}
 
+The results of the experiment, also printed in \cref{table:elasticsearch-performance}, yield that Elasticsearch needed 702 seconds for indexing 120 million documents, which are a little above 17,000 documents per second.
+As evaluated in the performance test for Event Store and the bridge application, they process events with a rate of at most 5,000 events per second.
+
+Accordingly, Elasticsearch is well suited to handle the rate at which the rest of \ac{IFAS} prcoesses events.
+If needed, additional measures, such as increasing the heap size, can be taken in order to improve the indexing rate further.
+
+\begin{table}
+\caption{Performance of Elasticsearch when indexing 120 million documents.}
+\label{table:elasticsearch-performance}
+\centering
+\begin{tabular}{ll}
+Indexed Documents & 12,000,000 \\
+Index Time (s) & 702.405 \\
+Documents per second & 17,084.16
+\end{tabular}
+\end{table}
+\todo{Update for 120mio}
 
 \subsection{Elasticsearch to Kibana}
 \label{subsec:evaluation:performance:kibana}
@@ -353,8 +407,8 @@ As stated in \cref{sec:design:goals}, the total time from creation of the event 
 
 \subsubsection{Experiment Set-Up}
 
-\citet{Henze2011} collected 120,626,225 touch events in their experiment about touch performance of smartphone users, so if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
-Thus, one variant of the performance test generates 150,000,000 events and pushes them -- via Event Store and the bridge -- through to Elasticsearch.
+...
+
 A number of metrics is recorded during this procedure:
 
 \begin{description}
