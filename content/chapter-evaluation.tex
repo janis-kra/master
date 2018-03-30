@@ -98,8 +98,8 @@ The overall average scrolling time per user is visualized as a single metric in 
 
 ...
 
-It should be noted that the created click heatmap assumes a resolution of 1920x1080 pixels, which very certainly differs from the actual window size that the test subjects use.
-Thus, if such a visualization where to be used in a production environment, the click coordinates would have to be normalized by a factor dependent on the user's window size.
+It should be noted that the created click heatmap uses a fixed resolution of 820x950 pixels, which was the size that the browser was set to on the test machine.
+Thus, if such a visualization where to be used in a production environment, the click coordinates would have to be normalized by a factor dependent on the individual user's window size.
 This should be possible with relative ease using Elasticsearch's bucket aggregations, but was not implemented for this thesis due to its additional complexity and resulting time constraints.
 
 %\begin{figure}[htb]
@@ -108,6 +108,12 @@ This should be possible with relative ease using Elasticsearch's bucket aggregat
 %        \label{fig:evaluation:user:click-heatmap}
 %\end{figure}
 
+\subsection{Validity}
+\label{subec:evaluation:user:validity}
+
+\cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
+
+[Results from survey]
 
 \section{Performance Test}
 \label{sec:evaluation:performance}
@@ -126,7 +132,7 @@ The combined insights from these experiments are explained in \cref{subsec:evalu
 During the planning phase of the experiments, it became apparent that it is problematic to come up with a realistic and representative number of events that \ac{IFAS} should be able to process.
 For this reason, a study by \citet{Henze2011} was taken into consideration which presents an experiment about touch performance of smartphone users.
 \citeauthor{Henze2011} collected 120,626,225 touch events, so if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
-As it is unrealistic that 120 million events are created within a few seconds or minutes, the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
+However, \ac{IFAS} is currently not intended for scenarios in which 120 million events are created within a few seconds or minutes, and thus the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
 Both the tests for the indexing time of Elasticsearch and for the rendering time of Kibana are executed with an index of 120 million documents.
 
 If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}
@@ -352,7 +358,7 @@ As the resources that were made available to Docker were never fully used, it ca
 \subsubsection{Experiment Set-Up}
 
 The test for Elasticsearch's indexing performance uses a modified version of the Event Store-Elasticsearch bridge application.
-Instead of reading the events from an Event Store subscription, this modified bridge just generates the events on its own and sends them via the same bulk indexing call to Elasticsearch.
+Instead of reading the events from an Event Store subscription, this modified bridge just generates \texttt{ExperimentParticipated} events on its own and sends them via the same bulk indexing call to Elasticsearch.
 The modified bridge application generates 10,000 events, then sends them to Elasticsearch and waits for a response.
 This procedure is repeated until 120 million events are sent and indexed as documents in Elasticsearch.
 As a result, the Event Store performance is isolated from this test, which allows for more accurate evaluation of the capabilities of Elasticsearch.
@@ -400,35 +406,15 @@ Documents per second & 17,084.16
 \label{subsec:evaluation:performance:kibana}
 
 A separate test measures the performance of Kibana when visualizing large amounts of data.
-For this purpose, 2,000,000 \texttt{ExperimentParticipated} events are created and forwarded to Elasticsearch.
-Afterwards, a visualization of the experiment in Kibana -- similar to the A/B test visualization of the user test -- is then invoked which causes Kibana to poll the current state of the Elasticsearch index.
-Kibana offers various statistics about its performance when rendering the visualizations, which are plotted in \cref{fig:evaluation:performance:}
-As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 30 seconds.
+For this purpose, the 120 million \texttt{ExperimentParticipated} events that were created in the previous Elasticsearch performance test (cf. \cref{subsec:evaluation:performance:elasticsearch}) are reused.
+A visualization of the experiment in Kibana -- similar to the A/B test visualization of the user test -- serves as the test object.
+Kibana offers various statistics about its performance when rendering visualizations, which are plotted in \cref{fig:evaluation:performance:}
+
 
 \subsubsection{Experiment Set-Up}
 
-...
-
-A number of metrics is recorded during this procedure:
-
-\begin{description}
-\item[Generation Duration] The amount of seconds it takes to generate all events and send a \ac{HTTP} POST request to the Event Store instance, enqueueing the event for saving.
-\item[Event Store Save Duration] The amount of seconds it takes to save all events in the Event Store instance, beginning at the point in time where the first event is enqueued for saving.
-\item[Elasticsearch Save Duration] The amount of seconds it takes to save all events in Elasticsearch, beginning at the point in time where the first document is enqueued for saving.
-\item[Total Saving Duration] The amount of seconds it takes to save all events in \ac{IFAS}.
-This value is similar to the Elasticsearch Save Duration, but takes into account the time it takes Event Store to process the first event and the bridge to forward the event to Elasticsearch.
-Thus, the Total Saving Duaration also includes potential delays due to network latency when \ac{HTTP} requests are made.
-As all Docker containers run in the same bridge network, the effect that this has on the Total Saving Duration is probably marginal.
-\end{description}
-
-As it is not realistic that 150,000,000 events are created nearly instantaneously -- in the referenced experiment~\cite{Henze2011} the events occurred over a timespan of a few months -- it is not required in this experiment to reach the 30s threshold mentioned earlier.
-Instead, a number of smaller experiments is conducted in which the threshold has to be reached.
-The performance test is thus repeated with the amount of generated events decreasing by one order of magnitude for each experiment (i.e. the experiment is performed with 15 / 150 / 1,500 / 15,000 / ... events).
-For experiments with 150,000 events or lower, the 30s threshold of all data being available in Kibana has to be reached.
-For the bigger experiments, this value is still monitored, but would not result in a failed experiment.
-\todo{Change to 50k / 100k / 150k}
-
-...\todo{how is this measured in ES/EvtS?}
+The first step for setting up the experiment was running the Elasticsearch performance test, such that the 120 million documents exist in an index.
+As that test was run with randomly generated \texttt{ExperimentParticipated} events, a pie-chart visualization was created in Kibana which displays the choices that the fictitious users made.
 
 Kibana offers the possibility to view detailed statistics for every visualization via the \emph{Visualization Spy}, including query duration, request duration and number of hits.
 These statistics are useful for measuring the performance for different reasons:
@@ -445,9 +431,23 @@ As more data means more complex aggregation responses, this correlates with the 
 For example, a query that matches all documents of an index would have a high number of hits, and a query matching only the document with index 1 would only have one hit -- but both queries are not complex and thus have a low query duration.
 \end{description}
 
-...
+%A number of metrics is recorded during this procedure:
+%
+%\begin{description}
+%\item[Generation Duration] The amount of seconds it takes to generate all events and send a \ac{HTTP} POST request to the Event Store instance, enqueueing the event for saving.
+%\item[Event Store Save Duration] The amount of seconds it takes to save all events in the Event Store instance, beginning at the point in time where the first event is enqueued for saving.
+%\item[Elasticsearch Save Duration] The amount of seconds it takes to save all events in Elasticsearch, beginning at the point in time where the first document is enqueued for saving.
+%\item[Total Saving Duration] The amount of seconds it takes to save all events in \ac{IFAS}.
+%This value is similar to the Elasticsearch Save Duration, but takes into account the time it takes Event Store to process the first event and the bridge to forward the event to Elasticsearch.
+%Thus, the Total Saving Duaration also includes potential delays due to network latency when \ac{HTTP} requests are made.
+%As all Docker containers run in the same bridge network, the effect that this has on the Total Saving Duration is probably marginal.
+%\end{description}
 
 \subsubsection{Execution}
+
+Executing the experiment was a rather simple process:
+After bringing up the appropriate visualization in Kibana, the Visualization Spy was used to inspect the query duration, request duration and number of hits for the visualization.
+Instead of just running the experiment once, the average of each of these values for 10 repetitions was computed, in order to reduce the effect of potential outliers.
 
 \subsubsection{Results}
 
@@ -456,27 +456,17 @@ For example, a query that matches all documents of an index would have a high nu
 
 It's fine.
 
-In the end, the \emph{total visualization time} is calculated as follows:
+As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 30 seconds.
 
-$$t_\text{startES} - t_\text{startGen}+ d_\text{ESSave} + d_\text{VisDelay} + d_\text{VisRequest}$$
+In the end, the \emph{total visualization time} for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
 
-\todo{per Zeitstrahl oder so visualisieren}
+$$ \text{ProcessingTime}_x + \frac{x}{17,000/_s} + \text{RenderTime}_v$$
 
-\section{Null Hypothesis}
+For 150,000 events and the A/B test visualization, this results in the following equation:
 
-%short: what is the null hypothesis -- cf. \cite{Kohavi2009}
-%\cite{Kohavi2013a}: To validate an experimentation system, we recommend that A/A tests be run regularly to test that the experimental setup and randomization mechanism is working properly. An A/A test, sometimes called a null test (Peterson 2004), exercises the experimentation system, assigning users to one of two groups, but exposes them to exactly the same experience.
+$$ 31s + \frac{150,000}{17,000/_s} + 100ms \approx 31s + 8.8s + 100ms \approx 40s $$
+\todo{update w/ correct values}
 
-% experimental set-up
-
-% execution
-
-% results
-
-\section{Validity}
-\label{sec:evaluation:validity}
-
-\cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
 
 \section{Experimentation Guidelines for IFAS}
 
