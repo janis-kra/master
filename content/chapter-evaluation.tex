@@ -384,7 +384,8 @@ This yields, among others values, the total amount of indexed documents and the 
 
 \subsubsection{Results}
 
-The results of the experiment, also printed in \cref{table:elasticsearch-performance}, yield that Elasticsearch needed 702 seconds for indexing 120 million documents, which are a little above 17,000 documents per second.
+The results of the experiment yield that Elasticsearch needed about 750 seconds or 12.5 minutes for indexing 120 million documents.
+This results in a little above 16,000 documents per second (find the exact numbers in \cref{table:elasticsearch-performance}).
 As evaluated in the performance test for Event Store and the bridge application, they process events with a rate of at most 5,000 events per second.
 
 Accordingly, Elasticsearch is well suited to handle the rate at which the rest of \ac{IFAS} prcoesses events.
@@ -395,9 +396,9 @@ If needed, additional measures, such as increasing the heap size, can be taken i
 \label{table:elasticsearch-performance}
 \centering
 \begin{tabular}{ll}
-Indexed Documents & 12,000,000 \\
-Index Time (s) & 702.405 \\
-Documents per second & 17,084.16
+Indexed Documents & 120,000,000 \\
+Index Time (s) & 7456.591 \\
+Documents per second & 16,093.14
 \end{tabular}
 \end{table}
 \todo{Update for 120mio}
@@ -460,11 +461,11 @@ As stated in \cref{sec:design:goals}, the total time from creation of the event 
 
 In the end, the \emph{total visualization time} for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
 
-$$ \text{ProcessingTime}_x + \frac{x}{17,000/_s} + \text{RenderTime}_v$$
+$$ \text{ProcessingTime}_x + \frac{x}{16,000/_s} + \text{RenderTime}_v$$
 
 For 150,000 events and the A/B test visualization, this results in the following equation:
 
-$$ 31s + \frac{150,000}{17,000/_s} + 100ms \approx 31s + 8.8s + 100ms \approx 40s $$
+$$ 31s + \frac{150,000}{16,000/_s} + 100ms = 31s + 9.375s + 100ms \approx 40.5s $$
 \todo{update w/ correct values}
 
 
