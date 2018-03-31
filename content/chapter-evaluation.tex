@@ -409,8 +409,11 @@ Documents per second & 16,093.14
 A separate test measures the performance of Kibana when visualizing large amounts of data.
 For this purpose, the 120 million \texttt{ExperimentParticipated} events that were created in the previous Elasticsearch performance test (cf. \cref{subsec:evaluation:performance:elasticsearch}) are reused.
 A visualization of the experiment in Kibana -- similar to the A/B test visualization of the user test -- serves as the test object.
-Kibana offers various statistics about its performance when rendering visualizations, which are plotted in \cref{fig:evaluation:performance:}
+%Kibana offers various statistics about its performance when rendering visualizations, which are plotted in \cref{fig:evaluation:performance:}
 
+The experiment has to take Elasticsearch' query cache\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/6.2/shard-request-cache.html}} into account, which caches the total amount of hits and aggregations.
+This mechanism is intended to reduce the query duration for queries that run multiple times -- such as the queries that serve the data for Kibana's visualizations.
+In order to obtain meaningful best case and worst case values for the request duration, the experiment is executed both with and without caching enabled.
 
 \subsubsection{Experiment Set-Up}
 
@@ -450,14 +453,48 @@ Executing the experiment was a rather simple process:
 After bringing up the appropriate visualization in Kibana, the Visualization Spy was used to inspect the query duration, request duration and number of hits for the visualization.
 Instead of just running the experiment once, the average of each of these values for 10 repetitions was computed, in order to reduce the effect of potential outliers.
 
+The experiment is first run with query caching enabled in order to obtain the mean durations for cached queries.
+Afterwards, the experiment is repeated with disabled caching, which can be achieved using Elasticsearch's Indices API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-clearcache.html}}.
+
+Fast request durations are of no help if the painting of the visualization itself is slow.
+For this reason, Google Chrome's developer tools are used to measure the render and paint durations for the visualization.
+
 \subsubsection{Results}
+
+The results of the experiment yield the mean durations for initial and subsequent loading of a visualization , which are printed in \cref{table:kibana-config-comparison}.
+When loading a visualization for the first time or after the Elasticsearch query cache expired, the worst case occurs: The query is not cached and thus the mean request duration is 1475ms.
+This is a noticeable delay, but does not endanger the overall performance goals for \ac{IFAS}.
+All subsequent loads of the visualization are nearly instantaneous, with a mean request duration of 157ms.
+
+Painting of the visualization itself, once the request to Elasticsearch is done, occurs in an instant as well.
+The total time for rendering and painting the visualization upon a refresh was never more than 60ms, both with and without caching.
+This results in the total mean rendering times of 1535ms and 217ms.
+
+This experiment also shows the importance of query caching in Elasticsearch:
+Enabling caching decreases the mean request duration by a factor of more than 25, when compared to the non-caching request duration, from 1475ms to about 157ms.
+The mean query duration with caching enabled is only 1.1ms, which means that most of the mean request duration applies to network request specific tasks, such as serializing and deserializing JSON as well as network delays.
+
+\begin{table}
+\caption{Comparison of mean query duration and mean request duration for a 120 million hits pie-chart visualization in Kibana; amount of hits is always 120 million as the request itself never changes. The total mean rendering durations takes into account additional time for rendering and painting the visualization, which was measured to be at most 60ms.}
+\label{table:kibana-config-comparison}
+\centering
+\begin{tabular}{llll}
+& \textbf{No caching}                                      & \textbf{Caching} & \textbf{Speedup} \\
+\textbf{Hits} & 120,000,000 & 120,000,000 & - \\
+\textbf{Mean query duration} & 1418ms & 1.1ms & 1289 \\
+\textbf{Mean request duration} & 1475ms & 156.8ms & 25.9 \\
+\textbf{Total mean rendering duration} & 1535ms & 216.8ms & 7.08 \\
+
+\end{tabular}
+\end{table}
+
 
 \subsection{Combination of the results}
 \label{subsec:evaluation:performance:insights}
 
 It's fine.
 
-As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 30 seconds.
+As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 60 seconds.
 
 In the end, the \emph{total visualization time} for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
 
@@ -465,7 +502,7 @@ $$ \text{ProcessingTime}_x + \frac{x}{16,000/_s} + \text{RenderTime}_v$$
 
 For 150,000 events and the A/B test visualization, this results in the following equation:
 
-$$ 31s + \frac{150,000}{16,000/_s} + 100ms = 31s + 9.375s + 100ms \approx 40.5s $$
+$$ 31s + \frac{150,000}{16,000/_s} + 1535ms = 31s + 9.375s + 1535ms \approx 42s $$
 \todo{update w/ correct values}
 
 
