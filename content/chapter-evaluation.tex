@@ -10,7 +10,7 @@ Checks wether the goals in \cref{sec:design:goals} are fulfilled.
 [Blurb about user tests ...]
 
 Additionally, a performance test shall ensure that \acf{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
-For this purpose, 10.000\todo{number not final} \texttt{UserClicked} events with random click coordinates are created and sent to Event Store by an application explicitly built for this objective.
+For this purpose, 10.000\todo{number not final} \texttt{ExperimentParticipated} events with groups and decisions are created and sent to Event Store by an application explicitly built for this objective.
 Details about this test can be found in \cref{sec:evaluation:performance}.
 
 % aus \cite{Easterbrook2008a} - What kind of research question are you asking?
@@ -23,6 +23,10 @@ This testing method was chosen because usability tests allow for very specific g
 However, it should be explicitly noted that this test does not have the goal of evaluating the usability of the modified Mattermost client.
 Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
 
+Each user fills out a separate feedback survey at the end of the usability test.
+This data is used later in the evaluation process in order to compare the passive and active user feedback.
+In the ideal case, the data from the survey and the data from \ac{IFAS} correlate strongly with each other.
+
 The experiment serves to prove three features of \ac{IFAS}.
 First, the system can be used to monitor application usage in general.
 This is shown by visualizing click events and data about sent chat messages.
@@ -31,28 +35,11 @@ This is shown by capturing usage data of two different mechanics for achieving t
 Third, the system allows experimenters to perform controlled experiments, especially A/B tests.
 This is shown by performing an A/B test within the usability test.
 It should be noted that while the sample size for this experiment is sufficient for a usability test, it is way too low if a real world A/B test where to be executed because the collected data would be statistically irrelevant.
-This is not a problem because the experiment is merely used to prove that \ac{IFAS} allows for collection and analysis of A/B test data; the performance test (cf. \cref{sec:evaluation:performance}) proves that the system is also able to handle enough events for an A/B test to be statistically relevant.
-An A/A test is also done in order to prove the validity of the randomization unit.
+This is not a problem because the experiment is merely used to prove that \ac{IFAS} allows for collection and analysis of A/B test data.
+The performance test (cf. \cref{sec:evaluation:performance}) proves that the system is also able to handle enough events for an A/B test to be statistically relevant.
 
-Sample size of 10 user -- more than enough~\cite{Turner2006}.
-
-- give user a test document with login information for Mattermost
-
-- test document contains explicit tasks such as "send a DM to user Janis"
-
-- task 0: If you have not used Mattermost before, please go through the brief tutorial (number of users who do the tutorial is monitored)
-
-- task 1: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
-
-- task 2: Another controlled experiment, similar to task 1.
-
-- Task 3: A more open-ended tasks such as "browse a channel that is of interest to you for one minute"(?).
-Each channel has some channel history (need some content for this, maybe some images or short stories (in chat form) under public domain).
-This allows for predictions which content is more interesting for the users.
-This leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001}.
-
-- This also leads to general usage of the chat application, which allows for general passive user feedback via \texttt{UserClicked} events etc.
-Need more data, what to collect? (e.g. amount of messages, types of messages)
+The intended amount of test subjects is at least 10 people.
+This is an adequate number for a usability test as reported by \citet{Turner2006}.
 
 % Thoughts regarding \cite{dumas2009usability}
 % is this a diagnostic test, i.e. no statistically relevant outcome can be concluded from them?
@@ -61,38 +48,141 @@ Need more data, what to collect? (e.g. amount of messages, types of messages)
 %
 % this is an asynchronous remote test
 
-\subsection{Experimental Set-Up}
+\subsection{Experiment Set-Up}
+
+Setting up the experiment consisted of several steps:
+First, the client application was prepared such that the appropriate data is sent to \ac{IFAS}.
+Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
+Third, a test document was created which instructs the test subjects what to do during the usability test.
+
+\paragraph{Sending feedback to IFAS}
 
 For the experiment, the web version of the Mattermost client was modified in order to send the desired events to \ac{IFAS}.
 This involves both implicit feedback events in general as well as very specific events for controlled experiments.
-In detail, the experiment consists of the following parts:
+In detail, the following data is gathered during the experiment:
 
 \begin{description}
-\item[Click analysis (monitoring)]
-Every click that the user does during the usability test is sent to \ac{IFAS} as a \texttt{UserClickedEvent}.
-This data is visualized in two ways in Kibana.
-First, a click heatmap (cf. \cref{fig:evaluation:user:click-heatmap}) visualizes where the users interact with the application.
-Second, in a line chart which displays a users click rate over time
+\item[Click tracking (monitoring)]
+Every click that the user does during the usability test is sent to \ac{IFAS} as a \texttt{UserClicked} event.
+This contains the current URL as well as the click coordinates and window size.
 \item[Channel usage (monitoring)]
-The experiment also monitors how the channels are used.
-One metric that is gathered for this purpose is the amount of sent messages per channel, which is visualized in a bar chart in Kibana (cf. \cref{fig:evaluation:user:messages-per-channel}).
-\item[Passive application usage (monitoring)]
+The client also monitors how the channels are used.
+This happens in the form of \texttt{MessageSent} events, which contain the sender, the channel in which the message was sent, and the content of the message.
+\item[Passive channel usage (monitoring)]
 Passive application usage, i.e. reading messages but not posting any content, is monitored via the scrolling behavior of the user.
 Scrolling up and down in a channel indicates interest in the content, therefore the scrolling duration per channel yields additional insight into channel usage.
-The overall average scrolling time per user is visualized as a single metric in Kibana.
-\item[Usage of the channel switcher (feature analysis)]
-...
+\texttt{WindowScrolled} events are sent whenever the user scrolls through the channel history, these contain the scrolling's amount and duration.
+\item[Method of channel switching (feature analysis)]
+Two methods of switching channels exist in Mattermost: Clicking the channel name in the left-side menu and using the channel switcher, which is a more advanced method were the desired channel's name has to be typed in order to switch to it.
+As a representation of how \ac{IFAS} can be used to analyze how and to what extent application features are utilized by the users, the channel switching method is monitored.
+Whenever the user switches the channel, a \texttt{ChannelSwitche} event is sent, which contains the method of channel switching and the channel that was switched to.
 \item[Click rate of a modified tutorial button (A/B test)]
-...
-\item[Click rate of the login button (A/A test]
-...
+When a new user logs into Mattermost for the first time, they are greeted with a short tutorial.
+An A/B test was prepared which styles the button for starting the tutorial in a different color depending on whether the user was assigned the control or treatment group.
+When the user decides to either start or skip the tutorial, an \texttt{ExperimentParticipated} event is sent to \ac{IFAS}, containing the user's group and decision.
+It should be noted that the sample size achieved via this usability test does not suffice for a controlled experiment to be statistically relevant.
+
 \end{description}
 
- % explain how this does not suffice as a real controlled experiment (for example, sample size is not large enough) but still suffices to *simulate* a controlled experiment and prove that the necessary results are measured in IFAS -- use some Kohavi ref.
+In order to provide some content in the chat channels for test subjects to consume, the channels called ``Cats'' and ``Dogs'' were each filled with three pictures of cats and dogs.
+The assumption is that people will scroll through the contents of the respective channel if the pictures appeal to them, which was shown to correlate strongly with interest in the page~\cite{Claypool2001}.
+
+\paragraph{Creating visualizations in Kibana}
+
+...
+
+%One metric that is gathered for this purpose is the amount of sent messages per channel, which is visualized in a bar chart in Kibana (cf. \cref{fig:evaluation:user:messages-per-channel}).
+
+%This data is visualized in two ways in Kibana.
+%First, a click heatmap (cf. \cref{fig:evaluation:user:click-heatmap}) visualizes where the users interact with the application.
+%Second, in a line chart which displays a users click rate over time
+
+
+\paragraph{Writing the test document}
+
+[...]
+The test consists of five tasks:
+
+\begin{description}
+
+\item [Login] The test subject has to log into the Mattermost application, using the login information printed in the test document.
+An account for each tester was created prior to their test.
+This task has no additional purpose aside from giving the user access to the chat application.
+
+\item [Tutorial] The test subject is greeted with a tutorial after logging in, with a slight modification of the tutorial button depending on their belonging to the control or treatment group for the tutorial button experiment.
+At this point, the test subject is prompted to either do the tutorial or skip it.
+This decision is recorded by \ac{IFAS}; both the decisions itself and the assignment ratio of the two groups can later be viewed via the corresponding visualization.
+The document contains a hint after this task which tells the test subject that writing messages and reading the chat history is allowed.
+
+\item [Switching channels] This task's three subtasks revolve around switching channels and the two different possibilities of doing so: The left-hand menu and the channel switcher.
+
+\begin{enumerate}
+\item First, the user is made familiar with the method of switching channels via the left-side menu.
+This results in the test subject switching to a dog-themed channel.
+\item After that, the user changes back to the cat-themed channel via the channel switcher.
+\item Finally, they are tasked with once again switching to the dog-themed channel.
+This time however, the decision about switching via the left-side menu or the channel switcher is up to them.
+\end{enumerate}
+
+\item [Writing a message] As the last task of the usability test itself, the user is asked to write a message in their channel of choice.
+It is explicitly noted that the message's contents are not of importance in order to impose no unnecessary pressure.
+
+\item [Give active user feedback] A short survey was generated via \url{typeform.com}, asking the user the following questions:
+
+\begin{enumerate}
+\item ``What was your username for the usability test?'' (open question)
+\item ``Did you undergo the Mattermost tutorial?'' (yes / no question)
+\item ``Which was the most interesting channel?'' (choice between ``Cats'' and ``Dogs'')
+\item ``Which method for switching channels did you use more?'' (choice between ``Menu (left side)'' and ``Channel switcher (bottom left side)'')
+\item ``How many messages did you send?'' (open question, only number input allowed)
+\end{enumerate}
+
+\end{description}
+
+
+%- give user a test document with login information for Mattermost
+%
+%- test document contains explicit tasks such as "send a DM to user Janis"
+%
+%- task 0: If you have not used Mattermost before, please go through the brief tutorial (number of users who do the tutorial is monitored)
+%
+%- task 1: Switch to the channel X. Then: Switch to Channel Y using the channel switcher (via Ctrl+K / CMD+K or the "channel switcher" button at the bottom left). Then: Switch to channel Z - user now knows both approaches for switching channels, which is used more often? Is the "channel switcher" feature used at all during regular usage?
+%
+%- task 2: Another controlled experiment, similar to task 1.
+%
+%- Task 3: A more open-ended tasks such as "browse a channel that is of interest to you for one minute"(?).
+%Each channel has some channel history (need some content for this, maybe some images or short stories (in chat form) under public domain).
+%This allows for predictions which content is more interesting for the users.
+%This leads to scrolling if the test subject finds the contents interesting, which has been shown to correlate strongly with interest in the page \cite{Claypool2001}.
+%
+%- This also leads to general usage of the chat application, which allows for general passive user feedback via \texttt{UserClicked} events etc.
+%Need more data, what to collect? (e.g. amount of messages, types of messages)
+
 
 \subsection{Execution}
 
+The test was conducted as an onsite test, on the same laptop that the performance tests were executed on.
+Prior to every test run, the respective Mattermost account was prepared, the application was opened on a web browser, and the test document was opened next to the browser window.
+Each user was given a short introduction about what a usability test is and that they can ask questions at any point during the test.
+
+The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
+Filling out the survey took the users about 2 minutes.
+
+After all subjects had performed the usability test, the results were gathered and processed.
+Various charts representing the survey results were created using R and ggplot.
+The passive feedback results from \ac{IFAS} were created using Kibana's built-in reporting feature.
+
 \subsection{Results}
+
+After all tests are executed, a results report was generated (cf. \cref{figure:evaluation:user:survey-report})
+
+\begin{figure}[htb]
+        \includegraphics[width=\textwidth]{gfx/survey-results.pdf}
+        \caption{Survey results.}
+        \label{figure:evaluation:user:survey-report}
+\end{figure}
+\todo{update and create custom report}
+
 
 \paragraph{Click Analysis}
 
@@ -286,9 +376,22 @@ It seems that the more events in total are processed by a subscription, the more
 A surplus of resources, however, seems to lower performance.
 The effect is not very strong, but clearly visible in the plots; this can for example be seen when comparing configurations 7 and 8 in the 100k variant of the experiment, and when comparing configurations 8 and 9 in the 150k variant.
 Although this is an interesting observation that could be taken into account when designing a performance-critical system using persistent subscriptions, in the case of \ac{IFAS} it is safe to just pick the configuration which performs sufficiently well in all experiment sizes.
-This ideal configuration is configuration 8, with a buffer size and live buffer size of 128,000, read batch size of 10,240 and client-side buffer size of 640.
+This ideal configuration is configuration 8, with a buffer size and live buffer size of 128,000, read batch size of 10,240 and client-side buffer size of 640 (cf. \cref{table:median-durations-config-8} for the exact values).
 With such a configuration \ac{IFAS} is able to handle up to 150k events in 30 seconds, i.e. 5,000 events per second.
 For more demanding use cases, more research into Event Store performance tuning would have to be conducted.
+
+
+\begin{table}
+\centering
+\caption{Median processing durations for the ideal configuration (configuration 8) for all experiment sizes.}
+\begin{tabular}{l|l}
+\textbf{Experiment Size} & \textbf{Median processing duration} \\ \hline
+50,000 & 11.763s \\
+100,000 & 21.727s \\
+150,000 & 30.614s
+\end{tabular}
+\label{table:median-durations-config-8}
+\end{table}
 
 \paragraph{Event processing rate over time}
 
@@ -353,7 +456,9 @@ As the resources that were made available to Docker were never fully used, it ca
 \subsection{Elasticsearch Indexing Time}
 \label{subsec:evaluation:performance:elasticsearch}
 
-...
+This part of the \ac{IFAS} performance test is concerned with the speed at which the Elasticsearch service in is able to index documents.
+By adding 120 million documents to an index and measuring the total index time, it was determined that the Elasticsearch service indexes documents at a rate of about 16,000 documents per second.
+This is more than three times faster than the ideal processing rate of the Event Store's persistent subscription and the associated bridge application (cf. \cref{subsec:evaluation:performance:evt-es-bridge}).
 
 \subsubsection{Experiment Set-Up}
 
@@ -397,11 +502,10 @@ If needed, additional measures, such as increasing the heap size, can be taken i
 \centering
 \begin{tabular}{ll}
 Indexed Documents & 120,000,000 \\
-Index Time (s) & 7456.591 \\
+Index Time & 7456.591 s \\
 Documents per second & 16,093.14
 \end{tabular}
 \end{table}
-\todo{Update for 120mio}
 
 \subsection{Elasticsearch to Kibana}
 \label{subsec:evaluation:performance:kibana}
@@ -409,11 +513,15 @@ Documents per second & 16,093.14
 A separate test measures the performance of Kibana when visualizing large amounts of data.
 For this purpose, the 120 million \texttt{ExperimentParticipated} events that were created in the previous Elasticsearch performance test (cf. \cref{subsec:evaluation:performance:elasticsearch}) are reused.
 A visualization of the experiment in Kibana -- similar to the A/B test visualization of the user test -- serves as the test object.
+
 %Kibana offers various statistics about its performance when rendering visualizations, which are plotted in \cref{fig:evaluation:performance:}
 
 The experiment has to take Elasticsearch' query cache\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/6.2/shard-request-cache.html}} into account, which caches the total amount of hits and aggregations.
 This mechanism is intended to reduce the query duration for queries that run multiple times -- such as the queries that serve the data for Kibana's visualizations.
 In order to obtain meaningful best case and worst case values for the request duration, the experiment is executed both with and without caching enabled.
+
+With caching, the total mean request duration was measured with 217ms.
+About 60ms for rendering the visualization have to be added to this value, amounting to a total of 277ms total mean rendering time.
 
 \subsubsection{Experiment Set-Up}
 
@@ -489,22 +597,23 @@ The mean query duration with caching enabled is only 1.1ms, which means that mos
 \end{table}
 
 
-\subsection{Combination of the results}
-\label{subsec:evaluation:performance:insights}
+\subsection{Total Processing Time}
+\label{subsec:evaluation:performance:total-processing-time}
 
-It's fine.
+As stated in \cref{sec:design:goals}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should not be greater than 60 seconds.
+In order to verify this, the \emph{total processing time} can be computed by adding up the durations that were gathered during the performance test.
+In the end, the total processing time for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
 
-As stated in \cref{sec:design:goals}, the total time from creation of the event to the event being displayed in its Kibana visualization should not be greater than 60 seconds.
+$$ \text{ProcessingTime}_x + \frac{x}{16,093/_s} + \text{RenderTime}_v$$
 
-In the end, the \emph{total visualization time} for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
+For 150,000 events and the A/B test visualization, this results in the following equation (values taken from \cref{table:median-durations-config-8,table:kibana-config-comparison,table:elasticsearch-performance}):
 
-$$ \text{ProcessingTime}_x + \frac{x}{16,000/_s} + \text{RenderTime}_v$$
+$$ 30.614s + \frac{150,000}{16,093/_s} + 1535ms \approx 30.614s + 9.32s + 1535ms \approx 41.5s $$
 
-For 150,000 events and the A/B test visualization, this results in the following equation:
-
-$$ 31s + \frac{150,000}{16,000/_s} + 1535ms = 31s + 9.375s + 1535ms \approx 42s $$
-\todo{update w/ correct values}
-
+This is a worst case computation, because it assumes that each processing step of \ac{IFAS} runs sequentially, and it uses the average visualization duration for the Kibana visualization for 120 million hits.
+In praxis, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
+As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will probably have finished indexing as soon as the last events are processed by the bridge and sent over to Elasticsearch.
+With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
 
 \section{Experimentation Guidelines for IFAS}
 
