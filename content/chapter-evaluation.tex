@@ -54,6 +54,8 @@ Setting up the experiment consisted of several steps:
 First, the client application was prepared such that the appropriate data is sent to \ac{IFAS}.
 Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
 Third, a test document was created which instructs the test subjects what to do during the usability test.
+This also includes a short online survey with which the test subjects provided \emph{active} user feedback.
+The survey's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
 \paragraph{Sending feedback to IFAS}
 
@@ -62,21 +64,22 @@ This involves both implicit feedback events in general as well as very specific 
 In detail, the following data is gathered during the experiment:
 
 \begin{description}
-\item[Click tracking (monitoring)]
+\item[Click analysis]
 Every click that the user does during the usability test is sent to \ac{IFAS} as a \texttt{UserClicked} event.
 This contains the current URL as well as the click coordinates and window size.
-\item[Channel usage (monitoring)]
-The client also monitors how the channels are used.
+\item[Channel usage (active)]
+The client also reports when messages are sent in one of the channels.
 This happens in the form of \texttt{MessageSent} events, which contain the sender, the channel in which the message was sent, and the content of the message.
-\item[Passive channel usage (monitoring)]
-Passive application usage, i.e. reading messages but not posting any content, is monitored via the scrolling behavior of the user.
+\item[Channel usage (passive)]
+Passive channel usage, i.e. reading messages but not posting any content, is monitored via the scrolling behavior of the user.
 Scrolling up and down in a channel indicates interest in the content, therefore the scrolling duration per channel yields additional insight into channel usage.
-\texttt{WindowScrolled} events are sent whenever the user scrolls through the channel history, these contain the scrolling's amount and duration.
-\item[Method of channel switching (feature analysis)]
+\texttt{WindowScrolled} events are sent whenever the user scrolls through the channel history.
+These contain the scrolling's amount and duration.
+\item[Feature analysis]
 Two methods of switching channels exist in Mattermost: Clicking the channel name in the left-side menu and using the channel switcher, which is a more advanced method were the desired channel's name has to be typed in order to switch to it.
 As a representation of how \ac{IFAS} can be used to analyze how and to what extent application features are utilized by the users, the channel switching method is monitored.
-Whenever the user switches the channel, a \texttt{ChannelSwitche} event is sent, which contains the method of channel switching and the channel that was switched to.
-\item[Click rate of a modified tutorial button (A/B test)]
+Whenever the user switches the channel, a \texttt{ChannelSwitcher} event is sent, which contains the method of channel switching and the channel that was switched to.
+\item[A/B test]
 When a new user logs into Mattermost for the first time, they are greeted with a short tutorial.
 An A/B test was prepared which styles the button for starting the tutorial in a different color depending on whether the user was assigned the control or treatment group.
 When the user decides to either start or skip the tutorial, an \texttt{ExperimentParticipated} event is sent to \ac{IFAS}, containing the user's group and decision.
@@ -89,7 +92,59 @@ The assumption is that people will scroll through the contents of the respective
 
 \paragraph{Creating visualizations in Kibana}
 
-...
+Several Kibana visualizations were created in order to facilitate analysis of the data that is gathered during the usability test.
+These visualizations are described below, together with an explanation as to how they display the data from the usability test.
+The visualizations are printed in the results part of this subchapter (cf. \cref{figure:evaluation:user:dashboard-channels,figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user,figure:evaluation:user:dashboard-ab-test,figure:evaluation:user:visualization-feature-analysis}).
+
+\begin{description}
+\item[Click analysis: Page clicks over time]
+Click analysis gives Kibana access to, amongst others, the issuer, target, and time of each click.
+This data is represented by a vertical bar chart, plotting the amount of messages over time.
+Each chart is split by target, i.e. URL, and thus gives information about which page on the website was clicked how many times at a given timestamp.
+As each channel has a different URL in Mattermost, this can be used as an indicator for absolute and relative channel interest.
+
+\item[Click analysis: User clicks over time]
+If the bars of the chart described above are split by user and not by URL, other information may be gathered:
+Now, the chart represents how active a user is in the application at which time.
+High click rates could also indicate other problems, for example problems with the UI because the user clicks around the application cluelessly.
+
+\item[Channel usage (active): Messages per channel and overall messages]  
+This horizontal bar chart that plots the amount of messages that were sent.
+Each bar represents a specific channel, thus giving information about the absolute amount of messages as well as the relative amount compared to other channels.
+
+This data is represented in a slightly different way in a line chart that plots the messages sent by all users over time.
+The x-axis shows the time, while the y-axis shows the amount of messages.
+
+\item[Channel usage (passive): Scrolling time per channel]  
+An alternative metric for comparing channel popularity is the amount of time that users scrolled in a specific channel.
+This is visualized in a horizontal bar chart, where the x-axis represents the total time spent scrolling by all users.
+Just as the bar chart for active channel usage, this chart is also split by channel -- in this case one for the ``Dogs'' and one for the ``Cats'' channel.
+
+\item[A/B test: Results per group]
+The A/B test's results are displayed in a variety of charts, the first being a vertical bar chart.
+This chart has two bars, one for the treatment group and one for the control group.
+Each bar is split by the relative amount of decisions that were taken in favor of starting and skipping the tutorial.
+By designing the chart in this manner, it becomes immediately visible how the two groups' decisions compare with each other.
+
+\item[A/B test: Group Assignment Proportion]
+For an A/B test's validity, it is of great importance that the distribution of users into the control and treatment groups is occurs evenly.
+A pie chart displaying the relative size of each group helps to make this visible -- if each part of the chart takes up half of the circle, users are distributed evenly.
+
+\item[A/B test: Sample Size]
+In order for an A/B test to be statistically significant, the sample size has to be big enough.
+%There exist various formulae for computing the desired sample size, dependent on various variables, which are not delved into here.
+A gauge chart can help to display the current sample size in comparison with the desired sample size; if the gauge reaches 100\%, the results of the experiment can be assumed as statistically relevant.
+The gauge's threshold value has to be manually computed when setting up the visualilzation.
+
+\item[Feature Analysis: Channel Switch Mode] 
+The question about which mechanic for switching channels, if any, is more popular among users is asked by this pie chart.
+The chart is split according to the relative amount of channel switches that occurred via each method.
+As all users see identical versions of both features, this is represented by a simple pie chart and not by a split bar chart as for the A/B test.
+
+\end{description}
+
+The visualizations are gathered in dashboards in order to enable a better overview of the respective data, as well as advanced filtering options.
+This is described in more detail in the results section.
 
 %One metric that is gathered for this purpose is the amount of sent messages per channel, which is visualized in a bar chart in Kibana (cf. \cref{fig:evaluation:user:messages-per-channel}).
 
@@ -100,8 +155,9 @@ The assumption is that people will scroll through the contents of the respective
 
 \paragraph{Writing the test document}
 
-[...]
-The test consists of five tasks:
+In order to prepare the test subjects for the usability test and communicate the tasks that they are expected to perform, a test document was prepared.
+In addition to a general introduction into what a usability test is and what is expected of the test subjects in the test, this document contains various task scenarios as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
+These five task scenarios are as follows:
 
 \begin{description}
 
@@ -131,7 +187,7 @@ It is explicitly noted that the message's contents are not of importance in orde
 
 \begin{enumerate}
 \item ``What was your username for the usability test?'' (open question)
-\item ``Did you undergo the Mattermost tutorial?'' (yes / no question)
+\item ``Did you go through the Mattermost tutorial?'' (yes / no question)
 \item ``Which was the most interesting channel?'' (choice between ``Cats'' and ``Dogs'')
 \item ``Which method for switching channels did you use more?'' (choice between ``Menu (left side)'' and ``Channel switcher (bottom left side)'')
 \item ``How many messages did you send?'' (open question, only number input allowed)
@@ -165,6 +221,9 @@ The test was conducted as an onsite test, on the same laptop that the performanc
 Prior to every test run, the respective Mattermost account was prepared, the application was opened on a web browser, and the test document was opened next to the browser window.
 Each user was given a short introduction about what a usability test is and that they can ask questions at any point during the test.
 
+The test subjects are between 26 and 57 years old, with four women and eight men.
+While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
+
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the survey took the users about 2 minutes.
 
@@ -174,15 +233,58 @@ The passive feedback results from \ac{IFAS} were created using Kibana's built-in
 
 \subsection{Results}
 
-After all tests are executed, a results report was generated (cf. \cref{figure:evaluation:user:survey-report})
+...
+The visualizations are printed exactly as shown in Kibana in order to represent how \ac{IFAS} visualizes data.
+
+After all tests are executed, a report of the survey results was generated (cf. \cref{figure:evaluation:user:survey-report})
 
 \begin{figure}[htb]
-        \includegraphics[width=\textwidth]{gfx/survey-results.pdf}
+        \includegraphics[width=.75\paperwidth]{gfx/survey.pdf}
         \caption{Survey results.}
         \label{figure:evaluation:user:survey-report}
 \end{figure}
 \todo{update and create custom report}
 
+\begin{figure}[htb]
+        \caption{Dashboard giving an overview over channel and application usage.}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-usage.png}
+        \label{figure:evaluation:user:dashboard-channels}
+\end{figure}
+
+\begin{figure}[htb]
+        \caption{
+        Dashboard displaying the count of the test subject's clicks over time.
+        The upper visualization splits the bars by URL, thus additionally comparing popularity of the application's pages measured by click rate.
+        The lower visualization splits the bars by user, thus giving insights as to how many of the clicks are allotted to which user.
+        \cref{figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-user} show how interaction with the visualization can give additional insights by applying filters to the displayed data.
+        }
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks.png}
+        \label{figure:evaluation:user:dashboard-clicks}
+\end{figure}
+
+\begin{figure}[htb]
+        \caption{todo.}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
+        \label{figure:evaluation:user:dashboard-clicks-zoom}
+\end{figure}
+
+\begin{figure}[htb]
+        \caption{todo.}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
+        \label{figure:evaluation:user:dashboard-clicks-zoom-user}
+\end{figure}
+
+\begin{figure}[htb]
+        \caption{todo.}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-ab-test.png}
+        \label{figure:evaluation:user:dashboard-ab-test}
+\end{figure}
+
+\begin{figure}[htb]
+        \caption{todo.}
+        \includegraphics[width=1.1\textwidth]{gfx/visualization-feature-analysis.png}
+        \label{figure:evaluation:user:visualization-feature-analysis}
+\end{figure}
 
 \paragraph{Click Analysis}
 
@@ -489,7 +591,7 @@ This yields, among others values, the total amount of indexed documents and the 
 
 \subsubsection{Results}
 
-The results of the experiment yield that Elasticsearch needed about 750 seconds or 12.5 minutes for indexing 120 million documents.
+The results of the experiment yield that Elasticsearch needed about 7500 seconds or 125 minutes for indexing 120 million documents.
 This results in a little above 16,000 documents per second (find the exact numbers in \cref{table:elasticsearch-performance}).
 As evaluated in the performance test for Event Store and the bridge application, they process events with a rate of at most 5,000 events per second.
 
