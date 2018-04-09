@@ -3,6 +3,7 @@
 \chapter{Evaluation}
 \label{ch:evaluation}
 
+\todo{Check for consistent tense}
 %Research question for \acf{IFAS}, WIP: "\todo{not specific enough}Can \ac{IFAS} be used to capture and analyze passive user feedback?"
 
 Checks wether the goals in \cref{sec:design:goals} are fulfilled.
@@ -18,14 +19,15 @@ Details about this test can be found in \cref{sec:evaluation:performance}.
 \section{User Test}
 \label{sec:evaluation:user}
 
-In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a usability test was executed.
+In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a usability test was prepared and executed.
 This testing method was chosen because usability tests allow for very specific guidance of the user through the application.
 However, it should be explicitly noted that this test does not have the goal of evaluating the usability of the modified Mattermost client.
 Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
+The test was conducted according to the ``Handbook of usability testing'' by \citet{rubin2008handbook}.
 
-Each user fills out a separate feedback survey at the end of the usability test.
+Each user fills out a separate post-test questionnaire at the end of the usability test.
 This data is used later in the evaluation process in order to compare the passive and active user feedback.
-In the ideal case, the data from the survey and the data from \ac{IFAS} correlate strongly with each other.
+In the ideal case, the data from the questionnaire and the data from \ac{IFAS} correlate strongly with each other.
 
 The experiment serves to prove three features of \ac{IFAS}.
 First, the system can be used to monitor application usage in general.
@@ -54,8 +56,8 @@ Setting up the experiment consisted of several steps:
 First, the client application was prepared such that the appropriate data is sent to \ac{IFAS}.
 Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
 Third, a test document was created which instructs the test subjects what to do during the usability test.
-This also includes a short online survey with which the test subjects provided \emph{active} user feedback.
-The survey's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
+This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback.
+The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
 \paragraph{Sending feedback to IFAS}
 
@@ -156,8 +158,8 @@ This is described in more detail in the results section.
 \paragraph{Writing the test document}
 
 In order to prepare the test subjects for the usability test and communicate the tasks that they are expected to perform, a test document was prepared.
-In addition to a general introduction into what a usability test is and what is expected of the test subjects in the test, this document contains various task scenarios as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
-These five task scenarios are as follows:
+In addition to a general introduction into what a usability test is and what is expected of the test subjects in the test, this document contains various task scenarios, as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
+The task scenarios in the usability test are as follows:
 
 \begin{description}
 
@@ -183,18 +185,36 @@ This time however, the decision about switching via the left-side menu or the ch
 \item [Writing a message] As the last task of the usability test itself, the user is asked to write a message in their channel of choice.
 It is explicitly noted that the message's contents are not of importance in order to impose no unnecessary pressure.
 
-\item [Give active user feedback] A short survey was generated via \url{typeform.com}, asking the user the following questions:
+\item [Give active user feedback] A short questionnaire was generated via \url{typeform.com}, asking the user questions regarding the tasks they just completed.
+The questions were chosen such that their results can be used to compare with the data collected in \ac{IFAS}:
 
 \begin{enumerate}
-\item ``What was your username for the usability test?'' (open question)
-\item ``Did you go through the Mattermost tutorial?'' (yes / no question)
-\item ``Which was the most interesting channel?'' (choice between ``Cats'' and ``Dogs'')
-\item ``Which method for switching channels did you use more?'' (choice between ``Menu (left side)'' and ``Channel switcher (bottom left side)'')
-\item ``How many messages did you send?'' (open question, only number input allowed)
+\item ``What was your username for the usability test?'' (open question):
+This is merely a warm-up question to make the user familiar with the tool.
+In addition, this answer also establishes a link between the results of each questionnaire and the data in \ac{IFAS}.
+\item ``Did you go through the Mattermost tutorial?'' (multiple choice):
+The answers to this yes-or-no question yield a percentage of people who participated in the tutorial.
+This value can be used to compare with the results of the A/B test.
+\item ``What color did the button for starting the tutorial have? Click ``don't know'' if you do not remember.'' (multiple choice):
+As the previous question about the tutorial does not take into account which group the test subjects were distributed to, this question aims to establish whether they were part of the control or treatment group.
+It is at the very least expected to be possible that the users will not remember which color the button had.
+Thus, the three possible answers to this question are: ``Blue'', ``Grey'', and ``don't know''.
+If this question \emph{does} yield conclusive results, it can be used make a more distinct comparison to the values of the A/B test in \ac{IFAS}.
+\item ``Which was the most interesting channel?'' (multiple choice):
+This can be used to establish whether the metrics for measuring interest, in particular scrolling time, were chosen correctly.
+The two possible answers are ``Cats'' and ``Dogs'', as these were the two only channels in the testing environment.
+\item ``Which method for switching channels did you use more?'' (multiple choice):
+The answers to this question are used to validate the feature analysis data regarding the method for switching channels in \ac{IFAS}.
+The participant can choose between ``Menu (left side)'' and ``Channel switcher (bottom left side)''.
+\item ``How many messages did you send?'' (open question, only number input allowed):
+This question is used to validate the amount of sent messages that are forwarded to \ac{IFAS}.
 \end{enumerate}
 
 \end{description}
 
+As recommended by \citet{rubin2008handbook}, an earlier version of this document was used to execute a pilot test with one participant.
+A pilot test is useful for establishing whether the test is suitable for the desired audience; if problems with the task scenarios are found, they can be adapted before the usability test is executed.
+The pilot test yielded that there are no apparent problems with the task scenarios or the post-test questionnaire.
 
 %- give user a test document with login information for Mattermost
 %
@@ -225,10 +245,10 @@ The test subjects are between 26 and 57 years old, with four women and eight men
 While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
 
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
-Filling out the survey took the users about 2 minutes.
+Filling out the questionnaire took the users about 2 minutes.
 
 After all subjects had performed the usability test, the results were gathered and processed.
-Various charts representing the survey results were created using R and ggplot.
+Various charts representing the questionnaire results were created using R and ggplot.
 The passive feedback results from \ac{IFAS} were created using Kibana's built-in reporting feature.
 
 \subsection{Results}
@@ -236,65 +256,164 @@ The passive feedback results from \ac{IFAS} were created using Kibana's built-in
 ...
 The visualizations are printed exactly as shown in Kibana in order to represent how \ac{IFAS} visualizes data.
 
-After all tests are executed, a report of the survey results was generated (cf. \cref{figure:evaluation:user:survey-report})
+After all tests were finished, a report of the questionnaire's results was created (cf. \cref{figure:evaluation:user:survey-report}).
+The results from the questionnaire are used throughout this section in order to compare them with the results reported by \ac{IFAS}.
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=.75\paperwidth]{gfx/survey.pdf}
-        \caption{Survey results.}
+        \caption{questionnaire results.}
         \label{figure:evaluation:user:survey-report}
 \end{figure}
 \todo{update and create custom report}
 
-\begin{figure}[htb]
-        \caption{Dashboard giving an overview over channel and application usage.}
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-usage.png}
-        \label{figure:evaluation:user:dashboard-channels}
-\end{figure}
 
-\begin{figure}[htb]
+\paragraph{Click analysis}
+
+The click analysis data does directly map to a task in the usability test, but nevertheless yields interesting insights into application usage.
+Both vertical bar charts displayed in the click analysis dashboard (cf. \cref{figure:evaluation:user:dashboard-clicks}) display the total amount of clicks over time, where the timestamp interval in this case is 3 hours.
+The difference in the two charts is in how the bars are split:
+The upper chart splits the bars by click target, i.e. URL, while the lower chart splits the bars by user.
+In other words, the upper chart additionally displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
+
+\begin{figure}[h]
         \caption{
         Dashboard displaying the count of the test subject's clicks over time.
         The upper visualization splits the bars by URL, thus additionally comparing popularity of the application's pages measured by click rate.
         The lower visualization splits the bars by user, thus giving insights as to how many of the clicks are allotted to which user.
-        \cref{figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-user} show how interaction with the visualization can give additional insights by applying filters to the displayed data.
+        \Cref{figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user} show how interaction with the visualization can give additional insights by applying filters to the displayed data.
         }
         \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks.png}
         \label{figure:evaluation:user:dashboard-clicks}
 \end{figure}
 
-\begin{figure}[htb]
+The proportion between clicks on the \texttt{/channels/cats} and \texttt{/channels/dogs} URLs seems to indicate that there was more activity and thus more interest in the ``Cats'' channel.
+However, as the analysis of channel usage later in this chapter shows, this is not the case.
+The amount of clicks on a page therefore does not seem to be a good indicator of interest in the content in this setting.
+This fits the findings by \cite{Claypool2001}, who also concluded that mouse clicking is not a useful interest indicator~\cite{Claypool2001}.
+
+Additionally, the click analysis dashboard serves as an example how the experimenter can interact with Kibana visualizations (cf. \cref{figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user}).
+Kibana allows the user to filter the viewed data in a lot of ways, including the time.
+The initial dashboard spans a time range of roughly five days, but can be set to shorter (or longer) time spans in order to inspect the data in more detail.
+This was done in the dashboard in \cref{figure:evaluation:user:dashboard-clicks-zoom}, where the time span is set to a single afternoon during which six usability tests were executed.
+Instead of a 3 hour interval, as in the initial dashboard, the interval in this case is 10 minutes.
+
+\begin{figure}[h]
         \caption{todo.}
         \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
         \label{figure:evaluation:user:dashboard-clicks-zoom}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \caption{todo.}
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
+        \includegraphics[width=0.8\textwidth]{gfx/dashboard-clicks-zoom-user.png}
         \label{figure:evaluation:user:dashboard-clicks-zoom-user}
 \end{figure}
 
-\begin{figure}[htb]
+Clicking on a bar on either chart applies a filter to the whole dashboard.
+For example, if the purple bar in the lower chart was clicked and the time interval was further refined to an even shorter timespan (cf. \cref{figure:evaluation:user:dashboard-clicks-zoom-user}), it is possible to retrace in great detail where the respective user was active at which point in time.
+As the click events also contain data about the click coordinates and the window size, it would even be possible to reconstruct where exactly the user clicked.
+Such a visualization was not implemented for the purpose of this thesis however.
+
+\paragraph{Channel usage}
+
+Both the visualizations for active and for passive channel usage (cf. bar charts in \cref{figure:evaluation:user:dashboard-channels}) strongly correlate with the results from the post-test questionnaire (cf. \cref{figure:evaluation:user:survey-report}).
+The bar chart for active channel usage, i.e. total amount of written messages per channel, displays 30 messages in the ``Dogs'' channel and 11 messages in the ``Cats'' channel, which is a ratio of about 2.73:1.
+This is very close to what the test subjects reported in the post-test questionnaire, where 75\% stated that the ``Dogs'' channel was more interesting; this translates to a ratio of 3:1, again in favor of the ``Dogs'' channel.
+Similar results are reported by the bar chart for passive channel usage, which measures channel interest by scrolling time.
+Here, users scrolled for a total amount of 62 seconds in the ``Dogs'' channel, as opposed to 25 seconds in the ``Cats'' channel.
+This results in a 2.48:1 ratio in favor of the ``Dogs'' channel.
+
+\begin{figure}[h]
+        \caption{
+        Dashboard giving an overview over active and passive channel usage.
+        The top visualization computes channel interest via the total amount of messages (therefore \emph{active} channel usage).
+        The lower visualization computes channel interest via the total amount of scrolling that the users do in the respective channel while reading messages (therefore \emph{passive} channel usage).
+        }
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-usage.png}
+        \label{figure:evaluation:user:dashboard-channels}
+\end{figure}
+
+In conclusion, \ac{IFAS} reports that users show -- depending on whether data from the active or passive channel usage visualization is used -- 2.48 or 2.73 times more interest in the ``Dogs'' channel than in the ``Cats'' channel.
+This correlates with the results from the post-test questionnaire, where the computed factor is 3.
+The slight difference, especially for the passive measure, can presumably be explained by the type of question that was asked in the questionnaire:
+While using the application, users could send messages and scroll in \emph{both} channels, but the question in the questionnaire only allowed a binary choice favoring \emph{either} the one channel or the other, thus entailing a clearer result.
+%The dashboard that displays the visualizations regarding active and passive channel usage is given in \cref{figure:evaluation:user:dashboard-channels}.
+%Active channel usage uses data from \texttt{PostCreated} events, while passive channel usage 
+
+When comparing the absolute amount of messages as displayed in the dashboard with the results of the post-test questionnaire, a rather huge gap between the two values becomes apparent:
+While \ac{IFAS} displays a value of 3.6, the mean amount of sent messages reported by the test subjects is just short over 1.4.
+This is too huge of a discrepancy for just explaining this with subjective skewing by the test subjects, so the data in \ac{IFAS} was analyzed in more detail.
+The analysis yielded that there are a lot of duplicate \texttt{PostCreated} events in \ac{IFAS}.
+The reason for this is that there was a mistake when implementing the feedback creation logic in the Mattermost client; in particular, the existing function in Mattermost that was assumed to be called once when a message is sent, seems to actually be called multiple times.
+This also outlines an inherent challenge with passive user feedback systems in general: If the data that the system uses is not supplied in the correct manner, the system cannot report accurate results.
+Although this is unfortunate, this does not impact the other results negatively, as the other visualizations only make use of the relative differences between message amounts, not absolute numbers.
+
+
+\paragraph{A/B test}
+
+The results of the A/B test itself are rather inconclusive: While the treatment group started the tutorial 66.7\% of the time, the control group did this 50\% of the time.
+Especially when considering the sample size of merely 12 people, this is not a statistically relevant difference -- but conducting a statistically relevant A/B test was not the goal in the first place.
+The various visualizations in the experimentation dashboard (cf. \cref{figure:evaluation:user:dashboard-ab-test}) show that \ac{IFAS} is well suited to collect and analyze data for A/B testing.
+
+\begin{figure}[h]
         \caption{todo.}
         \includegraphics[width=1.1\textwidth]{gfx/dashboard-ab-test.png}
         \label{figure:evaluation:user:dashboard-ab-test}
 \end{figure}
 
-\begin{figure}[htb]
+The most important visualization is the split vertical bar chart that displays what the test subjects in each group decided.
+With a single glance, the relative difference between both groups becomes apparent: In this case, the treatment group was more inclined to do the tutorial than the control group.
+Hovering the mouse over the bars displays a popup that displays the absolute values as well as the exact percentages.
+It's left bar shows that 66.7\% of test subjects in the treatment group chose to start the tutorial, i.e. 4 out of 6 people.
+The right bar shows the relative distribution between users that started and skipped the tutorial for the control group, in this case 50\% each.
+
+When comparing these results with the answers of the post-test questionnaire, an advantage of passive user feedback becomes apparent:
+Users are probably not aware of the subtle differences that an A/B test introduces into the application and therefore may not be able to answer some questions truthfully.
+This becomes apparent in the question about the button for starting the tutorial, where most users were not able to say with confidence which color the button had.
+As this question is essential for the result of the A/B test, it would be impractical to conduct such a test using active user feedback.
+It would of course be possible to make note of which group the user is assigned while the test is being supervised, but this would be too much work for the sample sizes that are needed in order to come up with a statistically relevant result.
+In contrast, the amount of people in total who started the tutorial, which is 7, is the same both in the survey and in \ac{IFAS}.
+
+In order to allow the experimenter to view all important experiment parameters at one glance, two additional visualizations were added to the dashboard, the first one being a pie chart displaying the distribution between the treatment and control groups.
+In this case, the distribution between treatment and control is exactly 50:50 -- exactly how it is supposed to be.
+Again, this could not be reliably measured using the questionnaire.
+
+The second additional visualization for the A/B test is a gauge that represents how large the current sample size is in comparison to the desired sample size.
+In this case, the gauge is set to an exemplary desired sample size of 20 and thus the gauge shows that the current sample size is 60\% of the desired value.
+This would of course have to be increased for a real life A/B test.
+Using the questionnaire's results, the same data could be retrieved by just counting the total number of participants of the questionnaire.
+
+
+%\paragraph{A/B test: Results per group}
+%
+%
+%\paragraph{A/B test: Group Assignment Proportion}
+%
+%
+%\paragraph{A/B test: Sample Size}
+
+
+\paragraph{Feature Analysis: Channel Switch Mode} 
+
+The results for the feature analysis regarding the preferred mode of channel switching were rather surprising in the sense that a preference for channel switching via the sidebar was expected.
+This is displayed in a pie chart (cf. \cref{figure:evaluation:user:visualization-feature-analysis}) that is filled according to the relative amount of channel switch operations that were done during the usability test using either method.
+When hovering the mouse over the chart, the absolute and relative values for the respective method are displayed.
+
+Contrary to initial expectations, there was no clear preference for either method: \ac{IFAS} reports that in 53.5\% of the cases, the channel was switched via the sidebar.
+This corresponds with the results from the post-test questionnaire, in which exactly half of the users claimed that they had mostly used the channel switcher.
+These results legitimate on the one hand the presence of both channel switching methods in the Mattermost application, and on the other hand the accuracy of the data that \ac{IFAS} has gathered and now displays.
+
+\begin{figure}[h]
         \caption{todo.}
         \includegraphics[width=1.1\textwidth]{gfx/visualization-feature-analysis.png}
         \label{figure:evaluation:user:visualization-feature-analysis}
 \end{figure}
 
-\paragraph{Click Analysis}
+%It should be noted that the created click heatmap uses a fixed resolution of 820x950 pixels, which was the size that the browser was set to on the test machine.
+%Thus, if such a visualization where to be used in a production environment, the click coordinates would have to be normalized by a factor dependent on the individual user's window size.
+%This should be possible with relative ease using Elasticsearch's bucket aggregations, but was not implemented for this thesis due to its additional complexity and resulting time constraints.
 
-...
-
-It should be noted that the created click heatmap uses a fixed resolution of 820x950 pixels, which was the size that the browser was set to on the test machine.
-Thus, if such a visualization where to be used in a production environment, the click coordinates would have to be normalized by a factor dependent on the individual user's window size.
-This should be possible with relative ease using Elasticsearch's bucket aggregations, but was not implemented for this thesis due to its additional complexity and resulting time constraints.
-
-%\begin{figure}[htb]
+%\begin{figure}[h]
 %        \includegraphics[width=\textwidth]{gfx/click-heatmap}
 %        \caption{Click Heatmap}
 %        \label{fig:evaluation:user:click-heatmap}
@@ -305,7 +424,7 @@ This should be possible with relative ease using Elasticsearch's bucket aggregat
 
 \cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
 
-[Results from survey]
+[Results from questionnaire]
 
 \section{Performance Test}
 \label{sec:evaluation:performance}
@@ -438,19 +557,19 @@ The x-axes indicate the configuration number representing the settings that were
 The y-axes of the box plots indicate the total duration in seconds for processing the events and sending them to Elasticsearch.
 While the x-axes use a continuous scale, the y-axes use a logarithmic scale in order to better illustrate differences between the faster configurations.
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-50k.pdf}
         \caption{50k}
         \label{fig:evaluation:performance:mean-durations-50k}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-100k.pdf}
         \caption{100k}
         \label{fig:evaluation:performance:mean-durations-100k}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-150k.pdf}
         \caption{150k}
         \label{fig:evaluation:performance:mean-durations-150k}
@@ -500,19 +619,19 @@ For more demanding use cases, more research into Event Store performance tuning 
 The line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k} illustrate the amount of processed events over time for the respective experiment sizes.
 These plots do not show a median or average distribution; instead, a specific experiment run was chosen that serves best for explaining the observations about the different configurations that were made earlier.
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth]{gfx/config-comparison_50k.pdf}
         \caption{50k}
         \label{fig:evaluation:performance:config-comparison_50k}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth]{gfx/config-comparison_100k.pdf}
         \caption{100k}
         \label{fig:evaluation:performance:config-comparison_100k}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[h]
         \includegraphics[width=\textwidth]{gfx/config-comparison_150k.pdf}
         \caption{150k}
         \label{fig:evaluation:performance:config-comparison_150k}
@@ -726,6 +845,6 @@ This section describes how different types of experiments can be executed using 
 \item[Null hypothesis] aka A/A test \cite{Kohavi2009}
 \item[Collecting metrics] i.e. usage data in general, e.g. scroll time
 \item[Collecting performance metrics(?)] (unclear, maybe into future work)
-\item[Survey(?)] (maybe into future work, POC: Create user interview via \ac{IFAS})
+\item[questionnaire(?)] (maybe into future work, POC: Create user interview via \ac{IFAS})
 \end{description}
 
