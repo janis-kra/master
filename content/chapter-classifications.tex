@@ -3,20 +3,58 @@
 \chapter{Classifications}
 \label{ch:classifications}
 
-\todo{include goals here, as the requirements relate to this?}
+This chapter examines the various possible software solutions for the different parts of \acf{IFAS}.
+These parts are data storage, data aggregation, and data analysis, as described in \cref{sec:intro:objectives}.
+
+Before requirements for each part of \ac{IFAS} can be envisioned, a more detailed set of goals for the system is needed.
+Using the objectives described in the introduction (cf. \cref{sec:intro:objectives}) as a starting point, more concrete and finely grained requirements were created; these are listed at the beginning of each subchapter.
+Afterwards, possible software solutions are listed and then the evaluation part describes to which extent each software solution fulfills these requirements.
+
+\section{Goals}
+\label{sec:design:goals}
+
+\todo{Incorporate into the respective req. subchapters}
+The resulting goals for \ac{IFAS} are as follows:
+
+\begin{enumerate}
+
+\item A web application sends passive user feedback data to specifiable streams of the data storage service.
+The type of application is not important, but should be geared toward typical end users, instead of a business application.
+Instead of implementing an application from scratch, an existing open source application shall be modified to send this data in order to save the additional time for creating the application.
+The reasons why a web application is used as a data source, and not, as initially planned, the Rico data set, are later explained in \cref{sec:design:data-source}.
+
+%\item The usability of the web application can be evaluated via a few predefined metrics, which have to be created in the process.
+\item The data storage solution offers scalable database capabilities to the applictaion.
+It should be possible to both use the storage solution as the main storage of the whole application, or alternatively as additional storage beside an existing database.
+
+\item The data aggregation service is fed with all events that are created while users interact with the application.
+It can be specified what data in the storage service is forwarded to the aggregation service, as it is plausible that other data is saved to this storage service.
+
+\item The collected user feedback can be analyzed via the data analysis application.
+For this purpose, one or more graphical representations of the usability metrics are created.
+
+\item \ac{IFAS} can be deployed on any machine which supports Docker, i.e. Windows, Linux and MacOS.
+
+\item User feedback can be accessed within the data analysis application within a few seconds from occurrence of the user action; this may take at most one minute.
+This is to allow for fast reactions to urgent \ac{UX} problems such as a button invoking a critical action becoming unavailable, as well as near-real time monitoring of application performance.
+\end{enumerate}
+
 
 \section{Storage Solutions}
 \label{sec:classifications:storage}
 
-The first technical decision to make is what to use as a storage solution.
-First, the requirements which the solution has to fulfill are explained, then the candidates are presented and ultimately evaluated according to these requirements, in order to find the solution is most appropriate.
+The first technical decision to make was what to use as a storage solution.
+First, the requirements which the solution has to fulfill are explained, then the candidates are presented and ultimately evaluated according to these requirements, in order to find the most appropriate solution.
 
 \subsection{Requirements}
 \label{subsec:classifications:storage:req}
 
+In accordance to the previously defined objectives for \ac{IFAS}, the data storage solution should offer scalable database capabilities for the connected application.
+It should be possible to both use the storage solution as the main storage of the application, or alternatively as additional storage beside an existing database.
+
 \ac{CSE} requires the storage layer of such a system to have certain capabilities, namely flexibility and scalability.
-In addition to basic storage capabilities, the storage solution has to provide some functionalities related to the use case (temporal queries).
-I have identified the following requirements for the storage solution, based on which the candidates will be evaluated:
+%In addition to basic storage capabilities, the storage solution has to provide some functionalities related to the use case, such as temporal queries.
+The following requirements for the storage solution were identified, based on which the candidates will be evaluated:
 
 \begin{description}
 \item [Basic storage capabilities]
@@ -25,26 +63,25 @@ The storage solution must at least provide means of creating and reading persist
 In order to facilitate experimentation, the storage solution shall have some means of correcting faulty data records, i.e. an update and delete mechanic.
 This is desirable in cases where a change in the software introduced erroneous behavior which has to be undone.
 %It would not be sufficient to just spin up a separate instance of the storage solution for the experiment because users should not be aware of whether they are part of the treatment group.
-\item [Cascading update]
+\item [Cascading update (optional)]
 In addition to a regular modify feature, the storage solution ideally also has some means of correcting all data that is invalid due to being dependent on one invalid data record.
-\item [Temporal queries]
-It would presumably be useful to be able to retrieve all data records that were created within a specific time frame via some query.
-These queries have to be efficient because running an analysis must not affect the storage solution's normal operation performance.
-\todo{would this even be used with an aggregation service???}
-\todo{do not call this "temporal queries" as the event store already has a concept with that name}
-\item [Vertical scalability]
-For performance reasons, the storage solution shall be vertically scalable, i.e. scale \emph{up} when more computing power is added.
-%This allows have some mechanism for handling large a large amount of requests on the same data.
-\item [Horizontal scalability]
-The storage solution shall also be able to scale horizontally, i.e. scale \emph{out}, which means that it is able to increase its performance linearly by adding more computing nodes to the network.
-This is often solved via \emph{sharding}, where the data is split over multiple logical or physical storage instances, each of them shouldering a portion of the cumulative system load.
-\todo{find a more precise definition for scalability, redo these requirements}
+This could be especially usable a series of events initiated by the user is dependent on each other, e.g. when tracking the users' clicks.
+%\item [Temporal queries]
+%It would presumably be useful to be able to retrieve all data records that were created within a specific time frame via some query.
+%These queries have to be efficient because running an analysis must not affect the storage solution's normal operation performance.
+%\todo{would this even be used with an aggregation service???}
+%\todo{do not call this "temporal queries" as the event store already has a concept with that name}
+\item [Scalability]
+For performance reasons, the storage solution shall be vertically scalable, i.e. scale \emph{up} when a node that the service runs on is assigned more computing power.
+The storage solution shall also be able to scale horizontally, i.e. scale \emph{out}, which means that it is able to increase its performance by adding more computing nodes to the network.
+This is often solved via \emph{sharding}, where the data is split over multiple logical or physical storage instances, each of them shouldering a portion of the cumulative system load in a divide and conquer approach.
 %Database clustering is done for various reasons. Clusters can improve availability, fault tolerance, and increase performance by applying a divide and conquer approach as work is distributed over many machines. Clustering is sometimes combined with partitioning and sharding to further break up a large complex task into smaller, more manageable units. 
 \item [HTTP interface]
 The storage solution shall have a \ac{HTTP} interface, therefore allowing other services and applications to store and retrieve data via a universally supported medium.
 As most solutions considered in this chapter do indeed offer a \ac{HTTP} interface, this is the most straightforward way of interconnecting the different services and applications.
-\ac{HTTP} may have worse performance than protocols operating on lower levels in the \ac{OSI}\footnote{\url{https://support.microsoft.com/en-us/help/103884/the-osi-model-s-seven-layers-defined-and-functions-explained}} stack, such as \ac{TCP} or \ac{UDP}\todo{acro expansions everywhere :O}, but the advantages in terms of flexibility make \ac{HTTP} the favored solution.
-%In cases where performance is critical, TCP could still be used if supported.
+\ac{HTTP} may have worse performance than protocols operating on lower levels in the \ac{OSI}\footnote{\url{https://support.microsoft.com/en-us/help/103884/the-osi-model-s-seven-layers-defined-and-functions-explained}} stack.
+Examples for such protocols are the \ac{TCP} and the \ac{UDP}, but the advantages in terms of flexibility make \ac{HTTP} the favored solution.
+In cases where performance is critical, TCP could still be used if supported.
 It should be noted that almost any storage solution can be extended to have an \ac{HTTP} interface by writing a wrapper in a general purpose programming language that exposes the database functionality.
 However, this introduces additional overhead and complexity, as the database wrapper would have to be implemented manually -- not to mention potential security issues.
 \item [Free License]
@@ -60,86 +97,111 @@ Thus, the storage solution shall be available free for commercial use, e.g. in f
 
 \subsection{Candidates}
 
-Blabla
+The possible data storage solutions are split into two main categories: \ac{SQL} databases and \ac{NoSQL} databases.
+While there is conceptually no big difference between the different \ac{SQL} databases, the \ac{NoSQL} databases are further split into subcategories: Document stores, graph databases, and column databases.
 
-\begin{enumerate}
-\item \ac{SQL} Databases: Blurb about SQL databases.
-\begin{enumerate}
+As \citet{strauch2011nosql} describe, document stores have a rather simple data model compared to \ac{SQL} databases:
+Data is stored in form of documents, which consist of key-value pairs.
+Column-oriented databases on the other hand save data in a more structured way, but store and process it column-oriented instead of row-oriented.
+Graph databases, as described by \citet{miller2013graph}, are very useful for specific use cases, especially in the field of chemistry and biology.
+They store data according to graph theory, in the form of edges and nodes, which benefits if the stored data is highly connected.
+In their classification of \ac{NoSQL} databases, \citet{popescu2010nosql} claim that graph databases are more complex than column databases or key-value stores, but offer more functionality in the form of graph theory.
+
+The chosen databases in the \ac{SQL} category and in the subcategories of \ac{NoSQL} are constrained to a few of the most commonly used databases.
+As the databases of each group in general have identical or at least very similar properties, the specific choice of representative is not expected to have a relevant impact.
+One exception of this assumption are the document stores, where both Event Store and MongoDb are listed.
+
+\begin{itemize}[noitemsep]
+\item \ac{SQL} Databases
+\begin{itemize}[noitemsep]
 \item Postgres
 \item MySQL
 \item MS-SQL
 \item Oracle
-\item ...
-\end{enumerate}
-\item NoSQL Databases: Blurb about NoSQL databases.\cite{strauch2011nosql}
-\begin{enumerate}
+\end{itemize}
+\item NoSQL Databases
+\begin{itemize}[noitemsep]
 \item Document stores: Event Store, MongoDb
 \item Graph databases: Neo4j
 \item Column databases: Cassandra
-\end{enumerate}
-\item Other: Kafka+X (?)
-\end{enumerate}
+\end{itemize}
+\end{itemize}
 
 \subsection{Evaluation}
 
 By analyzing each of the candidates, I determined that Event Store is indeed the most appropriate solution, Neo4j and MongoDb being the most promising alternatives.
 Other solutions came short in at least one integral requirement.
-See \cref{table:classifications:storage} for the complete results of the analysis.
+See \cref{table:classifications:storage} for a summary of the analysis.
+As scalability is hard to grade on an absolute scale without doing time-expensive benchmarks, this requirement is not listed in the table but instead reasoned about in the respective passage about each solution.
+
+\begin{table}[b]
+\centering
+\caption{Classification of storage solutions; the requirements regarding basic storage capabilities and modifying data are not listed because all solutions satisfy these.}
+\makebox[\textwidth][c]{
+\begin{tabular}{l|l|l|l|l|l}
+\textbf{Name} & \textbf{Type} & \textbf{Casc. Updates} & \textbf{Clustering} & \textbf{HTTP} & \textbf{License} \\ \hline
+Event Store & Document & yes & yes & yes & BSD \\
+Postgres & SQL & no & no & no & PostgreSQL \\
+MySQL & SQL & no & yes & no & GPL / Proprietary \\
+Oracle & SQL & no & yes & with addons & Proprietary \\
+MongoDB & Document & no & yes & yes & GNU AGPLv3 \\
+Ignite & Key-Value & no & yes & yes & Apache v2 \\
+Neo4j & Document & yes & no & yes & GPL / Proprietary \\
+Cassandra & Document & no & yes & no & Apache v2
+\end{tabular}
+}
+\label{table:classifications:storage}
+\end{table}
 
 Using event sourcing as the technique for storing passive user feedback is a natural fit because the use case benefits greatly from the fact that not only the current state is saved, but also how this state was reached.
 By storing the events that occur when a user uses the respective application, the complete interaction trace can be computed just by querying the event store.
 Modification of the application state in general can be done simply by issuing a new event that reflects this change (e.g. an \texttt{AddressChangedEvent} if a customer's address shall be modified).
 If other changes are dependent on this change, it is also possible to make use of the event replay technique by modifying the event that introduced the erroneous change and then replaying all subsequent events.
-In terms of scalability, who knows? \todo{research}
+Event Store supports multi-node clusters which replicate all written data from the master node to the other members of the cluster; this improves general read-performance and failover resiliency.
+Write-performance is improved inherently by the architecture:
+Instead of having to update existing data, Event Store has an append-only architecture where data is never updated -- and thus implicitly deleted and then recreated -- but merely appended to an existing stream.
 Event Store is available under the BSD license and thus free for personal and commercial use.
 As it checks off all requirements, Event Store is the ideal candidate for the storage solution of the passive user feedback analysis system.
 
-All \ac{SQL} databases that I initially considered do not fulfill at least one of the mandatory requirements.
+All \ac{SQL} databases that were initially considered do not fulfill the cascading update requirement and at least one of the mandatory requirements.
 While Postgres\footnote{\url{https://www.postgresql.org/}} does not support sharding or other horizontal scaling solutions, MySQL\footnote{\url{https://www.mysql.com/}} and Oracle database\footnote{\url{https://www.oracle.com/database/}} have proprietary license models when used in a commercial context, which makes it difficult to recommend those databases in general.
 Additionally, MySQL does not offer an own HTTP interface, which would complicate its implementation even more.
-Cascading update is also problematic with \ac{SQL} databases: Although relations between tuples are possible, none of the considered databases have an inherent mechanism for modifying a series of dependent data entries.\todo{not precise enough}
+Cascading update is also problematic with \ac{SQL} databases: Although relations between tuples are possible, none of the considered databases have an inherent mechanism for modifying a series of dependent data entries.
+As integral requirements are already not fulfilled by the \ac{SQL} databases, their scalability capabilities are left out of the evaluation here.
 
-Neo4j\footnote{\url{https://neo4j.com/}} appears to be a decent candidate.
+Neo4j\footnote{\url{https://neo4j.com/}} appears to be a very decent candidate.
 As it is a graph database, it has a more explicit mapping of relations between tuples than \ac{SQL} databases.
-This allows for concise update queries which can implement what was termed as "cascading updates" in the requirements.
+This allows for concise update queries which can implement the cascading update requirement.
 Although Neo4j does not support clustering in the non-enterprise edition, its authors claim that the graph database nevertheless scales both vertically and horizontally~\cite{...}.
-The full featured enterprise edition is not free for commercial use.
+The full featured enterprise edition is not free for commercial use however.
+Although Neo4j fulfills most requirements, its reliance on graph theory as the storage mechanism makes it hard to recommend because it does not suit the \ac{IFAS} use case, not to mention the general data model of the application that is used with \ac{IFAS}.
 
 MongoDB\footnote{\url{https://www.mongodb.com/}} is another promising candidate.
-It is arguably the most popular NoSQL database, especially for its great read and write performance~\cite{6625441,...} as well as scalability~\cite{...}.
+It is arguably the most popular NoSQL database, favored especially for its great read and write performance~\cite{6625441}.
+Reports\footnote{\url{https://www.mongodb.com/mongodb-scale}} indicate that MongoDb has excellent scalability both horizontally and vertically.
 MongoDb being a document database means that the data is more loosely coupled than, for example, in a graph database such as Neo4j.
-This makes cascading updates harder to implement, but not impossible.
+This loose coupling means that cascading updates are not possible without further ado.
 In conclusion, MongoDb is, together with Event Store, the most suitable storage solution for this use case.
 
 Key-value stores such as Apache Ignite\footnote{\url{https://ignite.apache.org/}} are not suitable for this use case.
 One reason is that the concept of relations between values is in general not present in key-value stores.
-Another reason is that their dynamic data structures do not support temporal queries and cascading updates out of the box.
+Another reason is that their dynamic data structures do not support cascading updates.
 
-Cassandra\footnote{\url{https://cassandra.apache.org/}} is strong in terms of performance and scalability.
+Cassandra\footnote{\url{https://cassandra.apache.org/}} is very strong in terms of performance and scalability.
 However, due to its \ac{CQL} being modeled closely to \ac{SQL}, it has the same disadvantages in terms of cascading updates.
 Another drawback is that it does not have a built-in HTTP interface.
 Cassandra heavily emphasizes and excels in scalability and fault tolerance, but sacrifices read performance for this~\cite{6625441}.
 These reasons make Cassandra a great choice for certain specialized use cases, but seems less suitable for a general purpose application and thus it is not used here.
 
-\begin{table}[]
-\centering
-\caption{Classification of storage solutions}
-\begin{tabular}{lllllllllll}
-\textbf{Name} & \textbf{Type} & \textbf{Casc. Updates} & \textbf{Sharding} & \textbf{HTTP} & \textbf{License} \\
-Event Store & Document & yes & yes & yes & BSD \\
-Postgres & SQL & no & no & no & PostgreSQL \\
-MySQL & SQL & no & yes & no & GPL / Proprietary \\
-Oracle & SQL & no & yes & with addons & Proprietary \\
-MongoDB & Document & ? & yes & yes & GNU AGPLv3 \\
-Ignite & Key-Value & ? & yes & yes & Apache v2 \\
-Neo4j & Document & yes & no & yes & GPL / Proprietary \\
-Cassandra & Document & no & yes & no & Apache v2
-\end{tabular}
-\label{table:classifications:storage}
-\end{table}
-
 \section{Data Aggregation Solutions}
 \label{sec:classifications:aggregation}
+
+...
+
+It should be noted that the lines between storage and aggregation solutions can be blurry for solutions which have their own data storage.
+For example, Elasticsearch stores its data in indices, independent of any upstream storage solution.
+Using Elasticsearch as the storage \emph{and} aggregation solution for \ac{IFAS} would be unsuitable for the rest of the application ...
+
 
 \subsection{Requirements}
 
@@ -172,13 +234,13 @@ Instead, I explicitly note if one of the solutions distinctly out- or underperfo
 
 \subsection{Candidates}
 
-\begin{enumerate}
+\begin{itemize}[noitemsep]
 \item Apache Solr
 \item Elasticsearch
 \item Apache Hadoop
 \item Apache Spark
 \item Custom implementation using native Event Store aggregators
-\end{enumerate}
+\end{itemize}
 
 \subsection{Evaluation}
 
@@ -186,6 +248,23 @@ Instead, I explicitly note if one of the solutions distinctly out- or underperfo
 The evaluation of the candidates introduced above yielded that Elasticsearch is the preferred data aggregation solution.
 When judged in isolation of the rest of the proposed stack, Solr would also be suitable solution, but it falls behind as none of the analysis applications (cf. \cref{sec:classifications:analysis}) have Solr support.
 An overview of the solutions and their support for the presented requirements is given in \cref{table:classifications:aggregation}.
+
+\begin{table}[t]
+\centering
+\caption{Classification of data aggregation solutions. Support for arbitrary data structures and combination of aggregations is not considered here since all solutions fulfill this requirement.}
+\makebox[\textwidth][c]{
+\begin{tabular}{l|l|l|l|l|l|l|l}
+\textbf{Name} & \textbf{HTTP} & \textbf{Search} & \textbf{DSL} & \textbf{Time Aggr.} & \textbf{Loc. Aggr.} & \textbf{Scalability} & \textbf{License} \\ \hline
+Solr & yes & yes & no & yes & yes & yes & Apache v2 \\
+Elasticsearch & yes & yes & no & yes & yes & yes & Apache v2 \\
+Hadoop & ? & ? & ? & ? & ? & ? & Apache v2 \\
+Spark & no & ? & no & yes & yes & yes & Apache v2 \\
+Custom & yes & yes & yes & yes & no & no & -
+\end{tabular}
+}
+\label{table:classifications:aggregation}
+\end{table}
+
 
 Apache Solr\footnote{\url{http://lucene.apache.org/solr/}} and Elasticsearch\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/}} are both built upon the Lucene\footnote{\url{http://lucene.apache.org/}} project, which is a Java-based library offering, amongst others, searching and indexing functionality.
 For this reason, they are both very similar in terms of functionality and performance; both products implement their own solutions for scaling horizontally and vertically though.
@@ -214,20 +293,6 @@ Using the projections feature, it is possible to write a custom aggregation serv
 One drawback of this approach is that it involves considerably more custom code than the other services.
 Furthermore, projections are not as powerful as the search and aggregation functionalities of Elasticsearch or Solr.
 
-\begin{table}[]
-\centering
-\caption{Classification of data aggregation solutions. Support for arbitrary data structures and combination of aggregations is not considered here since all solutions fulfill this requirement.}
-\begin{tabular}{lllllllllllllll}
-\textbf{Name} & \textbf{HTTP} & \textbf{Search} & \textbf{DSL} & \textbf{Time Aggr.} & \textbf{Loc. Aggr.} & \textbf{Scalability} & \textbf{License} \\
-Solr & yes & yes & no & yes & yes & yes & Apache v2 \\
-Elasticsearch & yes & yes & no & yes & yes & yes & Apache v2 \\
-Hadoop & ? & ? & ? & ? & ? & ? & Apache v2 \\
-Spark & no & ? & no & yes & yes & yes & Apache v2 \\
-Custom & yes & yes & yes & yes & no & no & -
-\end{tabular}
-\label{table:classifications:aggregation}
-\end{table}
-
 \section{Data Analysis Solutions}
 \label{sec:classifications:analysis}
 
@@ -246,20 +311,54 @@ This effectively enables what \citet{Bosch2012} calls \emph{data-based decision 
 
 \subsection{Candidates}
 
-\begin{enumerate}
+\begin{itemize}[noitemsep]
 \item Kibana
 \item Grafana
 \item Custom implementation
-\end{enumerate}
+\end{itemize}
 
 It seems that data visualization applications and services are in general rarely released as open source or free software.
 Solutions which only offer a paid plan were not considered here, such as Logmatic\footnote{\url{https://logmatic.io/}}.
 
 \subsection{Evaluation}
 
+The evaluation for a sufficient data analysis solution is much shorter due to the limited amount of candidates.
+Both Kibana and Grafana fulfill all requirements (cf. \cref{table:classifications:evaluation}) and thus more nuanced factors tipped the scales in favor of Kibana.
+
+\begin{table}[t]
+\centering
+\caption{Classification of data analysis solutions.}
+\makebox[\textwidth][c]{
+\begin{tabular}{l|l|l|l|l|l}
+\textbf{Name} & \textbf{Exploration} & \textbf{Visualization} & \textbf{Browser based} & \textbf{Speed} & \textbf{License} \\ \hline
+Kibana & yes & yes & yes & yes & Apache v2 \\
+Grafana & yes & yes & yes & yes & Apache v2 \\
+Custom & yes & yes & yes & yes & -
+\end{tabular}
+}
+\label{table:classifications:evaluation}
+\end{table}
+
 ...
 Additional features of Kibana such as reporting, cluster monitoring, and various security features, can be unlocked by purchasing a license\footnote{\url{https://www.elastic.co/subscriptions}}.
-\ac{IFAS} was envisioned and developed with the open source version of Kibana.
+\ac{IFAS} was envisioned and developed with the open source version of Kibana though.
+
+Grafana...
+
+A custom implementation could, for example, use a JavaScript framework such as React\footnote{\url{https://reactjs.org/}} together with D3.js\footnote{\url{https://d3js.org/}} for rendering visualizations.
+While it would be possible to implemente such an application with all required features, this would take up too much time and is thus impractical.
+
 
 In the end, Kibana was favored for its powerful integration with Elasticsearch, which I expect will improve both the speed of development and the overall quality of the prototype system.
 Kibana could -- presumably -- easily be replaced by Grafana though, as they offer very similar functionality and Grafana comes with an Elasticsearch plugin.
+
+\section{Container Orchestration}
+
+According to the objectives specified in the introduction (cf. \cref{sec:intro:objectives}), it shall be possible deploy \ac{IFAS} on any of the most widely used operating systems, i.e. Windows, Linux and MacOS.
+This can be achieved by implementing the services as an orchestration of Docker services, as Docker is supported by each of the required operating systems.
+
+There are a few alternatives to using Docker for this, such as Vagrant\footnote{\url{https://www.vagrantup.com/}} or VirtualBox\footnote{\url{https://www.virtualbox.org/}}.
+Docker was favored  over its alternatives because of mostly subjective advantages such as easier configuration, its popularity, and personal preference in general.
+However, Docker could be exchanged for other solutions with considerably low effort; basically, the configurations that are done via \texttt{docker-compose.yml} would just have to be transfered into the respective counterpart in Vagrant, VirtualBox, or another alternative solution.
+It would also be possible to get \ac{IFAS} to run natively on a Linux or Windows server, provided the correct configurations are applied.
+As Elasticsearch and Kibana do not offer an officially supported MacOS version, it is not possible -- without custom adaptations -- to run the services natively on MacOS.

@@ -243,6 +243,8 @@ Each user was given a short introduction about what a usability test is and that
 
 The test subjects are between 26 and 57 years old, with four women and eight men.
 While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
+\todo{Correct place for this?}
+\todo{Zeitraum, bio, anzahl, m/w, Dauer, Probleme?}
 
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the questionnaire took the users about 2 minutes.
@@ -260,7 +262,9 @@ After all tests were finished, a report of the questionnaire's results was creat
 The results from the questionnaire are used throughout this section in order to compare them with the results reported by \ac{IFAS}.
 
 \begin{figure}[h]
-        \includegraphics[width=.75\paperwidth]{gfx/survey.pdf}
+		\makebox[\textwidth][c]{
+        \includegraphics[width=1.3\textwidth]{gfx/survey.pdf}
+        }
         \caption{questionnaire results.}
         \label{figure:evaluation:user:survey-report}
 \end{figure}
@@ -282,7 +286,9 @@ In other words, the upper chart additionally displays information about how many
         The lower visualization splits the bars by user, thus giving insights as to how many of the clicks are allotted to which user.
         \Cref{figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user} show how interaction with the visualization can give additional insights by applying filters to the displayed data.
         }
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks.png}
+   		\makebox[\textwidth][c]{
+        \includegraphics[width=1.3\textwidth]{gfx/dashboard-clicks.png}
+		}
         \label{figure:evaluation:user:dashboard-clicks}
 \end{figure}
 
@@ -299,13 +305,17 @@ Instead of a 3 hour interval, as in the initial dashboard, the interval in this 
 
 \begin{figure}[h]
         \caption{todo.}
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
+        \makebox[\textwidth][c]{
+        \includegraphics[width=\textwidth]{gfx/dashboard-clicks-zoom.png}
+        }
         \label{figure:evaluation:user:dashboard-clicks-zoom}
 \end{figure}
 
 \begin{figure}[h]
         \caption{todo.}
-        \includegraphics[width=0.8\textwidth]{gfx/dashboard-clicks-zoom-user.png}
+  		\makebox[\textwidth][c]{
+        \includegraphics[width=\textwidth]{gfx/dashboard-clicks-zoom-user.png}
+        }
         \label{figure:evaluation:user:dashboard-clicks-zoom-user}
 \end{figure}
 
@@ -329,7 +339,9 @@ This results in a 2.48:1 ratio in favor of the ``Dogs'' channel.
         The top visualization computes channel interest via the total amount of messages (therefore \emph{active} channel usage).
         The lower visualization computes channel interest via the total amount of scrolling that the users do in the respective channel while reading messages (therefore \emph{passive} channel usage).
         }
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-usage.png}
+		\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/dashboard-usage.png}
+        }
         \label{figure:evaluation:user:dashboard-channels}
 \end{figure}
 
@@ -357,7 +369,9 @@ The various visualizations in the experimentation dashboard (cf. \cref{figure:ev
 
 \begin{figure}[h]
         \caption{todo.}
-        \includegraphics[width=1.1\textwidth]{gfx/dashboard-ab-test.png}
+		\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/dashboard-ab-test.png}
+        }
         \label{figure:evaluation:user:dashboard-ab-test}
 \end{figure}
 
@@ -405,7 +419,9 @@ These results legitimate on the one hand the presence of both channel switching 
 
 \begin{figure}[h]
         \caption{todo.}
+		\makebox[\textwidth][c]{
         \includegraphics[width=1.1\textwidth]{gfx/visualization-feature-analysis.png}
+        }
         \label{figure:evaluation:user:visualization-feature-analysis}
 \end{figure}
 
@@ -431,7 +447,7 @@ These results legitimate on the one hand the presence of both channel switching 
 
 As it is somewhat complicated to test the performance of the whole \ac{IFAS} stack at once because of its many interconnected services and applications, the performance test is split into three parts:
 
-\begin{enumerate}
+\begin{enumerate}[noitemsep]
 \item Event processing performance, i.e. amount of processed events over time, of Event Store and Elasticsearch with the bridge application in between (cf. \cref{subsec:evaluation:performance:evt-es-bridge})
 \item Indexing time of Elasticsearch (cf. \cref{subsec:evaluation:performance:elasticsearch})
 \item Rendering time of a visualization in Kibana (cf. \cref{subsec:evaluation:performance:kibana})
@@ -446,7 +462,7 @@ For this reason, a study by \citet{Henze2011} was taken into consideration which
 However, \ac{IFAS} is currently not intended for scenarios in which 120 million events are created within a few seconds or minutes, and thus the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
 Both the tests for the indexing time of Elasticsearch and for the rendering time of Kibana are executed with an index of 120 million documents.
 
-If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}
+If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}.
 
 \subsection{Client to Event Store to Elasticsearch}
 \label{subsec:evaluation:performance:evt-es-bridge}
@@ -493,21 +509,23 @@ For values higher than configuration level 9, the experiment suffered similar pr
 Again, the reasons for this are unknown and could be implementation-specific, but are not further investigated because digging too deep into Event Store performance optimization is out of scope for this thesis (cf. \cref{ch:future-work}).
 
 \begin{table}
-\centering
-\begin{tabular}{lllll}
-\textbf{Config}                                      & \textbf{Live Buffer Size} & \textbf{Buffer Size} & \textbf{Read Batch Size} & \textbf{Client-Side Buffer Size}  \\
-0 & 500                                                        & 500         & 20              & 640                       \\
-1 & 1000             & 1000                                                  & 40                                                        & 640                                                                 \\
-2                                           & 2000                                                       & 2000        & 80              & 640                                                                \\
-3                                           & 4000                                                       & 4000                                                  & 160                                                       & 640                                                                \\
-4                                           & 8000                                                       & 8000                                                  & 320                                                       & 640                                                                \\
-5                                           & 16000                                                      & 16000                                                 & 640                                                       & 640                                                               \\
-6                                           & 32000                                                      & 32000                                                 & 1280                                                      & 640                                                               \\
-7                                           & 64000                                                      & 64000                                                 & 2560                                                      & 640                                                               \\
-8                                           & 128000                                                     & 128000                                                & 5120                                                      & 640                                                              \\
-9                                           & 256000                                                     & 256000                                                & 10240                                                     & 640                                                             
-\end{tabular}
 \caption{Configuration table}
+\centering
+\makebox[\textwidth][c]{
+\begin{tabular}{l|l|l|l}
+\textbf{Config}                                      & \textbf{Live Buffer Size} & \textbf{Buffer Size} & \textbf{Read Batch Size} \\ \hline
+0 & 500 & 500 & 20 \\
+1 & 1000 & 1000 & 40 \\
+2 & 2000 & 2000 & 80 \\
+3 & 4000 & 4000 & 160 \\
+4 & 8000 & 8000 & 320 \\
+5 & 16000 & 16000 & 640 \\
+6 & 32000 & 32000 & 1280 \\
+7 & 64000 & 64000 & 2560 \\
+8 & 128000 & 128000 & 5120 \\
+9 & 256000 & 256000 & 10240                                     
+\end{tabular}
+}
 \label{table:configs}
 \end{table}
 
@@ -558,20 +576,26 @@ The y-axes of the box plots indicate the total duration in seconds for processin
 While the x-axes use a continuous scale, the y-axes use a logarithmic scale in order to better illustrate differences between the faster configurations.
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-50k.pdf}
         \caption{50k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-50k.pdf}
+}
         \label{fig:evaluation:performance:mean-durations-50k}
 \end{figure}
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-100k.pdf}
         \caption{100k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-100k.pdf}
+}
         \label{fig:evaluation:performance:mean-durations-100k}
 \end{figure}
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth,keepaspectratio]{gfx/mean-durations-150k.pdf}
         \caption{150k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-150k.pdf}
+}
         \label{fig:evaluation:performance:mean-durations-150k}
 \end{figure}
 
@@ -620,20 +644,26 @@ The line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:eva
 These plots do not show a median or average distribution; instead, a specific experiment run was chosen that serves best for explaining the observations about the different configurations that were made earlier.
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth]{gfx/config-comparison_50k.pdf}
         \caption{50k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/config-comparison_50k.pdf}
+}
         \label{fig:evaluation:performance:config-comparison_50k}
 \end{figure}
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth]{gfx/config-comparison_100k.pdf}
         \caption{100k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/config-comparison_100k.pdf}
+}
         \label{fig:evaluation:performance:config-comparison_100k}
 \end{figure}
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth]{gfx/config-comparison_150k.pdf}
         \caption{150k}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/config-comparison_150k.pdf}
+}
         \label{fig:evaluation:performance:config-comparison_150k}
 \end{figure}
 
@@ -654,6 +684,7 @@ It can additionally be observed that configurations 3 to 6 initially process a f
 The initial peak and subsequent dropdown can partly be explained by the computational complexity of managing such a large amount of events over a long timespan.
 But the peak near the respective end of the plot remains mysterious.
 
+\todo{Cluster only for redundancy!}
 The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance suddenly increases again near the end of the subscription made this very unlikely.
 Instead, inspection of the docker containers' resources via the \texttt{docker stats} command revealed that the single Event Store instance suffered heavy CPU load, most of the time near 200\% (i.e. half of the CPU resources allocated to Docker).
 Both the bridge application and Elasticsearch had no problems with handling the amount of events that came in -- CPU load, memory consumption and network activity remained within acceptable bounds.
@@ -721,9 +752,9 @@ If needed, additional measures, such as increasing the heap size, can be taken i
 \caption{Performance of Elasticsearch when indexing 120 million documents.}
 \label{table:elasticsearch-performance}
 \centering
-\begin{tabular}{ll}
-Indexed Documents & 120,000,000 \\
-Index Time & 7456.591 s \\
+\begin{tabular}{l|l}
+Indexed Documents & 120,000,000 \\ \hline
+Index Time & 7456.591 s \\ \hline
 Documents per second & 16,093.14
 \end{tabular}
 \end{table}
@@ -748,6 +779,8 @@ About 60ms for rendering the visualization have to be added to this value, amoun
 
 The first step for setting up the experiment was running the Elasticsearch performance test, such that the 120 million documents exist in an index.
 As that test was run with randomly generated \texttt{ExperimentParticipated} events, a pie-chart visualization was created in Kibana which displays the choices that the fictitious users made.
+
+\todo{a few sentences regarding refresh rate}
 
 Kibana offers the possibility to view detailed statistics for every visualization via the \emph{Visualization Spy}, including query duration, request duration and number of hits.
 These statistics are useful for measuring the performance for different reasons:
@@ -807,11 +840,11 @@ The mean query duration with caching enabled is only 1.1ms, which means that mos
 \caption{Comparison of mean query duration and mean request duration for a 120 million hits pie-chart visualization in Kibana; amount of hits is always 120 million as the request itself never changes. The total mean rendering durations takes into account additional time for rendering and painting the visualization, which was measured to be at most 60ms.}
 \label{table:kibana-config-comparison}
 \centering
-\begin{tabular}{llll}
-& \textbf{No caching}                                      & \textbf{Caching} & \textbf{Speedup} \\
-\textbf{Hits} & 120,000,000 & 120,000,000 & - \\
-\textbf{Mean query duration} & 1418ms & 1.1ms & 1289 \\
-\textbf{Mean request duration} & 1475ms & 156.8ms & 25.9 \\
+\begin{tabular}{r|l|l|l}
+& \textbf{No caching}                                      & \textbf{Caching} & \textbf{Speedup} \\ \hline
+\textbf{Hits} & 120,000,000 & 120,000,000 & - \\ \hline
+\textbf{Mean query duration} & 1418ms & 1.1ms & 1289 \\ \hline
+\textbf{Mean request duration} & 1475ms & 156.8ms & 25.9 \\ \hline
 \textbf{Total mean rendering duration} & 1535ms & 216.8ms & 7.08 \\
 
 \end{tabular}
