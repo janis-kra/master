@@ -7,52 +7,27 @@
 
 At the time of beginning the implementation, the current Elasticsearch and Kibana versions were 6.1.1, the current Event Store version was 4.1.
 
-\section{Assumptions}
-\label{sec:design:assumptions}
-
-Certain assumptions and restrictions are made in order to limit the complexity of \acf{IFAS} without reducing the results' significance.
-
-\begin{description}
-\item[HTML \& JS Client] The client application which is used for generating data for testing and evaluation purposes will be a web application using \ac{HTML} and JavaScript.
-This choice is influenced by personal preference, but is backed by research on experimentation~\cite{Dmitriev2017,Kohavi2013a} and implicit user feedback~\cite{Joachims2005,Huang2011} also specifically targeting web applications.
-As the data is sent via \ac{HTTP}, the passive user feedback could in theory also be implemented in any other programming language which supports sending of \ac{HTTP} requests, such as Java or C\#.
-\item [...]
-\end{description}
-
-\section{Goals}
-\label{sec:design:goals}
-
-\begin{enumerate}
-\item A web application sends passive user feedback data to specifiable streams of the Event Store instance.
-The type of application is not important, but should be geared toward typical end users (instead of a business application).
-Instead of implementing an application from scratch, an existing open source application shall be modified to send this data in order to save the additional time for creating the application.
-The reasons why a web application is used as a data source, and not, as initially planned, the Rico data set, are explained in the following \cref{sec:design:data-source}
-\item The usability of the web application can be evaluated via some metrics, which have to be created in the process.\todo{read up on UX testing, specify further}
-\item Elasticsearch is fed with all events that are created while users interact with the application.
-It can be specified which streams this data shall come from, as it is plausible that other data is saved to the event store.
-\item The collected user feedback can be analyzed via Kibana.
-For this purpose, one or more graphical representations of the usability metrics are created.
-\item The passive feedback system can be deployed on any machine which supports Docker, i.e. Windows, Linux and MacOS.
-\item User feedback can be accessed within Kibana within a few seconds from occurrence of the user action; at the absolute most this may take half a minute (30s).
-This is to allow for fast reactions to critical \ac{UX} errors such as a button invoking a critical action becoming unavailable.
-\end{enumerate}
-
-
-\section{Choosing a User Data Source}
+\section{Choosing a User Feedback Data Source}
 \label{sec:design:data-source}
 % why the RICO data set was not used
 
-Die Interaction Traces versprechen, dass alle UIs der Apps dort hinterlegt sind, in der Realitaet haben die Nutzer und/oder der Crawler aber oft total komische Aktionen ausgefuehrt oder sind nicht ueber das Setup der App hinaus gekommen (stichpunktartige Ueberpruefung der Daten).
-Dadurch sind sowohl die Interaction Traces als auch die UI-Daten ansich oft nicht "richtig".
-Ausserdem existiert oft nur 1, ansonsten meist nur 2, Interaction Traces.
+The Rico data set~\cite{Deka:2017:Rico} was initially considered as a possible data source for implicit user feedback.
+This would have eliminated the need to implement a client application or rather enrich an existing application with feedback sending functionalities.
 
-Fazit: Leider unbrauchbar!
-Alternative: bestehende Applikation um *Listener* erweitern. Literatur von Kohavi et al lesen um Hinweise zu erhalten wie man das implementieren kann
+The \emph{interaction traces} were described in the paper as complete connected data records about which actions a user performed, serving usage data for the better part of the respective app's \ac{UI}.
+In order to validate or refute their suitability as a source for implicit user feedback, the interaction traces of a few randomly chosen apps analyzed manually.
+It turned out that the crawlers that created these traces often were not able to get past the app's login screen and thus did not yield enough conclusive data in order to be usable.
+In addition, there was often only one or at most two interaction traces for an app.
+For this reason, the interaction traces as well as the \ac{UI} data in general turned out to be unusable.
 
-Instead, it was decided that an existing web application shall be modified such that it sends passive user feedback via \ac{HTTP} to the event store.
-This application is the cloud-based messaging application Mattermost\footnote{\url{https://about.mattermost.com/}}.
-As the Mattermost server as well as the client application is open source and offers the possibility to be hosted on a private server, it fits the requirements for the data source listed in \cref{sec:design:goals}.
-Apart from that, this decision was at least partly based on personal preference due to familiarity with Mattermost and the web application being implemented in React\footnote{\url{https://reactjs.org/}}.
+Instead, it was decided that an existing web application shall be modified such that it sends passive user feedback via \ac{HTTP} to \ac{IFAS}.
+The application that was chosen for this is the cloud-based messaging application Mattermost\footnote{\url{https://about.mattermost.com/}}.
+Both the server and client applications of Mattermost are open source and offer the possibility to be hosted on a private server, with a dedicated Docker image being available as well.
+This fits the architectural choices that were made for \ac{IFAS} up to this point very well.
+Apart from that, this decision was partly based on personal preference due to familiarity with Mattermost and the fact that the web application was implemented in React\footnote{\url{https://reactjs.org/}}.
+
+The chosen technologies for the client application are backed by the fact that research on experimentation~\cite{Dmitriev2017,Kohavi2013a} and implicit user feedback~\cite{Joachims2005,Huang2011} also specifically targets web applications.
+As the data is sent via \ac{HTTP}, the client application could in theory also be implemented in any other programming language which supports sending of \ac{HTTP} requests, such as Java or C\#.
 
 \section{Metrics Selection}
 \label{sec:design:metrics}
@@ -64,102 +39,130 @@ WIP
 
 % Identifying the metrics to evaluate created customer value and product success was a challenge both in relation to dedicated experiments and to the general observation of product usage \cite{lindgren2015software}
 
-\citet{Kohavi2013a} stress the importance of defining an \ac{OEC} which distills important metrics such as revenue or customer satisfaction in one single metric.
-Having a fitting \ac{OEC} eliminates the need to carefully balance out the other metrics, as they are represented by the \ac{OEC}.
-\citeauthor{Kohavi2013a} give an example where market share is a bad \ac{OEC} for a search engine, as worsening the search algorithm would increase the amount of search queries in the short term and thus increase market share; in the long run, users would use an alternative product and thus this \ac{OEC} would drop again.
-Sessions per user would be a much better \ac{OEC} in this example, \citeauthor{Kohavi2013a} say.
+% active channel usage (posted msgs)
+% passive channel usage (scrolling)
+% clicking (?)
 
-\section{Event Structure}
+
+\section{User Feedback Events}
 \label{sec:design:event-structure}
 
-Regardless of the specific event type, some attributes are always of interest and therefore included in every event; this is the \texttt{GenericEvent} interface in \cref{fig:event-structure}.
-These attributes are:
+User feedback is sent to \ac{IFAS} in the form of events, as the data is internally first saved in \ac{IFAS}' Event Store.
+All events are saved to a single Event Store stream; this helps to isolate the user feedback data separated from other data that may be posted to Event Store in a production environment.
+
+In order to supply the data that is necessary for the metrics defined earlier, five different event types were created.
+These event types are listed below, together with a description of the data that they provide and in which cases they are sent to \ac{IFAS}:
 
 \begin{description}
-\item[@timestamp] The time at which the event occurred; the @ prefix is given in order to have Elasticsearch automatically detect this as the timestamp.
-\item[EventType] This denotes the event type; maps to the \texttt{EventType} of the event in the event store.
-\item[Data] This field contains the event's contents, which depend on the event type.
-\item[User] Anonymized user data is added to the event, such that it is possible to recreate an interaction trace of the given user, if needed.
-\end{description}
-
-There are X different event types, which inherit the event structure from \texttt{GenericEvent} and provide different data.
-The event types are \texttt{UserClicked}, \texttt{MessageSent}, ... and \texttt{PostCreated} (WIP).
-
-\texttt{UserClicked} events are used to capture all clicks that a user performs in the application.
-The intention is that for any application, these events give an analyst enough information to identify what the user was doing at that point.
+\item[ChannelSwitched]
+Whenever a user switches the messaging channel, this event is sent.
+It contains data about the channel that is switched to, as well as the method of channel switching: Via the left-side menu bar, or via the \emph{channel switcher} feature.
+\item[TutorialExperimentParticipated]
+This event contains information about the decision a newly registered user makes regarding the Mattermost tutorial:
+Either the user participates in the tutorial, or they skip it.
+As this event is used as the data source for an A/B test, it also contains information about the group that the user was assigned to, which is either control or treatment.
+\item[PostCreated]
+Every time a message is sent in Mattermost, a new \texttt{PostCreated} event is fired.
+This event contains extensive data about the message itself, such as its contents and the sender's id, as well as a lot of metadata such as the channel the message was posted to and the time it was created.
+The resulting data is used to compute the metric regarding active channel usage.
+\item[UserClicked]
+These events are used to capture all clicks that a user performs in the application.
+The intention is that for any application, these events give an analyst enough information to identify what the user was doing at any given point.
 The \texttt{UserClicked} event contains information about the clicked element such as the HTML attributes \texttt{class} and \texttt{id} as well as its inner text.
 There may still be cases where this is not enough to identify the action that the user performed, which is why the event is amended with the click's position within the application, the window's height and width, and the current URL.
 Using this information, the analyst can exactly identify the position where the user clicked at the given point in time.
+\item[WindowScrolled]
+Whenever a user scrolls up or down in the chat window, a \texttt{WindowScrolled} event is sent to \ac{IFAS}.
+This event encaspulates information about the URL at which the scrolling occured, as well as the duration and amount of the scrolling.
+Using this event's data, the scrolling amount metric can be computed.
+\end{description}
 
-Parts of this data may be redundant and/or unspecific in some cases, but helps to recreate the user's steps if this is needed.
-The specificity of these events can be improved by assigning unique ids to every element - or at least to the ones which are of special interest.
+Parts of the data contained in these events may be redundant or unspecific in some cases, but helps to recreate the user's steps if this is needed.
+The additional data could also be used to later measure additional metrics.
+%If this is undesirable because the additional data takes up too much disk space, or because of moral concerns regarding the hoarding 
+In a production environment, the specificity of these events could be improved by assigning unique ids to every element in the web application, or at least to the ones which are of special interest.
+Especially the \texttt{UserClicked} events would benefit from this.
 
 \section{Event Store-Elasticsearch Bridge}
 \label{sec:design:bridge}
 
 In order to move the event data to Elasticsearch and afterwards into Kibana, a service is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
-This service is the Event Store-Elasticsearch Bridge (short just "bridge" in this context).
+This service is the Event Store-Elasticsearch bridge (short just ``bridge'' in this context).
 
 %\subsection{The Need for a Bridge Service}
 
 Intuitively, it seems problematic that Event Store and Elasticsearch have different concepts of storing their data.
-On the one hand, in Event Store, data is stored as events in streams; each event always has an event type and a distinct number within that stream.
+On the one hand, Event Store data is stored as events in streams; each event always has an event type and a unique id within that stream.
 On the other hand, in Elasticsearch, data is managed in indices which contain documents; each Elasticsearch document is assigned a document type.
-These two concepts can be assigned 1:1 to each other -- each stream maps to an index, each event type maps to a document type within its respective index, and each event maps to a document (cf. \cref{table:design:bridge}).
-Thus, for every event that is posted to the store, a new document of the same type shall be created in the index of the same name as the Event Store's stream.\todo{doesnt work like that anymore!}
-A delay of a few seconds between the arrival of the event and its posting to Elasticsearch is acceptable.
-% https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html
+
+The bridge spans the gap between the two concepts by subscribing to all events that are posted to the user feedback stream and posting them to Elasticsearch.
+As Elasticsearch does not allow multiple document types in the same index since the release of the most recent major version\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html}}, each event type has to have its own Elasticsearch index.
+Thus, \ac{IFAS} in its current state has five Elasticsearch indices, one for each event type.
+The index names always have the Event Store stream's name as the prefix and the event type as the suffix, divided by an underscore.
+In conclusion, each stream maps to the prefix of an index, each event type maps to the suffix of an index, and each event maps to a document (cf. \cref{table:design:bridge}).
+The event type is automatically also the document type.
+
+%This is also benefical for later analysis in Kibana, as indices with multiple document types would clutter the \ac{UI}
 
 \begin{table}[]
 \centering
-\caption{Mapping of Event Store to Elasticsearch data types}
+\caption{Mapping of Event Store to Elasticsearch data types.}
 \label{table:design:bridge}
 \begin{tabular}{l|l}
 \textbf{Event Store} & \textbf{Elasticsearch} \\ \cline{1-2}
-Stream & Index \\
-Event Type & Document Type \\
+Stream & Index prefix \\
+Event type & Index suffix \& document type \\
 Event & Document
 \end{tabular}
 \end{table}
 
-One possible and seemingly convenient solution would be using Logstash\footnote{\url{https://www.elastic.co/products/logstash}} as the bridge; this is not applicable in this exact scenario though.
+One possible and seemingly convenient solution would be using Logstash\footnote{\url{https://www.elastic.co/products/logstash}} as the bridge, which is not applicable in this exact scenario though.
 Logstash is another application from the Elastic stack; it serves the exact purpose to integrate data from various sources into Elasticsearch.
 It is possible to consume Atom feeds via Logstash's \ac{RSS} plugin, which Event Store offers an interface for.
-This is not feasible for this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which Event Store does.
+This is not feasible in this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which Event Store does.
 Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to abandon Logstash as a possible solution.
 
 Instead of using an existing service that listens to Atom feeds such as Logstash, a custom implementation is the better approach here.
 This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows amongst others for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.
-The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}\cite{WEB:EvtSt-Which-Api}.
-It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all due to the technology heterogeneity that a microservice architecture allows\cite[Key Benefits,pp.~4f]{newman2015building}.
+The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}~\cite{WEB:EvtSt-Which-Api}.
+It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all due to the heterogenous technology that a microservice architecture allows~\cite[Key Benefits,pp.~4f]{newman2015building}.
 
 Assuming the Event Store stream already exists, setting up the bridge to transfer new events to an Elasticsearch index would then be a two-step process.
 First, a persistent subscription has to be created within the Event Store administration overlay.
 Then, an instance of the bridge service has to be started, configured to listen to the newly created subscription.
-This would cause the bridge to transfer all existing events to an Elasticsearch index of the same name as the stream, and then also posting all subsequent events to this index.
+This would cause the bridge to transfer all existing events which were not read previously to the respective Elasticsearch indices, and then also posting all subsequently received events to this index.
 
 It would also be possible to implement the bridge in a way that allows the service to listen to multiple subscriptions simultaneously.
 This would require a more complex service which introduces two problems.
 First, it introduces an unnecessary implementation overhead, and second, its additional complexity could lead to scaling problems.
-Writing complex, large serices is in general discouraged to do in a microservice architecture\cite[Key Benefits,pp.~5f]{newman2015building}.
+Writing complex, large serices is in general discouraged to do in a microservice architecture~\cite[Key Benefits,pp.~5f]{newman2015building}.
 Instead, multiple instances of the same service should be executed alongside each other, with their respective configuration for listening to a specific stream.
 
 Thanks to persistent subscriptions, it is possible to temporarily take the bridge instance offline -- as the subscription state is persisted on the server side, the bridge can transfer all events that occurred while it was offline as soon as it comes online again.
-Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern\cite{WEB:Microsoft-Competing-Consumers}.
+Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern~\cite{WEB:Microsoft-Competing-Consumers}.
 This advanced use case is not considered further though.
 
-\subsection{Mapping Event Store Rebuilds to Elasticsearch}
-\label{subsec:design:bridge:mapping}
+%\subsection{Mapping Event Store Rebuilds to Elasticsearch}
+%\label{subsec:design:bridge:mapping}
 
-Problem: Elasticsearch does not support Complete Rebuild and its variants (temporal query, event replay, reversing events, delayed application(?)).
-Solution: Delete index and then set up a new subscription.
-The downside is that this renders the analytics application practically useless for the time span until the Elasticsearch index is repopulated with the Event Store data.
-Some implementation details regarding this problem can be found in \cref{subsec:implementation:bridge:mapping}
+Another advanced feature of Event Store are the complete rebuild, event replay and reversing of events.
+This is supported indirectly in \ac{IFAS} by first deleting the appropriate documents from the respective Elasticsearch index, which can be done using the Delete By Query API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html}}.
+In the case of a complete rebuild, the index can be completely emptied.
+Then, when the rebuild, replay or reversing is executed in Event Store, the persistent subscription can forward all rebuilt events to the bridge.
+The downside is that this introduces a delay in which the analytics application is practically useless, depending on the complexity and amount of events this can be an important factor.
+\todo{Test this or trow it out!}
 
 \section{Final Architecture}
 
+...
+
+
+The diagram displays an abstraction of the client component, which internally consists of three services:
+The Mattermost server, the (customized) Mattermost web application, and an Nginx service which exposes the web application to port 80.
+As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as the ``Client'' in the diagram.
+
 \begin{figure}[ht]
-        \caption{Final architecture}
+        \caption{Structure diagram of the final architecture of \ac{IFAS}.}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
 }

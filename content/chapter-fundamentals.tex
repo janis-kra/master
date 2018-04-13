@@ -43,6 +43,15 @@ Thus, each group contains 50\% of the user base, and the results of the control 
 %The test that detects wether two variants are statistically different is called the \emph{null hypothesis}.
 % more details in Kohavi2009
 
+...
+
+When executing controlled experiments, an important factor is the choice of metric that is used for comparign results.
+\citet{Kohavi2013a} stresses the importance of defining an \ac{OEC} which distills important metrics such as revenue or customer satisfaction in one single metric.
+Having a fitting \ac{OEC} eliminates the need to carefully balance out the other metrics, as they are represented by the \ac{OEC}.
+\citeauthor{Kohavi2013a} gives an example where market share is a bad \ac{OEC} for a search engine, as worsening the search algorithm would increase the amount of search queries in the short term and thus increase market share; in the long run, users would use an alternative product and thus this \ac{OEC} would drop again.
+Sessions per user would be a much better \ac{OEC} in this example, \citeauthor{Kohavi2013a} says.
+
+
 \section{Event sourcing}
 \label{sec:fundamentals:event}
 
