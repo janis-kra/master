@@ -1,24 +1,15 @@
 version: "3.4"
 services:
-  # client:
-  #   build: client/
-  #   container_name: client
-  #   ports:
-  #     - 8000:80
-  #   networks:
-  #     - feedback-net
+
   eventstore:
-    image: eventstore/eventstore
-    container_name: eventstore
+    image: eventstore/eventstore:release-4.1.0
     ports:
       - 2113:2113
     networks:
-      - feedback-net
+      - IFAS-net
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
-    container_name: elasticsearch
-    ports:
-      - 9200:9200
     command: elasticsearch
     ulimits:
       memlock:
@@ -30,40 +21,41 @@ services:
       - elasticdata:/usr/share/elasticsearch/data
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     networks:
-      - feedback-net
+      - IFAS-net
+
   kibana:
     image: docker.elastic.co/kibana/kibana:6.1.1
-    container_name: kibana
     ports:
-      - 5601:5601
+      - 127.0.0.1:5601:5601
     volumes:
       - kibanadata:/usr/share/kibana/data
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
     environment:
       - cluster.name=docker-cluster
     networks:
-      - feedback-net
+      - IFAS-net
+
   evt-es-bridge:
     build: dotnet-event-elastic-bridge
-    container_name: evt-es-bridge
     environment:
-      - STREAM_NAME=mattermost
       - STREAM_URL=eventstore
       - ELASTIC_NAME=elasticsearch
       - EVENTSTORE_NAME=eventstore
       - USER=admin
-      - PW=changeit
+      - PW=vEeW120SG7pSz4lbJgxCzIZh4KH16M70
+      - BUFFER_SIZE=100
     networks:
-      - feedback-net
-  # nginx:
-  #   image: nginx
-  #   container_name: nginx
-  #   ports:
-  #     - 6601:6601
-  #   volumes:
-  #     - ./nginx/conf.d/:/etc/nginx/conf.d/
-  #   networks:
-  #     - feedback-net
+      - IFAS-net
+
+  event-generator:
+    build: event-generator
+    environment:
+      - EVENTSTORE_NAME=eventstore
+      - USER=admin
+      - PW=vEeW120SG7pSz4lbJgxCzIZh4KH16M70
+    networks:
+      - IFAS-net
+
 volumes:
   elasticdata:
     driver: local
@@ -71,4 +63,4 @@ volumes:
     driver: local
 
 networks:
-  feedback-net:
+  IFAS-net:

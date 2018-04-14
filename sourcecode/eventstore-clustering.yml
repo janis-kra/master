@@ -1,0 +1,31 @@
+version: "3.4"
+services:
+  eventstore-1:
+    image: eventstore/eventstore:release-4.1.0
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=3
+      - EVENTSTORE_CLUSTER_DNS=eventstore-cluster
+    networks:
+      IFAS-net:
+        aliases:
+          - eventstore-cluster
+
+  eventstore-2:
+    image: eventstore/eventstore:release-4.1.0
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=3
+      - EVENTSTORE_CLUSTER_DNS=eventstore-cluster
+    networks:
+      IFAS-net:
+        aliases:
+          - eventstore-cluster
+
+  eventstore-3:
+    image: eventstore/eventstore:release-4.1.0
+    environment:
+      - EVENTSTORE_CLUSTER_SIZE=3
+      - EVENTSTORE_CLUSTER_DNS=eventstore-cluster
+    networks:
+      IFAS-net:
+        aliases:
+          - eventstore-cluster

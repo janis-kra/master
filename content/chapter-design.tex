@@ -153,56 +153,29 @@ The downside is that this introduces a delay in which the analytics application 
 \todo{Test this or trow it out!}
 
 \section{Final Architecture}
+\label{section:design:architecture}
 
-...
+Each \ac{IFAS} component is implemented as a standalone Docker container that communicates with the other services via \ac{TCP} or \ac{HTTP}.
+These containers are executed in one multi-container Docker application, whose architecture is visualized in \cref{figure:design:architecture}.
 
+The services that implement the main functionality of \ac{IFAS} are the three integral services discussed in \cref{ch:classifications} -- data storage, aggregation, and analysis -- as well as the bridge between storage and aggregation.
+The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
+Kibana also communicates with Elasticsearch over the same port.
+All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
+These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
 
+This Docker application also includes the services running the Mattermost client.
 The diagram displays an abstraction of the client component, which internally consists of three services:
-The Mattermost server, the (customized) Mattermost web application, and an Nginx service which exposes the web application to port 80.
-As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as the ``Client'' in the diagram.
+The Mattermost server, the customized Mattermost web application, and an Nginx service which exposes the web application for usage via a web browser to port 80.
+As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
+Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
+Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
+It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
 
 \begin{figure}[ht]
-        \caption{Structure diagram of the final architecture of \ac{IFAS}.}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
 }
-        \label{}
+        \caption{Structure diagram of the final architecture of \ac{IFAS}.}
+        \label{figure:design:architecture}
 \end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
