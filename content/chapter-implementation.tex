@@ -12,7 +12,7 @@ The full source code is available via GitHub\footnote{\url{https://github.com/ja
 
 All services run in their own Docker containers in order to facilitate distribution of the system.
 Orchestration of the containers is done via \emph{Docker Compose} (short \emph{Compose}), which offers a straightforward way of describing the services of an application and how they interact with each other in one single file (cf. \cref{appendix:code:docker:docker-compose} for the source code of the \texttt{docker-compose.yml} file).
-A second Compose file defines the services of the Mattermost application (cf. \cref{appendix:code:docker:mattermost:docker-compose}).
+A second Compose file defines the services of the Mattermost application (cf. \cref{appendix:code:docker:mattermost-compose}).
 
 \subsection{Operating the System}
 
@@ -140,7 +140,7 @@ The feedback module is used in various places throughout the Mattermost web appl
 For most types of user feedback, additional data from the application's internal state was required.
 This was obtained via various \ac{API} functions provided by Mattermost.
 
-\section{Storage Configuration}
+\section{Event Store Configuration}
 \label{sec:implementation:storage}
 
 The storage layer of \ac{IFAS} is realized by Event Store.
@@ -156,17 +156,36 @@ The container can be accessed by other containers via its name, \texttt{eventsto
 Thus, the bridge to the aggregation service (cf. \cref{sec:implementation:bridge}) listens to new events via the \ac{TCP} address \url{tcp://eventstore:1113}.
 The client application however has to post events to the publicly available URL because it is not part of the \texttt{IFAS-net} network; in the case where both \ac{IFAS} and the client are run on the same machine the URL is \url{http://127.0.0.1:2113}.
 
-\section{Storage-Aggregation Bridge}
+\section{Event Store-Elasticsearch Bridge Implementation}
 \label{sec:implementation:bridge}
 
-Because Elasticsearch does not have dedicated support for importing data from an event store, an additional service had to be implemented which serves as a bridge between the two services.
+Because Elasticsearch does not have dedicated support for importing data from an event store, an additional service was implemented which serves as a bridge between the two services.
+The theory behind this service is described in \cref{sec:design:bridge}.
 
-\subsection{Implementing Mapping of Advanced Event Store Features to Elasticsearch}
-\label{subsec:implementation:bridge:mapping}
+The bridge is written in C\# and ASP.NET Core, thus enabling usage of the official EventStore .NET Core client\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} for connecting to the service and reading the persistent subscription.
+It is built and run using the official Microsoft Docker image\footnote{\url{https://hub.docker.com/r/microsoft/aspnetcore-build/}} for .NET Core applications inside Docker (cf. \cref{appendix:code:implementation:docker:clustering:eventstore}).
 
-WIP...?
+There were two challenges during development: Performance and event parsing.
+These are briefly discussed in the following paragraphs.
 
-\section{Aggregation Service Configuration}
+\paragraph{Performance}
+Early implementations of the bridge service followed a rather simple approach, in which every event that was gathered from the Event Store's subscription was immediately sent forward to Elasticsearch via \ac{HTTP}.
+This proved to be too inefficient when the subscription is a few hundred events behind, presumably because of the overhead of doing all the consecutive \ac{HTTP} requests.
+The solution to this problem is the capability of the Elasticsearch Index \ac{API} to do bulk indexing operations.
+Whenever a new event is sent to the bridge, it is added to an empty collection of events and a timer starts counting down from a configurable number of milliseconds (default is 1000).
+If additional events are received by the bridge within this interval, they are added to the same collection that the initial event is already part of.
+When the timer has finished counting down, all events that were added to the collection in the meantime are sent to Elasticsearch in a single bulk indexing request.
+Measurements in the performance tests (cf. \cref{sec:evaluation:performance}) show that these bulk indexing requests contain up to 8.000 events.
+
+\paragraph{Event Parsing}
+...\todo{is this relevant???}
+
+%\subsection{Implementing Mapping of Advanced Event Store Features to Elasticsearch}
+%\label{subsec:implementation:bridge:mapping}
+%
+%WIP...?
+
+\section{Elasticsearch Service Configuration}
 \label{sec:implementation:aggregation}
 
 In compliance with the results from the classification of data aggregation services (cf. \cref{sec:classifications:aggregation}), the aggregation service is realized by Elasticsearch.
@@ -186,10 +205,10 @@ The service definition also adds Elasticsearch to the \texttt{IFAS-net} network.
 Elasticsearch opens up port 9200 for communication via its \ac{REST} \ac{API} and port 9300 for communication with other nodes in a cluster via \ac{TCP}.
 It exposes no ports outside of the \ac{IFAS} application, as communication only occurs with \ac{IFAS}-internal services, namely the bridge and Kibana.
 
-\section{Analysis Application Configuration}
+\section{Kibana Service Configuration}
 \label{sec:implementation:analysis}
 
-Kibana, which is used as the data analysis application, is configured in a similar way as the Elasticsearch service as they both belong to the Elastic stack.
+Kibana, which is used as the data analysis service, is configured in a similar way as the Elasticsearch service as they both belong to the Elastic stack.
 The service definition for Kibana can be found in the main \ac{IFAS} Compose file that is referenced in the appendix under \cref{appendix:code:docker:docker-compose}.
 As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}.
 
