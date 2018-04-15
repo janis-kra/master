@@ -6,6 +6,7 @@
 This chapter describes details about the implementation and configuration of \acf{IFAS}.
 Appendix \cref{ch:appendix:source} contains the source code of the services and applications as they are mentioned over the course of this chapter.
 The full source code is available via GitHub\footnote{\url{https://github.com/janis-kra/master-impl}}\todo{link to "final" tag when done}.
+%At the time of beginning the implementation, the current Elasticsearch and Kibana versions were 6.1.1, the current Event Store version was 4.1.
 
 \section{Service Orchestration}
 \label{sec:implementation:orchestration}
@@ -145,6 +146,7 @@ This was obtained via various \ac{API} functions provided by Mattermost.
 
 The storage layer of \ac{IFAS} is realized by Event Store.
 An officially maintained Docker image\footnote{\url{https://hub.docker.com/r/eventstore/eventstore/}} is used as the starting point and requires little additional configuration.
+At the time of implementation, the current Event Store version was 4.1.0.
 
 The Event Store service definition is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
 This configuration starts up an Event Store container with mostly default settings, which exposes port 2113 in order to allow the client application to send events over the \ac{HTTP} interface.
@@ -189,7 +191,7 @@ Measurements in the performance tests (cf. \cref{sec:evaluation:performance}) sh
 \label{sec:implementation:aggregation}
 
 In compliance with the results from the classification of data aggregation services (cf. \cref{sec:classifications:aggregation}), the aggregation service is realized by Elasticsearch.
-The official Elasticsearch Docker image\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html}} is the basis for the aggregation service definition, which is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
+The official Elasticsearch Docker image\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html}} in version 6.1.1 is the basis for the aggregation service definition, which is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
 
 Additional configuration is supplied to the image mostly via a configuration file called \texttt{elasticsearch.yml} that is mounted into the image's file system.
 The file's contents can be viewed in the appendix under \cref{appendix:code:implementation:docker:elasticsearch-yml}.
@@ -210,7 +212,7 @@ It exposes no ports outside of the \ac{IFAS} application, as communication only 
 
 Kibana, which is used as the data analysis service, is configured in a similar way as the Elasticsearch service as they both belong to the Elastic stack.
 The service definition for Kibana can be found in the main \ac{IFAS} Compose file that is referenced in the appendix under \cref{appendix:code:docker:docker-compose}.
-As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}.
+As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}, also with version 6.1.1.
 
 Again, Kibana's data is saved to a Docker volume instead of in the container itself.
 The configuration file \texttt{kibana.yml} (cf. \cref{appendix:code:implementation:docker:kibana-yml}), which is mounted into the container's file system, tells the service at which address the Elasticsearch service can be found: \url{http://elasticsearch:9200/}.

@@ -159,7 +159,8 @@ Modification of the application state in general can be done simply by issuing a
 If other changes are dependent on this change, it is also possible to make use of the event replay technique by modifying the event that introduced the erroneous change and then replaying all subsequent events.
 Event Store supports multi-node clusters which replicate all written data from the master node to the other members of the cluster; this improves general read-performance and failover resiliency.
 Write-performance is improved inherently by the architecture:
-Instead of having to update existing data, Event Store has an append-only architecture where data is never updated -- and thus implicitly deleted and then recreated -- but merely appended to an existing stream.
+Instead of having to update existing data, Event Store has an append-only architecture where data is never updated but merely appended to an existing stream.
+A strong selling point of Event Store are its persistent subscriptions, which allow for multiple consumers to listen for changes to an event stream simultaneously.
 Event Store is available under the BSD license and thus free for personal and commercial use.
 As it checks off all requirements, Event Store is the ideal candidate for the storage solution of the passive user feedback analysis system.
 

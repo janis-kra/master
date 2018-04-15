@@ -3,9 +3,8 @@
 \chapter{System Design}
 \label{ch:design}
 
-...
-
-At the time of beginning the implementation, the current Elasticsearch and Kibana versions were 6.1.1, the current Event Store version was 4.1.
+After consideration of the goals for the \acf{IFAS} and the results from the classifications made earlier (cf. \cref{ch:classifications}), the system was designed.
+This activity includes specific decisions such as how and which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
 
 \section{Choosing a User Feedback Data Source}
 \label{sec:design:data-source}
@@ -104,7 +103,7 @@ The event type is automatically also the document type.
 
 %This is also benefical for later analysis in Kibana, as indices with multiple document types would clutter the \ac{UI}
 
-\begin{table}[]
+\begin{table}[ht]
 \centering
 \caption{Mapping of Event Store to Elasticsearch data types.}
 \label{table:design:bridge}
