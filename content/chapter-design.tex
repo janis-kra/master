@@ -142,6 +142,10 @@ Thanks to persistent subscriptions, it is possible to temporarily take the bridg
 Multiple instances of the bridge may listen to the same persistent subscription if heavy load is expected on the system -- this is known as the \emph{competing consumers} messaging pattern~\cite{WEB:Microsoft-Competing-Consumers}.
 This advanced use case is not considered further though.
 
+When a persistent subscription is created -- which the bridge assumes has already happened -- it expects a stream name and a \emph{subscription group} as parameters.
+There can be multiple persistent subscriptions of different groups listening to the same stream; the subscriptions then operate independently of each other.
+This pattern is rather useful if the data from a given stream is used by another application alongside \ac{IFAS}.
+
 %\subsection{Mapping Event Store Rebuilds to Elasticsearch}
 %\label{subsec:design:bridge:mapping}
 

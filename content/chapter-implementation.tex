@@ -164,14 +164,56 @@ Because Elasticsearch does not have dedicated support for importing data from an
 \subsection{Implementing Mapping of Advanced Event Store Features to Elasticsearch}
 \label{subsec:implementation:bridge:mapping}
 
-WIP
+WIP...?
 
-\section{Aggregation Service}
+\section{Aggregation Service Configuration}
 \label{sec:implementation:aggregation}
 
-\section{Analysis Application}
+In compliance with the results from the classification of data aggregation services (cf. \cref{sec:classifications:aggregation}), the aggregation service is realized by Elasticsearch.
+The official Elasticsearch Docker image\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html}} is the basis for the aggregation service definition, which is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
+
+Additional configuration is supplied to the image mostly via a configuration file called \texttt{elasticsearch.yml} that is mounted into the image's file system.
+The file's contents can be viewed in the appendix under \cref{appendix:code:implementation:docker:elasticsearch-yml}.
+It should be mentioned that it is necessary to enable \ac{CORS} in the configuration file in order to allow the bridge service to query the Index \ac{API} via \ac{HTTP}.
+In addition to the settings from the \texttt{elasticsearch.yml} configuration file, the minimum and maximum Java heap sizes are set via an environment variable in the service definition.
+The heap size is set to 512 MB, which is a rather low setting and can safely be increased in a production environment to a higher value in order to improve performance.
+% WRONG As a security measure, Elasticsearch's \texttt{ulimit} is set to 1 in order to avoid any additional processes besides the Elasticsearch process begin run in the container.
+
+As with the Event Store service, Elasticsearch also uses a volume to store data externally instead of in the container itself.
+This prevents data loss in cases where the container is removed or changed, for example when the image version is incremented.
+
+The service definition also adds Elasticsearch to the \texttt{IFAS-net} network.
+Elasticsearch opens up port 9200 for communication via its \ac{REST} \ac{API} and port 9300 for communication with other nodes in a cluster via \ac{TCP}.
+It exposes no ports outside of the \ac{IFAS} application, as communication only occurs with \ac{IFAS}-internal services, namely the bridge and Kibana.
+
+\section{Analysis Application Configuration}
 \label{sec:implementation:analysis}
+
+Kibana, which is used as the data analysis application, is configured in a similar way as the Elasticsearch service as they both belong to the Elastic stack.
+The service definition for Kibana can be found in the main \ac{IFAS} Compose file that is referenced in the appendix under \cref{appendix:code:docker:docker-compose}.
+As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}.
+
+Again, Kibana's data is saved to a Docker volume instead of in the container itself.
+The configuration file \texttt{kibana.yml} (cf. \cref{appendix:code:implementation:docker:kibana-yml}), which is mounted into the container's file system, tells the service at which address the Elasticsearch service can be found: \url{http://elasticsearch:9200/}.
+In order for Kibana to be able to communicate with Elasticsearch, it is added to the \texttt{IFAS-net} network.
+The service is configured to expose port 5601 such that the Kibana web application can be interacted with from the outside.
 
 \section{Event Generator Application}
 \label{sec:implementation:event-generator}
 
+An event generator application was implemented for the performance test (cf. \cref{sec:evaluation:performance}).
+The purpose of this application is to generate a given number of \texttt{ExperimentParticipated} events and send them to \ac{IFAS}, namely its Event Store.
+In the performance tests, the number of generated events per run range from 50,000 to 120,000,000.
+
+The event generator application is implemented in C\# and ASP.NET Core.
+It makes use of the official EventStore .NET Core client\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} for posting the events, which uses the Event Store's \ac{TCP} interface for improved performance.
+Instead of sending every single event separately though -- which would introduce a huge overhead for all the resulting \ac{TCP} requests -- events are batched into arrays of size 50 and then sent collectively.
+
+Usually, the bridge application assumes that the persistent subscription already exists when it is started, because this is an administrative task that involves a few parameters to be set for the subscription.
+When doing the performance tests however, manually creating the subscription each time would be inefficient.
+Instead, the subscription is created automatically, possibly with different settings, each time the event generator is run in order to make the tests run as fast as possible.
+
+The event generator is again packaged in a Docker container for ease of deployment.
+Its Dockerfile uses the official Microsoft image\footnote{\url{https://hub.docker.com/r/microsoft/aspnetcore-build/}} for building ASP.NET Core applications inside a Docker container (cf. \cref{appendix:code:implementation:docker:eventgenerator-dockerfile}).
+The service definition for the event generator using this Dockerfile is contained in the \ac{IFAS} Compose file in \cref{appendix:code:docker:docker-compose}.
+A few environment variables set the Event Store's service name, username and password such that the event generator can login and post events.
