@@ -4,29 +4,7 @@
 \label{ch:design}
 
 After consideration of the goals for the \acf{IFAS} and the results from the classifications made earlier (cf. \cref{ch:classifications}), the system was designed.
-This activity includes specific decisions such as how and which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
-
-\section{Choosing a User Feedback Data Source}
-\label{sec:design:data-source}
-% why the RICO data set was not used
-
-The Rico data set~\cite{Deka:2017:Rico} was initially considered as a possible data source for implicit user feedback.
-This would have eliminated the need to implement a client application or rather enrich an existing application with feedback sending functionalities.
-
-The \emph{interaction traces} were described in the paper as complete connected data records about which actions a user performed, serving usage data for the better part of the respective app's \ac{UI}.
-In order to validate or refute their suitability as a source for implicit user feedback, the interaction traces of a few randomly chosen apps analyzed manually.
-It turned out that the crawlers that created these traces often were not able to get past the app's login screen and thus did not yield enough conclusive data in order to be usable.
-In addition, there was often only one or at most two interaction traces for an app.
-For this reason, the interaction traces as well as the \ac{UI} data in general turned out to be unusable.
-
-Instead, it was decided that an existing web application shall be modified such that it sends passive user feedback via \ac{HTTP} to \ac{IFAS}.
-The application that was chosen for this is the cloud-based messaging application Mattermost\footnote{\url{https://about.mattermost.com/}}.
-Both the server and client applications of Mattermost are open source and offer the possibility to be hosted on a private server, with a dedicated Docker image being available as well.
-This fits the architectural choices that were made for \ac{IFAS} up to this point very well.
-Apart from that, this decision was partly based on personal preference due to familiarity with Mattermost and the fact that the web application was implemented in React\footnote{\url{https://reactjs.org/}}.
-
-The chosen technologies for the client application are backed by the fact that research on experimentation~\cite{Dmitriev2017,Kohavi2013a} and implicit user feedback~\cite{Joachims2005,Huang2011} also specifically targets web applications.
-As the data is sent via \ac{HTTP}, the client application could in theory also be implemented in any other programming language which supports sending of \ac{HTTP} requests, such as Java or C\#.
+This activity includes specific decisions such as which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
 
 \section{Metrics Selection}
 \label{sec:design:metrics}

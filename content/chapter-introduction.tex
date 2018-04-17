@@ -131,7 +131,8 @@ These events can be purely UI related, such as click or hover events, but can al
 In order to forward the user feedback data to the analysis application (cf. 3.), the aggregation service has to fetch the appropriate data from the store.
 While making use of a caching mechanism during this step would certainly make sense, such a feature will presumably not be part of the final solution due to the additional complexity; if this is the case, the system shall be easily extensible for introducing such a feature.
 This objective involves researching and assessing fitting infrastructure and tooling solutions.
-\item Design this system such that it also allows analysis of collected user feedback, and implement this as well.
+\item Design and implement this system such that it also allows analysis of collected user feedback.
+Feedback should be ready for analysis within at most a minute.
 When someone wants to evaluate the collected user feedback via the analysis application, the application shall display the corresponding data in an appropriate format, which it fetches from the aggregation service.
 The best approach for displaying the data has yet to be evaluated but will involve some graphical representation in form of charts and/or graphs.
 This objective also implicates research and choosing of appropriate solutions that shall be used for this part of the system.

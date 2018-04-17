@@ -1,6 +1,6 @@
 % !TEX root = ../thesis.tex
 %
-\chapter{Classifications}
+\chapter{Assessment of software solutions}
 \label{ch:classifications}
 
 This chapter examines the various possible software solutions for the different parts of \acf{IFAS}.
@@ -10,47 +10,18 @@ Before requirements for each part of \ac{IFAS} can be envisioned, a more detaile
 Using the objectives described in the introduction (cf. \cref{sec:intro:objectives}) as a starting point, more concrete and finely grained requirements were created; these are listed at the beginning of each subchapter.
 Afterwards, possible software solutions are listed and then the evaluation part describes to which extent each software solution fulfills these requirements.
 
-\section{Goals}
-\label{sec:design:goals}
-
-\todo{Incorporate into the respective req. subchapters}
-The resulting goals for \ac{IFAS} are as follows:
-
-\begin{enumerate}
-
-\item A web application sends passive user feedback data to specifiable streams of the data storage service.
-The type of application is not important, but should be geared toward typical end users, instead of a business application.
-Instead of implementing an application from scratch, an existing open source application shall be modified to send this data in order to save the additional time for creating the application.
-The reasons why a web application is used as a data source, and not, as initially planned, the Rico data set, are later explained in \cref{sec:design:data-source}.
-
-%\item The usability of the web application can be evaluated via a few predefined metrics, which have to be created in the process.
-\item The data storage solution offers scalable database capabilities to the applictaion.
-It should be possible to both use the storage solution as the main storage of the whole application, or alternatively as additional storage beside an existing database.
-
-\item The data aggregation service is fed with all events that are created while users interact with the application.
-It can be specified what data in the storage service is forwarded to the aggregation service, as it is plausible that other data is saved to this storage service.
-
-\item The collected user feedback can be analyzed via the data analysis application.
-For this purpose, one or more graphical representations of the usability metrics are created.
-
-\item \ac{IFAS} can be deployed on any machine which supports Docker, i.e. Windows, Linux and MacOS.
-
-\item User feedback can be accessed within the data analysis application within a few seconds from occurrence of the user action; this may take at most one minute.
-This is to allow for fast reactions to urgent \ac{UX} problems such as a button invoking a critical action becoming unavailable, as well as near-real time monitoring of application performance.
-\end{enumerate}
-
-
-\section{Storage Solutions}
+\section{Data Storage Solutions}
 \label{sec:classifications:storage}
 
 The first technical decision to make was what to use as a storage solution.
 First, the requirements which the solution has to fulfill are explained, then the candidates are presented and ultimately evaluated according to these requirements, in order to find the most appropriate solution.
+The result is that Event Store is the most qualified solution for the storage requirements.
 
 \subsection{Requirements}
 \label{subsec:classifications:storage:req}
 
 In accordance to the previously defined objectives for \ac{IFAS}, the data storage solution should offer scalable database capabilities for the connected application.
-It should be possible to both use the storage solution as the main storage of the application, or alternatively as additional storage beside an existing database.
+It should be possible to use the storage solution as the main storage of the application or alternatively as an additional storage beside an existing database.
 
 \ac{CSE} requires the storage layer of such a system to have certain capabilities, namely flexibility and scalability.
 %In addition to basic storage capabilities, the storage solution has to provide some functionalities related to the use case, such as temporal queries.
@@ -173,9 +144,10 @@ As integral requirements are already not fulfilled by the \ac{SQL} databases, th
 Neo4j\footnote{\url{https://neo4j.com/}} appears to be a very decent candidate.
 As it is a graph database, it has a more explicit mapping of relations between tuples than \ac{SQL} databases.
 This allows for concise update queries which can implement the cascading update requirement.
-Although Neo4j does not support clustering in the non-enterprise edition, its authors claim that the graph database nevertheless scales both vertically and horizontally~\cite{...}.
-The full featured enterprise edition is not free for commercial use however.
-Although Neo4j fulfills most requirements, its reliance on graph theory as the storage mechanism makes it hard to recommend because it does not suit the \ac{IFAS} use case, not to mention the general data model of the application that is used with \ac{IFAS}.
+Although Neo4j does not support clustering in the non-enterprise edition, its authors claim that the graph database nevertheless scales both vertically and horizontally~\cite{Neo4jScalability}.
+%The full featured enterprise edition is not free for commercial use however.
+Although Neo4j fulfills most requirements, the graph-centric approach makes it hard to recommend because it does not suit the \ac{IFAS} use case.
+In addition, it will probably not fit the general data model of the application that is used with \ac{IFAS} either.
 
 MongoDB\footnote{\url{https://www.mongodb.com/}} is another promising candidate.
 It is arguably the most popular NoSQL database, favored especially for its great read and write performance~\cite{6625441}.
@@ -197,27 +169,29 @@ These reasons make Cassandra a great choice for certain specialized use cases, b
 \section{Data Aggregation Solutions}
 \label{sec:classifications:aggregation}
 
-...
+The approach for examination and selection of a data aggregation solution is the same as for the storage solution:
+First, requirements are collected, then the candidates are introduced and finally the solutions are evaluated.
+This evaluation yields that Elasticsearch is the ideal data aggregation solution.
 
-It should be noted that the lines between storage and aggregation solutions can be blurry for solutions which have their own data storage.
-For example, Elasticsearch stores its data in indices, independent of any upstream storage solution.
-Using Elasticsearch as the storage \emph{and} aggregation solution for \ac{IFAS} would be unsuitable for the rest of the application ...
-
+%It should be noted that the lines between storage and aggregation solutions can be blurry for solutions which store data themselves.
+%For example, Elasticsearch stores its data in indices, independent of any upstream storage solution.
+%Using Elasticsearch as the storage \emph{and} aggregation solution for \ac{IFAS} would be unsuitable for the rest of the application because ...
 
 \subsection{Requirements}
 
+The data aggregation service is fed with all events that are created while users interact with the application.
+Its main purpose is to offer advanced search and aggregation capabilities that a database usually does not offer.
+The concrete requirements are as follows:
 
 \begin{description}
 \item [HTTP Interface]
 As flexibility is key in a distributed \ac{CSE} system (cf. \cref{subsec:classifications:storage:req}) and the storage solution in general communicates via HTTP, the data aggregation service must also have a HTTP interface.
+%If both solutions support another protocol that offers advantages such as increased performance, this protocol may be used as well; an example for such a protocol would be \ac{TCP}.
 \item [Search]
 The aggregation service shall have some form of search functionality.
 At the very least, this feature should include a keyword search; more elaborate search types such as full-text or fuzzy search are useful but not mandatory.
 \item [Complex Search via DSL]
 When search queries become more complicated, it would be advantageous to have some form of \ac{DSL} which allows for combination of complex search queries.
-\item [Handle Arbitrary Data]
-The solution shall be able to handle any type of user feedback data.
-This eliminates some services which focus solely on monitoring and logging, such as Graphite\footnote{\url{https://graphiteapp.org/}}, Graylog\footnote{\url{https://www.graylog.org/}}, Splunk\footnote{\url{https://www.splunk.com/}}, and Prometeus \footnote{\url{https://prometheus.io/}}.
 \item [Aggregation Features]
 In order to combine data by date and time, the solution shall have the ability to aggregate data over time.
 For this specific use case of collecting and evaluating passive user feedback, I expect such a feature to be useful for evaluating an experiment that ran for a specific time frame or for evaluating the behavior of users at a certain time of day, e.g. at night.
@@ -235,16 +209,20 @@ Instead, I explicitly note if one of the solutions distinctly out- or underperfo
 
 \subsection{Candidates}
 
+Only a handful of candidates was identified for the data aggregation solutions.
+The main reason for this is that some services which focus solely on monitoring and logging were eliminated in advance, as the solution shall be able to handle any type of user feedback data.
+Namely, these services are Graphite\footnote{\url{https://graphiteapp.org/}}, Graylog\footnote{\url{https://www.graylog.org/}}, Splunk\footnote{\url{https://www.splunk.com/}}, and Prometeus\footnote{\url{https://prometheus.io/}}.
+The remaining solution candidates are:
+
 \begin{itemize}[noitemsep]
 \item Apache Solr
 \item Elasticsearch
 \item Apache Hadoop
 \item Apache Spark
-\item Custom implementation using native Event Store aggregators
+\item Custom implementation using Event Store projections
 \end{itemize}
 
 \subsection{Evaluation}
-
 
 The evaluation of the candidates introduced above yielded that Elasticsearch is the preferred data aggregation solution.
 When judged in isolation of the rest of the proposed stack, Solr would also be suitable solution, but it falls behind as none of the analysis applications (cf. \cref{sec:classifications:analysis}) have Solr support.
@@ -256,26 +234,24 @@ An overview of the solutions and their support for the presented requirements is
 \makebox[\textwidth][c]{
 \begin{tabular}{l|l|l|l|l|l|l|l}
 \textbf{Name} & \textbf{HTTP} & \textbf{Search} & \textbf{DSL} & \textbf{Time Aggr.} & \textbf{Loc. Aggr.} & \textbf{Scalability} & \textbf{License} \\ \hline
-Solr & yes & yes & no & yes & yes & yes & Apache v2 \\
-Elasticsearch & yes & yes & no & yes & yes & yes & Apache v2 \\
+Solr & yes & yes & yes & yes & yes & yes & Apache v2 \\
+Elasticsearch & yes & yes & yes & yes & yes & yes & Apache v2 \\
 Hadoop & ? & ? & ? & ? & ? & ? & Apache v2 \\
-Spark & no & ? & no & yes & yes & yes & Apache v2 \\
+Spark & no & yes & no & yes & yes & yes & Apache v2 \\
 Custom & yes & yes & yes & yes & no & no & -
 \end{tabular}
 }
 \label{table:classifications:aggregation}
 \end{table}
 
-
 Apache Solr\footnote{\url{http://lucene.apache.org/solr/}} and Elasticsearch\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/}} are both built upon the Lucene\footnote{\url{http://lucene.apache.org/}} project, which is a Java-based library offering, amongst others, searching and indexing functionality.
 For this reason, they are both very similar in terms of functionality and performance; both products implement their own solutions for scaling horizontally and vertically though.
 They also both offer an HTTP interface which allows for submission of search queries.
 Although both products are similar and meet most of the requirements, Elasticsearch stands out because of two points. 
-First of all, Elasticsearch comes with its own \ac{DSL} for more complex queries, which can then be sent to the HTTP interface, while Solr requires using its Java API for that.
-While this is a perfectly valid concept in general, for this use case the HTTP variant is the better fit.
+First of all, Elasticsearch comes with its own \ac{DSL} for more complex, compound queries, which can then be sent to the HTTP interface.
+Solr on the other hand requires using its Java API for that.
+While this is a perfectly valid concept in general, for this use case the HTTP variant is the better fit because writing HTTP requests requires less overhead than implementing the same requests in Java.
 Secondly, the two preferred analysis solutions (Kibana and Grafana, cf. \cref{sec:classifications:analysis}), both come with dedicated support for Elasticsearch, but \emph{not} for Solr.
-
-\todo{Import of EStore data --> Logstash}
 
 Spark\footnote{\url{http://spark.apache.org/}} is another tool by Apache, with a focus on large scale data processing.
 In contrast to Elasticsearch and Solr, Spark does not come with a HTTP interface for issuing queries; instead, searches and aggregations are implemented in Java, Scala, Python, or R.
@@ -294,10 +270,21 @@ Using the projections feature, it is possible to write a custom aggregation serv
 One drawback of this approach is that it involves considerably more custom code than the other services.
 Furthermore, projections are not as powerful as the search and aggregation functionalities of Elasticsearch or Solr.
 
+None of the evaluated solutions offer functionality for importing data from Event Store.
+Elastic's data importing tool Logstash\footnote{\url{https://www.elastic.co/products/logstash}} has a plugin for importing \ac{RSS} data that could theoretically be used for importing data from Event Store, but this is not feasible either.
+Details about this can be found in \cref{sec:design:bridge}.
+
 \section{Data Analysis Solutions}
 \label{sec:classifications:analysis}
 
+The last component of \ac{IFAS} that has to be decided upon is the data analysis solution, which displays graphical representations of the user feedback.
+This evaluation produces Kibana as the most appropriate solution.
+
 \subsection{Requirements}
+
+The collected user feedback is analyzed via the data analysis application.
+For this purpose, graphical representations of the usability metrics shall be displayed in the analysis application.
+The concrete requirements for this solution is as follows:
 
 \begin{description}
 \item[Data Exploration] All data from the aggregation service can be freely explored in the analysis application.
@@ -312,14 +299,16 @@ This effectively enables what \citet{Bosch2012} calls \emph{data-based decision 
 
 \subsection{Candidates}
 
+Viable candidates for the data analysis applications are even more scarce than for the aggregation solution.
+A reason could be that data visualization applications and services are in general rarely released as open source or free software.
+Solutions which only offer a paid plan were not considered here, such as Logmatic\footnote{\url{https://logmatic.io/}}.
+The following possible analysis applications were considered:
+
 \begin{itemize}[noitemsep]
 \item Kibana
 \item Grafana
 \item Custom implementation
 \end{itemize}
-
-It seems that data visualization applications and services are in general rarely released as open source or free software.
-Solutions which only offer a paid plan were not considered here, such as Logmatic\footnote{\url{https://logmatic.io/}}.
 
 \subsection{Evaluation}
 
@@ -347,11 +336,34 @@ Additional features of Kibana such as reporting, cluster monitoring, and various
 Grafana...
 
 A custom implementation could, for example, use a JavaScript framework such as React\footnote{\url{https://reactjs.org/}} together with D3.js\footnote{\url{https://d3js.org/}} for rendering visualizations.
-While it would be possible to implemente such an application with all required features, this would take up too much time and is thus impractical.
+While it would be possible to implement such an application with all required features, this would take up too much time and is thus impractical.
 
 
-In the end, Kibana was favored for its powerful integration with Elasticsearch, which I expect will improve both the speed of development and the overall quality of the prototype system.
+In the end, Kibana was favored for its powerful integration with Elasticsearch, which is expected to improve both the speed of development and the overall quality of the prototype system.
 Kibana could -- presumably -- easily be replaced by Grafana though, as they offer very similar functionality and Grafana comes with an Elasticsearch plugin.
+
+\section{Choosing a User Feedback Data Source}
+\label{sec:design:data-source}
+
+In order to complete the \ac{IFAS} prototype for this thesis, a data source is needed which offers passive user feedback data.
+This application of choice is the web-based chat application Mattermost\footnote{\url{https://about.mattermost.com/}} and not, as initially considered, the Rico data set~\cite{Deka:2017:Rico}.
+
+Choosing the Rico data set would have eliminated the need to implement a client application or rather enrich an existing application with feedback sending functionalities, but was not feasible.
+The \emph{interaction traces} were described in the paper~\cite{Deka:2017:Rico} as complete connected data records about which actions a user performed, serving usage data for the better part of the respective app's \ac{UI}.
+In order to validate or refute their suitability as a source for implicit user feedback, the interaction traces of a few randomly chosen apps analyzed manually.
+It turned out that the crawlers that created these traces often were not able to get past the app's login screen and thus did not yield enough conclusive data in order to be usable.
+In addition, there was often only one or at most two interaction traces for an app.
+For this reason, the interaction traces as well as the \ac{UI} data in general turned out to be unusable.
+
+Instead, it was decided that a web application shall send passive user feedback via \ac{HTTP} to \ac{IFAS} and that an existing open source application shall be modified to send this data.
+This eliminates the need to implement an application from scratch, which would have cost a lot more time.
+The application that was chosen for this is the cloud-based messaging application Mattermost.
+Both the server and client applications of Mattermost are open source and offer the possibility to be hosted on a private server, with a dedicated Docker image being available as well.
+This fits the architectural choices that were made for \ac{IFAS} up to this point very well.
+Apart from that, this decision was partly based on personal preference due to familiarity with Mattermost and the fact that the web application was implemented in React\footnote{\url{https://reactjs.org/}}.
+
+The chosen technologies for the client application are backed by the fact that research on experimentation~\cite{Dmitriev2017,Kohavi2013a} and implicit user feedback~\cite{Joachims2005,Huang2011} also specifically targets web applications.
+As the data is sent via \ac{HTTP}, the client application could in theory also be implemented in any other programming language which supports sending of \ac{HTTP} requests, such as Java or C\#.
 
 \section{Container Orchestration}
 
