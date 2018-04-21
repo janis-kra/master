@@ -16,32 +16,33 @@ Details about this test can be found in \cref{sec:evaluation:performance}.
 
 % aus \cite{Easterbrook2008a} - What kind of research question are you asking?
 
-\section{User Test}
+\section{Case Study}
 \label{sec:evaluation:user}
 
-In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a usability test was prepared and executed.
-This testing method was chosen because usability tests allow for very specific guidance of the user through the application.
-However, it should be explicitly noted that this test does not have the goal of evaluating the usability of the modified Mattermost client.
-Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
-The test was conducted according to the ``Handbook of usability testing'' by \citet{rubin2008handbook}.
+In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a confirmatory case study was prepared and executed.
+A confirmatory case study is used to confirm or reject an existing theory~\cite{Easterbrook2008} -- here, the theory is that \ac{IFAS} can be adequately used to gather passive user feedback.
+This is tested by comparing the results of the passive user feedback, as displayed in Kibana, with active user feedback collected via a survey.
+The passive user feedback is collected by having twelve users carry out a number of different tasks with the implemented client application that is connected to \ac{IFAS}.
+These tasks represent different cases that are being examined in the case study.
 
-Each user fills out a separate post-test questionnaire at the end of the usability test.
+%This testing method was chosen because usability tests allow for very specific guidance of the user through the application.
+%However, it should be explicitly noted that this test does not have the goal of evaluating the usability of the modified Mattermost client.
+%Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
+%The test was conducted according to the ``Handbook of usability testing'' by \citet{rubin2008handbook}.
+
+Each user additionally filled out a separate post-test questionnaire at the end of the test.
 This data is used later in the evaluation process in order to compare the passive and active user feedback.
-In the ideal case, the data from the questionnaire and the data from \ac{IFAS} correlate strongly with each other.
+In the ideal case, the data from the questionnaire and the data from \ac{IFAS} correlate strongly with each other, thus confirming the theory.
 
 The experiment serves to prove three features of \ac{IFAS}.
-First, the system can be used to monitor application usage in general.
+First, the system can be used to monitor application usage in general -- this is the first case of the study.
 This is shown by visualizing click events and data about sent chat messages.
-Second, the system can be used to monitor the users' acceptance of specific application features.
+The second case is monitoring of the users' acceptance of specific application features.
 This is shown by capturing usage data of two different mechanics for achieving the same result (switching chat channels).
-Third, the system allows experimenters to perform controlled experiments, especially A/B tests.
-This is shown by performing an A/B test within the usability test.
-It should be noted that while the sample size for this experiment is sufficient for a usability test, it is way too low if a real world A/B test where to be executed because the collected data would be statistically irrelevant.
+For the third case, it is tested whether \ac{IFAS} allows experimenters to perform A/B tests.
+It should be noted that while the sample size for this experiment is sufficient for a case study, it is way too low if a real world A/B test where to be executed because the collected data would be statistically irrelevant.
 This is not a problem because the experiment is merely used to prove that \ac{IFAS} allows for collection and analysis of A/B test data.
 The performance test (cf. \cref{sec:evaluation:performance}) proves that the system is also able to handle enough events for an A/B test to be statistically relevant.
-
-The intended amount of test subjects is at least 10 people.
-This is an adequate number for a usability test as reported by \citet{Turner2006}.
 
 % Thoughts regarding \cite{dumas2009usability}
 % is this a diagnostic test, i.e. no statistically relevant outcome can be concluded from them?
@@ -56,8 +57,8 @@ Setting up the experiment consisted of several steps:
 First, the client application was prepared such that the appropriate data is sent to \ac{IFAS}.
 In preparation of this step, several metrics for measuring properties of the system had to be chosen.
 Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
-Third, a test document was created which instructs the test subjects what to do during the usability test.
-This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback.
+Third, a test document was created which instructs the test subjects what to do for each case in the study.
+This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback at the end.
 The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
 \paragraph{Metrics Selection}
@@ -73,7 +74,6 @@ WIP
 % passive channel usage (scrolling)
 % clicking (?)
 
-
 \paragraph{Sending feedback to IFAS}
 
 For the experiment, the web version of the Mattermost client was modified in order to send the desired events to \ac{IFAS}.
@@ -82,7 +82,7 @@ In detail, the following data is gathered during the experiment:
 
 \begin{description}
 \item[Click analysis]
-Every click that the user does during the usability test is sent to \ac{IFAS} as a \texttt{UserClicked} event.
+Every click that the user does during the experiment is sent to \ac{IFAS} as a \texttt{UserClicked} event.
 This contains the current URL as well as the click coordinates and window size.
 \item[Channel usage (active)]
 The client also reports when messages are sent in one of the channels.
@@ -100,7 +100,7 @@ Whenever the user switches the channel, a \texttt{ChannelSwitcher} event is sent
 When a new user logs into Mattermost for the first time, they are greeted with a short tutorial.
 An A/B test was prepared which styles the button for starting the tutorial in a different color depending on whether the user was assigned the control or treatment group.
 When the user decides to either start or skip the tutorial, an \texttt{ExperimentParticipated} event is sent to \ac{IFAS}, containing the user's group and decision.
-It should be noted that the sample size achieved via this usability test does not suffice for a controlled experiment to be statistically relevant.
+It should be noted that the sample size achieved via this experiment does not suffice for an A/B test to be statistically relevant.
 
 \end{description}
 
@@ -109,8 +109,8 @@ The assumption is that people will scroll through the contents of the respective
 
 \paragraph{Creating visualizations in Kibana}
 
-Several Kibana visualizations were created in order to facilitate analysis of the data that is gathered during the usability test.
-These visualizations are described below, together with an explanation as to how they display the data from the usability test.
+Several Kibana visualizations were created in order to facilitate analysis of the data that is gathered during the experiment.
+These visualizations are described below, together with an explanation as to how they display the data from each case.
 The visualizations are printed in the results part of this subchapter (cf. \cref{figure:evaluation:user:dashboard-channels,figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user,figure:evaluation:user:dashboard-ab-test,figure:evaluation:user:visualization-feature-analysis}).
 
 \begin{description}
@@ -172,9 +172,9 @@ This is described in more detail in the results section.
 
 \paragraph{Writing the test document}
 
-In order to prepare the test subjects for the usability test and communicate the tasks that they are expected to perform, a test document was prepared.
-In addition to a general introduction into what a usability test is and what is expected of the test subjects in the test, this document contains various task scenarios, as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
-The task scenarios in the usability test are as follows:
+In order to prepare the test subjects for the experiment and communicate the tasks that they are expected to perform, a test document was prepared.
+In addition to a general introduction into what is expected of the subjects in the test, this document contains various task scenarios like in a usability test document, as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
+These task scenarios in the experiment are as follows:
 
 \begin{description}
 
@@ -197,14 +197,14 @@ This results in the test subject switching to a dog-themed channel.
 This time however, the decision about switching via the left-side menu or the channel switcher is up to them.
 \end{enumerate}
 
-\item [Writing a message] As the last task of the usability test itself, the user is asked to write a message in their channel of choice.
+\item [Writing a message] As the last task of the experiment itself, the user is asked to write a message in their channel of choice.
 It is explicitly noted that the message's contents are not of importance in order to impose no unnecessary pressure.
 
 \item [Give active user feedback] A short questionnaire was generated via \url{typeform.com}, asking the user questions regarding the tasks they just completed.
 The questions were chosen such that their results can be used to compare with the data collected in \ac{IFAS}:
 
 \begin{enumerate}
-\item ``What was your username for the usability test?'' (open question):
+\item ``What was your username for the test?'' (open question):
 This is merely a warm-up question to make the user familiar with the tool.
 In addition, this answer also establishes a link between the results of each questionnaire and the data in \ac{IFAS}.
 \item ``Did you go through the Mattermost tutorial?'' (multiple choice):
@@ -227,8 +227,8 @@ This question is used to validate the amount of sent messages that are forwarded
 
 \end{description}
 
-As recommended by \citet{rubin2008handbook}, an earlier version of this document was used to execute a pilot test with one participant.
-A pilot test is useful for establishing whether the test is suitable for the desired audience; if problems with the task scenarios are found, they can be adapted before the usability test is executed.
+As the experiment is, from the test subject's perspective, very similar to a usability test, a pilot test with one participant was execute upon the recommendation of \citeauthor{rubin2008handbook} in their usability testing handbook~\cite{rubin2008handbook}.
+A pilot test is useful for establishing whether the test is suitable for the desired audience; if problems with the task scenarios are found, they can be adapted before the experiment is executed.
 The pilot test yielded that there are no apparent problems with the task scenarios or the post-test questionnaire.
 
 %- give user a test document with login information for Mattermost
@@ -254,7 +254,7 @@ The pilot test yielded that there are no apparent problems with the task scenari
 
 The test was conducted as an onsite test, on the same laptop that the performance tests were executed on.
 Prior to every test run, the respective Mattermost account was prepared, the application was opened on a web browser, and the test document was opened next to the browser window.
-Each user was given a short introduction about what a usability test is and that they can ask questions at any point during the test.
+Each user was given a short introduction about what the experiment is about and that they can ask questions at any point during the test.
 
 The test subjects are between 26 and 57 years old, with four women and eight men.
 While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
@@ -264,7 +264,7 @@ While everyone stated in a short interview prior to the test that they had previ
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the questionnaire took the users about 2 minutes.
 
-After all subjects had performed the usability test, the results were gathered and processed.
+After all subjects had performed the experiment, the results were gathered and processed.
 Various charts representing the questionnaire results were created using R and ggplot.
 The passive feedback results from \ac{IFAS} were created using Kibana's built-in reporting feature.
 
@@ -288,7 +288,7 @@ The results from the questionnaire are used throughout this section in order to 
 
 \paragraph{Click analysis}
 
-The click analysis data does directly map to a task in the usability test, but nevertheless yields interesting insights into application usage.
+The click analysis data does not directly map to a case in the experiment, but nevertheless yields interesting insights into application usage.
 Both vertical bar charts displayed in the click analysis dashboard (cf. \cref{figure:evaluation:user:dashboard-clicks}) display the total amount of clicks over time, where the timestamp interval in this case is 3 hours.
 The difference in the two charts is in how the bars are split:
 The upper chart splits the bars by click target, i.e. URL, while the lower chart splits the bars by user.
@@ -315,7 +315,7 @@ This fits the findings by \cite{Claypool2001}, who also concluded that mouse cli
 Additionally, the click analysis dashboard serves as an example how the experimenter can interact with Kibana visualizations (cf. \cref{figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user}).
 Kibana allows the user to filter the viewed data in a lot of ways, including the time.
 The initial dashboard spans a time range of roughly five days, but can be set to shorter (or longer) time spans in order to inspect the data in more detail.
-This was done in the dashboard in \cref{figure:evaluation:user:dashboard-clicks-zoom}, where the time span is set to a single afternoon during which six usability tests were executed.
+This was done in the dashboard in \cref{figure:evaluation:user:dashboard-clicks-zoom}, where the time span is set to a single afternoon during which six experiments were executed.
 Instead of a 3 hour interval, as in the initial dashboard, the interval in this case is 10 minutes.
 
 \begin{figure}[h]
@@ -425,7 +425,7 @@ Using the questionnaire's results, the same data could be retrieved by just coun
 \paragraph{Feature Analysis: Channel Switch Mode} 
 
 The results for the feature analysis regarding the preferred mode of channel switching were rather surprising in the sense that a preference for channel switching via the sidebar was expected.
-This is displayed in a pie chart (cf. \cref{figure:evaluation:user:visualization-feature-analysis}) that is filled according to the relative amount of channel switch operations that were done during the usability test using either method.
+This is displayed in a pie chart (cf. \cref{figure:evaluation:user:visualization-feature-analysis}) that is filled according to the relative amount of channel switch operations that were done during experiment execution using either method.
 When hovering the mouse over the chart, the absolute and relative values for the respective method are displayed.
 
 Contrary to initial expectations, there was no clear preference for either method: \ac{IFAS} reports that in 53.5\% of the cases, the channel was switched via the sidebar.
@@ -453,9 +453,20 @@ These results legitimate on the one hand the presence of both channel switching 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
 
-\cite{Easterbrook2008a}: Construct, internal \& evernal validity, reliability
+\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
+Construct validity is given for the executed case study, as the underlying theoretical concepts were correctly exercised.
+The same holds for internal validity, as can be seen by comparing the results from the passive and active user feedback.
 
-[Results from questionnaire]
+However, external validity is at least problematic for this case study.
+On the one hand, the test subjects come from different professional backgrounds and are rather diverse in both gender and age, which improves external validity.
+But on the other hand, the sample size of twelve test subjects is rather small and affected by the fact that all of them are acquaintances of the experimenter.
+Thus, other results could probably turn up for different test subjects.
+This problem was known from the start, but could not be circumvented because the time constraints did not allow for a \emph{marginally} bigger and more representative sample size.
+
+Reliability cannot be measured as of now, as \ac{IFAS} was created specifically for this thesis and thus no other researcher was able to examine it.
+One possible problem regarding reliability is that the research has a stake in the software that is being evaluated.
+This is to some extent the case for \ac{IFAS}, but is mitigated by two factors:
+First, the fact that this potential problem was known from the start and, second, the success of a master's thesis does not necessarily rise or fall with the mere outcome of parts of the evaluation.
 
 \section{Performance Test}
 \label{sec:evaluation:performance}
@@ -890,6 +901,18 @@ This is a worst case computation, because it assumes that each processing step o
 In praxis, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
 As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will probably have finished indexing as soon as the last events are processed by the bridge and sent over to Elasticsearch.
 With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
+
+\subsection{Validity}
+\label{subec:evaluation:user:validity}
+
+Just as for the case study, the four factors for validity can be examined for the performance test.
+Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
+
+External validity in general is again problematic as the tests were only executed on a single machine.
+This is not an issue here, because the results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware but not excessively powerful).
+
+Again, personal stakes in the developed system compromise reliability to some extent.
+However, it would be harder in the case of the performance test to actually influence the results than for the case study, and as the consequences of doing so would be rather severe, this possibility can be discarded.
 
 \section{Experimentation Guidelines for IFAS}
 
