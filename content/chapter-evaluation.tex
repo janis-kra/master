@@ -295,7 +295,7 @@ The upper chart splits the bars by click target, i.e. URL, while the lower chart
 In other words, the upper chart additionally displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
 
 \begin{figure}[h]
-        \caption{
+        \caption[Dashboard displaying the count of the test subject's clicks over time.]{
         Dashboard displaying the count of the test subject's clicks over time.
         The upper visualization splits the bars by URL, thus additionally comparing popularity of the application's pages measured by click rate.
         The lower visualization splits the bars by user, thus giving insights as to how many of the clicks are allotted to which user.
@@ -349,7 +349,7 @@ Here, users scrolled for a total amount of 62 seconds in the ``Dogs'' channel, a
 This results in a 2.48:1 ratio in favor of the ``Dogs'' channel.
 
 \begin{figure}[h]
-        \caption{
+        \caption[Dashboard giving an overview over active and passive channel usage.]{
         Dashboard giving an overview over active and passive channel usage.
         The top visualization computes channel interest via the total amount of messages (therefore \emph{active} channel usage).
         The lower visualization computes channel interest via the total amount of scrolling that the users do in the respective channel while reading messages (therefore \emph{passive} channel usage).
@@ -795,8 +795,6 @@ About 60ms for rendering the visualization have to be added to this value, amoun
 The first step for setting up the experiment was running the Elasticsearch performance test, such that the 120 million documents exist in an index.
 As that test was run with randomly generated \texttt{ExperimentParticipated} events, a pie-chart visualization was created in Kibana which displays the choices that the fictitious users made.
 
-\todo{a few sentences regarding refresh rate}
-
 Kibana offers the possibility to view detailed statistics for every visualization via the \emph{Visualization Spy}, including query duration, request duration and number of hits.
 These statistics are useful for measuring the performance for different reasons:
 
@@ -811,6 +809,11 @@ Thus, the request duration is a representation of how costly sending the data to
 As more data means more complex aggregation responses, this correlates with the request duration, but does not necessarily represent the complexity of the aggregation query.
 For example, a query that matches all documents of an index would have a high number of hits, and a query matching only the document with index 1 would only have one hit -- but both queries are not complex and thus have a low query duration.
 \end{description}
+
+In a production environment, one important factor for the speed at which new user feedback is visible in Kibana is the \emph{refresh rate} setting.
+This setting controls the interval at which a dashboard refreshes its visualizations by polling new data from Elasticsearch.
+Depending on the specific needs of the application, this setting can range from 5 seconds to 1 day, and thus adds a respective delay to the total duration from arrival of the user feedback in \ac{IFAS} to its availability in Kibana.
+For this specific test, automatic refresh is disabled and instead the visualization is refreshed manually.
 
 %A number of metrics is recorded during this procedure:
 %
@@ -871,13 +874,17 @@ The mean query duration with caching enabled is only 1.1ms, which means that mos
 
 As stated in \cref{sec:design:goals}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should not be greater than 60 seconds.
 In order to verify this, the \emph{total processing time} can be computed by adding up the durations that were gathered during the performance test.
-In the end, the total processing time for a given amount of events $x$ and a visualization $v$ can be calculated as follows:
+In the end, the total processing time for a given amount of events $x$, a visualization $v$, and the automatic refresh rate $r$ can be calculated as follows:
 
-$$ \text{ProcessingTime}_x + \frac{x}{16,093/_s} + \text{RenderTime}_v$$
+$$ \text{ProcessingTime}_x + \frac{x}{16,093/_s} + \text{RenderTime}_v + r$$
 
-For 150,000 events and the A/B test visualization, this results in the following equation (values taken from \cref{table:median-durations-config-8,table:kibana-config-comparison,table:elasticsearch-performance}):
+For 150,000 events and the A/B test visualization, with a automatic refresh rate of 5 seconds, this results in the following equation (values taken from \cref{table:median-durations-config-8,table:kibana-config-comparison,table:elasticsearch-performance}):
 
-$$ 30.614s + \frac{150,000}{16,093/_s} + 1535ms \approx 30.614s + 9.32s + 1535ms \approx 41.5s $$
+\begin{align*}
+30.614s + \frac{150,000}{16,093/_s} + 1535ms + 5s \\
+\approx 30.614s + 9.32s + 1535ms + 5s \\
+\approx 46.5s 
+\end{align*}
 
 This is a worst case computation, because it assumes that each processing step of \ac{IFAS} runs sequentially, and it uses the average visualization duration for the Kibana visualization for 120 million hits.
 In praxis, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
@@ -886,13 +893,36 @@ With this assumption, the total processing time for 150,000 events comes very cl
 
 \section{Experimentation Guidelines for IFAS}
 
-This section describes how different types of experiments can be executed using \ac{IFAS}.\todo{this is a kind of "subjective evaluation" -- maybe not the right place for this?}
+This section describes how different types of experiments can be executed using \ac{IFAS}.
+The included experiment types are A/B tests, A/A tests, feature analysis, monitoring, and questionnaires.
 
-\begin{description}
-\item[A/B test]
-\item[Null hypothesis] aka A/A test \cite{Kohavi2009}
-\item[Collecting metrics] i.e. usage data in general, e.g. scroll time
-\item[Collecting performance metrics(?)] (unclear, maybe into future work)
-\item[questionnaire(?)] (maybe into future work, POC: Create user interview via \ac{IFAS})
-\end{description}
+\paragraph{A/B tests}
+An A/B test was already executed with \ac{IFAS} as part of the evaluation (cf. \cref{sec:evaluation:user}).
+In order to execute such an experiment, corresponding changes in the client application have to be implemented.
+This involves distribution of the target audience into the control and treatment groups, implementation of the two variants of the tested feature, and sending an event containing the group and the user's decision every time a user performs the relevant action.
+A dashboard similar to the one in \cref{figure:evaluation:user:dashboard-ab-test} can be created in Kibana in order to visualize and analyze the results of the experiment.
+The experimenter should consider beforehand, how large or small of a change they want to be able to discover via the A/B test.
+Well established formulae can then help to compute the sample size needed in order to achieve this~\cite{Kohavi2009,box2005statistics}.
+The computed sample size can then be used for setting up a gauge visualization that displays the progress of the experiment (cf. \cref{figure:evaluation:user:dashboard-ab-test}).
 
+\paragraph{A/A tests}
+A/A tests, sometimes also called \emph{null hypothesis}, are a special version of the A/B test.
+Instead of showing the users from the two different groups different versions of a feature, they are shown the exact same experience.
+When comparing the reported metrics for the two groups, they are expected to be identical (with a certain expected deviation).
+Statistically significant differences -- usually larger than 95\% -- between the two variants indicate that the system under test in general and the metrics and distribution algorithm in particular do not work as expected and should be checked.
+Some fluctuations are to be expected however; literature suggests that a failed A/A test for about 5\% of the cases is fine~\cite{Kohavi2009}.
+A/A tests can be executed in \ac{IFAS} in a very similar way to A/B tests, although the visualizations could probably be changed to better reflect the fact that no change in the examined metric is expected.
+
+\paragraph{Feature analysis}
+In order to compare usage of two mechanics that implement the same functionality -- such as the two possibilities for switching channels in the Mattermost application (cf. \cref{figure:evaluation:user:visualization-feature-analysis}) -- a technique can be used that was coined as ``feature analysis'' in this thesis.
+This has to be implemented accordingly in the client application by sending a dedicated event every time a user invokes the action under test using either mechanic.
+The results can then be represented for example as a pie chart in Kibana.
+Other representations are also possible, especially if additional variables are of interest, such as the time of the user's action.
+
+\paragraph{Monitoring}
+\ac{IFAS} is not specifically designed for monitoring, but could nevertheless be used for this.
+The server or application that is to be monitored would have to be adapted in order to send the appropriate events containing the relevant data to \ac{IFAS}.
+Three use cases come to mind here: Periodic monitoring of a server's resource usage, observing error messages from an application or server, and tracking of existing domain-related data such as sales figures.
+Results could then be represented using several visualizations depending on the use case, including area charts and line graphs.
+Especially for time-based data, these two dimensional visualizations seem valuable, as the powerful time filtering options of Kibana facilitate analysis of such data.
+Kibana also has a dedicated ``Monitoring'' section which can be used to examine the performance of the Elasticsearch cluster.

@@ -1,6 +1,6 @@
 % !TEX root = ../thesis.tex
 %
-\chapter{Implementation}
+\chapter{Design and Implementation}
 \label{ch:implementation}
 
 This chapter describes details about the design, implementation, and configuration of \acf{IFAS}.
@@ -10,6 +10,54 @@ The full source code is available via GitHub\footnote{\url{https://github.com/ja
 
 %After consideration of the goals for the \acf{IFAS} and the results from the classifications made earlier (cf. \cref{ch:classifications}), the system was designed.
 %This activity includes specific decisions such as which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
+
+\section{Client Application}
+\label{sec:implementation:client}
+
+The Mattermost web application was extended with custom code in order to send user feedback.
+This section first discusses the problems with implementing sending of implicit user feedback in web applications and then briefly explains how the actual implementation was done.
+
+\subsection{Challenges with reliable feedback sending}
+\label{subsec:implementation:client:problems}
+
+When tracking user interactions in a web application, the technical idiosyncrasies of reliably sending data via \ac{XHR} requests using JavaScript can become problematic.
+This is explained in this section via the concrete example of click tracking.
+For various reasons, which are discussed below, there are no valid alternatives to doing asynchronous \ac{XHR} requests for click tracking for this use case though.
+
+The gist of the problem is that when a user clicks a link in a web application, this normally introduces a redirect to a new page, therefore potentially aborting the asynchronous \ac{XHR} request~\cite{Kohavi2010}.
+This problem could be solved by doing a synchronous request instead of an asynchronous one, but this is not a desirable solution because the whole web application would block for the duration of the request.
+If the user's internet connection is slow -- e.g .when accessing the application on a mobile phone -- or the logging server is experiencing heavy load, this can introduce a noticeable and annoying delay.
+These delays can be a reason to make the user abandon the application altogether~\cite{Kohavi2010,Dmitriev2017}.
+
+In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used for this use case for two reasons.
+The concept of the \texttt{sendBeacon} method is that it can be used to asynchronously send a small amount of data to a server prior to the user leaving the page, in a reliable way.
+However, this is not implemented yet in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
+Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id -- attaching custom headers via the \texttt{sendBeacon} method is not supported though.
+
+Another possibility for delivering implicit user feedback is the web beacon technique, which work by sending a request for a special 1x1 pixel image on a server.
+While this was a very popular method a few years ago, improvements in web browser and the JavaScript language make web beacons rather outdated.
+\citet{Kohavi2012} report additional problems with browsers aborting requests made via the web beacon technique.
+Thus, web beacons are not a suitable alternative for sending the feedback to the server.
+
+For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
+This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem.
+
+Technically, there exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
+Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
+
+\subsection{Feedback Sending Module}
+
+A small JavaScript module was implemented, which exports a function for sending the feedback data.
+The source code is listed in the appendix under \cref{appendix:code:implementation:mattermost:feedbackjs}.
+
+The feedback module exports one function, \texttt{initFeedback}, which takes a URL and a stream name as arguments.
+This function's return value is another function, called \texttt{feedback}, that sends the actual user feedback for a given event type.
+The \texttt{feedback} function sets the appropriate \ac{HTTP} headers and creates a unique id for the event, then sends the \ac{XHR} request to the Event Store at the URL previously set via \texttt{initFeedback}.
+This generic approach makes the module universally applicable for any client application that is written in JavaScript.
+
+The feedback module is used in various places throughout the Mattermost web application in order to send the user feedback as specified in \cref{sec:design:event-structure}.
+For most types of user feedback, additional data from the application's internal state was required.
+This was obtained via various \ac{API} functions provided by Mattermost.
 
 \section{User Feedback Events}
 \label{sec:design:event-structure}
@@ -50,13 +98,31 @@ The additional data could also be used to later measure additional metrics.
 In a production environment, the specificity of these events could be improved by assigning unique ids to every element in the web application, or at least to the ones which are of special interest.
 Especially the \texttt{UserClicked} events would benefit from this.
 
+\section{Event Store Configuration}
+\label{sec:implementation:storage}
+
+The storage layer of \ac{IFAS} is realized by Event Store.
+An officially maintained Docker image\footnote{\url{https://hub.docker.com/r/eventstore/eventstore/}} is used as the starting point and requires little additional configuration.
+At the time of implementation, the current Event Store version was 4.1.0.
+
+The Event Store service definition is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
+This configuration starts up an Event Store container with mostly default settings, which exposes port 2113 in order to allow the client application to send events over the \ac{HTTP} interface.
+In order to not lose critical data when a container is removed, two volumes \texttt{eventstoredata} and \texttt{eventstoreconfig} are created and mounted to the respective folders within the container's file system.
+This stores the data and configuration in separate Docker volumes, which are preserved when the container is removed, which would be the case for example if a new version of the Event Store image is used.
+
+This service definition also makes the Event Store's \ac{TCP} and \ac{HTTP} interfaces available via ports 1113 and 2113 for all services in the \texttt{IFAS-net} network.
+The container can be accessed by other containers via its name, \texttt{eventstore}.
+Thus, the bridge to the aggregation service (cf. \cref{sec:implementation:bridge}) listens to new events via the \ac{TCP} address \url{tcp://eventstore:1113}.
+The client application however has to post events to the publicly available URL because it is not part of the \texttt{IFAS-net} network; in the case where both \ac{IFAS} and the client are run on the same machine the URL is \url{http://127.0.0.1:2113}.
+
 \section{Event Store-Elasticsearch Bridge}
 \label{sec:design:bridge}
+\label{sec:implementation:bridge}
 
 In order to move the event data to Elasticsearch and afterwards into Kibana, a service is needed which bypasses the lack of a direct integration of Event Store and Elasticsearch.
 This service is the Event Store-Elasticsearch bridge (short just ``bridge'' in this context).
 
-%\subsection{The Need for a Bridge Service}
+\subsection{The Need for a Bridge Service}
 
 Intuitively, it seems problematic that Event Store and Elasticsearch have different concepts of storing their data.
 On the one hand, Event Store data is stored as events in streams; each event always has an event type and a unique id within that stream.
@@ -116,204 +182,17 @@ This pattern is rather useful if the data from a given stream is used by another
 %\subsection{Mapping Event Store Rebuilds to Elasticsearch}
 %\label{subsec:design:bridge:mapping}
 
-Another advanced feature of Event Store are the complete rebuild, event replay and reversing of events.
-This is supported indirectly in \ac{IFAS} by first deleting the appropriate documents from the respective Elasticsearch index, which can be done using the Delete By Query API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html}}.
-In the case of a complete rebuild, the index can be completely emptied.
-Then, when the rebuild, replay or reversing is executed in Event Store, the persistent subscription can forward all rebuilt events to the bridge.
+Although \ac{IFAS} does not utilize the advanced Event Store features such as complete rebuild, event replay, and reversing of events in the current version, they all are supported indirectly.
+For this to work, the appropriate documents from the respective Elasticsearch index first have to be removed, which can be done using the Delete By Query API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html}}; in the case of a complete rebuild, the index can be completely emptied.
+This results in a temporary state in which the data from Event Store and Elasticsearch are not synchronized with each other.
+Then, when the rebuild, replay or reversing is executed in Event Store, the persistent subscription can forward all rebuilt events to the bridge, therefore synchronizing Event Store data and Elasticsearch data again.
 The downside is that this introduces a delay in which the analytics application is practically useless, depending on the complexity and amount of events this can be an important factor.
-\todo{Test this or trow it out!}
 
-\section{Final Architecture}
-\label{section:design:architecture}
+\subsection{Implementation}
 
-Each \ac{IFAS} component is implemented as a standalone Docker container that communicates with the other services via \ac{TCP} or \ac{HTTP}.
-These containers are executed in one multi-container Docker application, whose architecture is visualized in \cref{figure:design:architecture}.
-
-The services that implement the main functionality of \ac{IFAS} are the three integral services discussed in \cref{ch:classifications} -- data storage, aggregation, and analysis -- as well as the bridge between storage and aggregation.
-The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
-Kibana also communicates with Elasticsearch over the same port.
-All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
-These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
-
-This Docker application also includes the services running the Mattermost client.
-The diagram displays an abstraction of the client component, which internally consists of three services:
-The Mattermost server, the customized Mattermost web application, and an Nginx service which exposes the web application for usage via a web browser to port 80.
-As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
-Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
-Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
-It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
-
-\begin{figure}[ht]
-\makebox[\textwidth][c]{
-        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
-}
-        \caption{Structure diagram of the final architecture of \ac{IFAS}.}
-        \label{figure:design:architecture}
-\end{figure}
-
-\section{Service Orchestration}
-\label{sec:implementation:orchestration}
-
-All services run in their own Docker containers in order to facilitate distribution of the system.
-Orchestration of the containers is done via \emph{Docker Compose} (short \emph{Compose}), which offers a straightforward way of describing the services of an application and how they interact with each other in one single file (cf. \cref{appendix:code:docker:docker-compose} for the source code of the \texttt{docker-compose.yml} file).
-A second Compose file defines the services of the Mattermost application (cf. \cref{appendix:code:docker:mattermost-compose}).
-
-\subsection{Operating the System}
-
-The final setup of \ac{IFAS} enables the following Compose commands, which can either be issued with a specific service name, or without this parameter which causes the command to be executed for all applicable services:
-
-\begin{itemize}
-\item Create and start containers for the services defined in the Compose file, via \texttt{docker-compose up [service]}; the additional \texttt{-d} parameter runs the containers in detached mode, i.e. in the background
-\item Start the containers that are already created, via \texttt{docker-compose start [service]}
-\item Stop and remove containers defined in the Compose file, as well as their volumes and networks, via \texttt{docker-compose down}
-\item Stop containers defined in the Compose file, via \texttt{docker-compose stop}
-\item Show logging information for a container, via \texttt{docker-compose logs [service]}; the additional \texttt{-f} parameter follows the logs as new ones appear, instead of just printing them once to the  console
-\end{itemize}
-
-A user of \ac{IFAS} would usually create and start the containers via \texttt{docker-compose up -d} and then optionally attach to the logs via \texttt{docker-compose logs -f}.
-If the system or specific services would have to be taken offline, this could be done via \texttt{docker-compose down}.
-For example, the Elasticsearch container would be stopped via \texttt{docker-compose stop elasticsearch}.
-Subsequently, the Elasticsearch container would be started again via the \texttt{start} command if no changes to the container are made, e.g. via its service definition, or via the \texttt{up} command if the container has to be recreated.
-The \texttt{down} command should only be used if a backup of the relevant Docker volumes was made -- otherwise, all data would be lost.
-
-\subsection{Networking}
-
-Docker allows to assign each container a custom network which allows for virtualization of distinct and separated networks even though the containers all run in the same Docker host.
-%This is done via the \texttt{networks} setting for all container definitions, in this case setting the network to \texttt{IFAS-net}.
-Two networks were defined for the implemented system: \texttt{IFAS-net} and \texttt{mattermost-net}.
-
-The two networks exist in order to separate \ac{IFAS} functionality more cleanly from the client application -- the only point at which the two interact with each other is when the Mattermost web application sends user feedback events to \ac{IFAS}' Event Store (cf. \cref{figure:implementation:orchestration:network}).
-Both networks are default bridge networks, which means that they use a software bridge running in the Docker host to communicate with containers connected to the same bridge.
-Communication may occur via another container's IP address or name; for example, the bridge can query data for indexing in Elasticsearch via the base URL \texttt{http://elasticsearch:9200}, where the 9200 denotes the port at which the Elasticsearch container exposes its \ac{HTTP} interface.
-
-This configuration enables Event Store, Elasticsearch, Kibana and the bridge application to freely communicate with each other using the respective service's name.
-Hence, neither are the \ac{IFAS} services able to establish communications with a service from the \texttt{mattermost-net} network, nor the other way around.
-The exception to this rule is when the Mattermost web application communicates with the Event Store service in the \texttt{IFAS-net} network, but this is only possible as the Event Store service definition explicitly defines that port 2113 shall be exposed publicly.
-\ac{IFAS} also exposes the Kibana web application on port 5601 and the Mattermost network serves the chat application on port 80.
-
-\begin{figure}[ht]
-        \caption{Network diagram depicting the communication within the \ac{IFAS} network and the client application.}
-        \includegraphics[width=\textwidth]{gfx/orchestration-network}
-        \label{figure:implementation:orchestration:network}
-\end{figure}
-
-\subsection{Clustering}
-
-Both Event Store and Elasticsearch offer clustering support, but these were deliberately \emph{not} used for this version of \ac{IFAS}.
-The reason for this decision is that the performance boost and especially the failover safety introduced by setting up a cluster of Event Store or Elasticsearch nodes is not necessary for \ac{IFAS} at this stage of development, but would introduce additional complexity during implementation and evaluation.
-However, this will very likely become relevant when setting the system up for production usage.
-For this reason, the following section contains a short description as to how to make use of clustering in \ac{IFAS}.
-
-\paragraph{Clustering in Event Store}
-In order to improve availability and read performance, a cluster of multiple Event Store nodes can be set up.
-Event Store offers two different types of nodes in clusters: Database nodes and management nodes.
-The latter is part of the commercial features of Event Store and thus not further discussed here.
-\Cref{appendix:code:implementation:docker:clustering:eventstore} in the appendix shows the source code of a Compose file setting up an Event Store cluster consisting of three database nodes.
-This is very similar to the single-node version used in \ac{IFAS}, except for two environment variables which pass the cluster size and its DNS address to every node, so the nodes are able to find each other and vote for a master node.
-The documentation\footnote{\url{appendix:code:implementation:docker:clustering:eventstore}} recommends that an odd number of nodes is used, as Event Store uses a quorum based voting protocol (there cannot be a tie if an odd number of nodes is expected to take part in the voting procedure).
-When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in before the cluster in order to distribute the burden equally over all nodes.
-
-\paragraph{Clustering in Elasticsearch}
-As described in Elasticsearch's documentation\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/guide/master/distributed-cluster.html}}, an integral concept concerning an Elasticsearch cluster are \emph{shards}.
-Shards are worker units that store (parts of) an index.
-They are automatically created, enlarged, and shrinked by Elasticsearch as documents are added or removed from the respective index.
-Elasticsearch differentiates between \emph{primary} shards and \emph{replica} shards: Each document of an index belongs to exactly one primary shard, replica shards are copies of primary shards.
-When a cluster is run in single-node mode, all primary shards are stored on this one node and no replica shards exist.
-As soon as a second node is added to the cluster, replica shards are automatically added in order to improve failover safety.
-If a third node is added, primary shards are re-allocated from the first node onto the other nodes, thus improving horizontal scalability.
-All this happens automatically, as long as all nodes are given the same \texttt{cluster\_name}.
-Thus, the Compose configuration is similar to the one for the Event Store cluster.
-
-The Event Store-Elasticsearch bridge is designed to profit from this as well.
-Additional instances of the bridge can be created to listen to the same persistent subscription without interfering with each other because Event Store's persistent subscriptions support the competing consumers messaging pattern.
-Running multiple bridge instances improves failover safety because the other instances can stand in for the failing one.
-Horizontal scalability is also provided on this end, as the bridge instances work independent of each other.
-A possible bottleneck exists on the Event Store side, as the persistent subscription's state is managed on the server side.
-
-In conclusion, when running \ac{IFAS} in a production environment, at least two additional Event Store and Elasticsearch nodes should be added by including the respective service definitions to the Compose file.
-The service definitions then also have to provide the cluster names and -- for the Event Store cluster -- the cluster's DNS address via environment variables.
-In the case of Event Store, a load balancer should also be implemented.
-This would form three-node clusters, which immensely improves both failover safety and horizontal scalability.
-Additional instances of the Event Store-Elasticsearch bridge can be created as well, if necessary.
-
-\section{Client Application}
-\label{sec:implementation:client}
-
-The Mattermost web application was extended with custom code in order to send user feedback.
-This section first discusses the problems with implementing sending of implicit user feedback in web applications and then briefly explains how the actual implementation was done.
-
-\subsection{Challenges with reliable feedback sending}
-\label{subsec:implementation:client:problems}
-
-When tracking user interactions in a web application, the technical idiosyncrasies of reliably sending data via \ac{XHR} requests using JavaScript can become problematic.
-This is explained in this section via the concrete example of click tracking.
-For various reasons, which are discussed below, there are no valid alternatives to doing asynchronous \ac{XHR} requests for click tracking for this use case though.
-
-The gist of the problem is that when a user clicks a link in a web application, this normally introduces a redirect to a new page, therefore potentially aborting the asynchronous \ac{XHR} request~\cite{Kohavi2010}.
-This problem could be solved by doing a synchronous request instead of an asynchronous one, but this is not a desirable solution because the whole web application would block for the duration of the request.
-If the user's internet connection is slow -- e.g .when accessing the application on a mobile phone -- or the logging server is experiencing heavy load, this can introduce a noticeable and annoying delay.
-These delays can be a reason to make the user abandon the application altogether~\cite{Kohavi2010,Dmitriev2017}.
-
-In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used for this use case for two reasons.
-The concept of the \texttt{sendBeacon} method is that it can be used to asynchronously send a small amount of data to a server prior to the user leaving the page, in a reliable way.
-However, this is not implemented yet in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
-Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id -- attaching custom headers via the \texttt{sendBeacon} method is not supported though.
-
-Another possibility for delivering implicit user feedback is the web beacon technique, which work by sending a request for a special 1x1 pixel image on a server.
-While this was a very popular method a few years ago, improvements in web browser and the JavaScript language make web beacons rather outdated.
-\citet{Kohavi2012} report additional problems with browsers aborting requests made via the web beacon technique.
-Thus, web beacons are not a suitable alternative for sending the feedback to the server.
-
-For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
-This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem.
-
-Technically, there exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
-Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
-
-\subsection{Feedback Sending Module}
-
-A small JavaScript module was implemented, which exports a function for sending the feedback data.
-The source code is listed in the appendix under \cref{appendix:code:implementation:mattermost:feedbackjs}.
-
-The feedback module exports one function, \texttt{initFeedback}, which takes a URL and a stream name as arguments.
-This function's return value is another function, called \texttt{feedback}, that sends the actual user feedback for a given event type.
-The \texttt{feedback} function sets the appropriate \ac{HTTP} headers and creates a unique id for the event, then sends the \ac{XHR} request to the Event Store at the URL previously set via \texttt{initFeedback}.
-This generic approach makes the module universally applicable for any client application that is written in JavaScript.
-
-The feedback module is used in various places throughout the Mattermost web application in order to send the user feedback as specified in \cref{sec:design:event-structure}.
-For most types of user feedback, additional data from the application's internal state was required.
-This was obtained via various \ac{API} functions provided by Mattermost.
-
-\section{Event Store Configuration}
-\label{sec:implementation:storage}
-
-The storage layer of \ac{IFAS} is realized by Event Store.
-An officially maintained Docker image\footnote{\url{https://hub.docker.com/r/eventstore/eventstore/}} is used as the starting point and requires little additional configuration.
-At the time of implementation, the current Event Store version was 4.1.0.
-
-The Event Store service definition is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
-This configuration starts up an Event Store container with mostly default settings, which exposes port 2113 in order to allow the client application to send events over the \ac{HTTP} interface.
-In order to not lose critical data when a container is removed, two volumes \texttt{eventstoredata} and \texttt{eventstoreconfig} are created and mounted to the respective folders within the container's file system.
-This stores the data and configuration in separate Docker volumes, which are preserved when the container is removed, which would be the case for example if a new version of the Event Store image is used.
-
-This service definition also makes the Event Store's \ac{TCP} and \ac{HTTP} interfaces available via ports 1113 and 2113 for all services in the \texttt{IFAS-net} network.
-The container can be accessed by other containers via its name, \texttt{eventstore}.
-Thus, the bridge to the aggregation service (cf. \cref{sec:implementation:bridge}) listens to new events via the \ac{TCP} address \url{tcp://eventstore:1113}.
-The client application however has to post events to the publicly available URL because it is not part of the \texttt{IFAS-net} network; in the case where both \ac{IFAS} and the client are run on the same machine the URL is \url{http://127.0.0.1:2113}.
-
-\section{Event Store-Elasticsearch Bridge Implementation}
-\label{sec:implementation:bridge}
-
-Because Elasticsearch does not have dedicated support for importing data from an event store, an additional service was implemented which serves as a bridge between the two services.
-The theory behind this service is described in \cref{sec:design:bridge}.
-
-The bridge is written in C\# and ASP.NET Core, thus enabling usage of the official EventStore .NET Core client\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} for connecting to the service and reading the persistent subscription.
+The bridge is written in C\# and ASP.NET Core, thus enabling usage of the official Event Store .NET Core client\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} for connecting to the service and reading the persistent subscription.
 It is built and run using the official Microsoft Docker image\footnote{\url{https://hub.docker.com/r/microsoft/aspnetcore-build/}} for .NET Core applications inside Docker (cf. \cref{appendix:code:implementation:docker:clustering:eventstore}).
 
-There were two challenges during development: Performance and event parsing.
-These are briefly discussed in the following paragraphs.
-
-\paragraph{Performance}
 Early implementations of the bridge service followed a rather simple approach, in which every event that was gathered from the Event Store's subscription was immediately sent forward to Elasticsearch via \ac{HTTP}.
 This proved to be too inefficient when the subscription is a few hundred events behind, presumably because of the overhead of doing all the consecutive \ac{HTTP} requests.
 The solution to this problem is the capability of the Elasticsearch Index \ac{API} to do bulk indexing operations.
@@ -321,14 +200,6 @@ Whenever a new event is sent to the bridge, it is added to an empty collection o
 If additional events are received by the bridge within this interval, they are added to the same collection that the initial event is already part of.
 When the timer has finished counting down, all events that were added to the collection in the meantime are sent to Elasticsearch in a single bulk indexing request.
 Measurements in the performance tests (cf. \cref{sec:evaluation:performance}) show that these bulk indexing requests contain up to 8.000 events.
-
-\paragraph{Event Parsing}
-...\todo{is this relevant???}
-
-%\subsection{Implementing Mapping of Advanced Event Store Features to Elasticsearch}
-%\label{subsec:implementation:bridge:mapping}
-%
-%WIP...?
 
 \section{Elasticsearch Service Configuration}
 \label{sec:implementation:aggregation}
@@ -381,3 +252,125 @@ The event generator is again packaged in a Docker container for ease of deployme
 Its Dockerfile uses the official Microsoft image\footnote{\url{https://hub.docker.com/r/microsoft/aspnetcore-build/}} for building ASP.NET Core applications inside a Docker container (cf. \cref{appendix:code:implementation:docker:eventgenerator-dockerfile}).
 The service definition for the event generator using this Dockerfile is contained in the \ac{IFAS} Compose file in \cref{appendix:code:docker:docker-compose}.
 A few environment variables set the Event Store's service name, username and password such that the event generator can login and post events.
+
+\section{Final Architecture}
+\label{section:design:architecture}
+
+Each \ac{IFAS} component is implemented as a standalone Docker service that communicates with the other services via \ac{TCP} or \ac{HTTP}.
+These services are executed in one multi-container Docker application, whose logical architecture is visualized in the component diagram in \cref{figure:design:architecture}.
+
+The services that implement the main functionality of \ac{IFAS} are the three integral services discussed in \cref{ch:classifications} -- data storage, aggregation, and analysis -- as well as the bridge between storage and aggregation.
+The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
+Kibana also communicates with Elasticsearch over the same port.
+All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
+These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
+
+This Docker application also includes the services running the Mattermost client.
+The diagram displays an abstraction of the client component, which internally consists of three services:
+The Mattermost server, the customized Mattermost web application, and an NGINX service which exposes the web application for usage via a web browser to port 80.
+As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
+Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
+Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
+It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
+
+\begin{figure}[ht]
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
+}
+        \caption[]Component diagram of the final architecture of \ac{IFAS}.{
+        Component diagram of the final architecture of \ac{IFAS}.
+        Provided interfaces of a service have the number of the connected port attached.
+        If a provided interface projects out of the Docker node, the port is exposed outside of the Docker application for other applications to connect with, such as a web browser connecting to Kibana on port 5601.}
+        \label{figure:design:architecture}
+\end{figure}
+
+\section{Service Orchestration}
+\label{sec:implementation:orchestration}
+
+All services run in their own Docker containers in order to facilitate distribution of the system.
+Orchestration of the containers is done via \emph{Docker Compose} (short \emph{Compose}), which offers a straightforward way of describing the services of an application and how they interact with each other in one single file (cf. \cref{appendix:code:docker:docker-compose} for the source code of the \texttt{docker-compose.yml} file).
+A second Compose file defines the services of the Mattermost application (cf. \cref{appendix:code:docker:mattermost-compose}).
+
+\subsection{Operating the System}
+
+The final setup of \ac{IFAS} enables the following Compose commands, which can either be issued with a specific service name, or without this parameter which causes the command to be executed for all applicable services:
+
+\begin{itemize}
+\item Create and start containers for the services defined in the Compose file, via \texttt{docker-compose up [service]}; the additional \texttt{-d} parameter runs the containers in detached mode, i.e. in the background
+\item Start the containers that are already created, via \texttt{docker-compose start [service]}
+\item Stop and remove containers defined in the Compose file, as well as their volumes and networks, via \texttt{docker-compose down}
+\item Stop containers defined in the Compose file, via \texttt{docker-compose stop}
+\item Show logging information for a container, via \texttt{docker-compose logs [service]}; the additional \texttt{-f} parameter follows the logs as new ones appear, instead of just printing them once to the  console
+\end{itemize}
+
+A user of \ac{IFAS} would usually create and start the containers via \texttt{docker-compose up -d} and then optionally attach to the logs via \texttt{docker-compose logs -f}.
+If the system or specific services would have to be taken offline, this could be done via \texttt{docker-compose down}.
+For example, the Elasticsearch container would be stopped via \texttt{docker-compose stop elasticsearch}.
+Subsequently, the Elasticsearch container would be started again via the \texttt{start} command if no changes to the container are made, e.g. via its service definition, or via the \texttt{up} command if the container has to be recreated.
+The \texttt{down} command should only be used if a backup of the relevant Docker volumes was made -- otherwise, all data would be lost.
+
+\subsection{Networking}
+
+Docker allows to assign each container a custom network which allows for virtualization of distinct and separated networks even though the containers all run in the same Docker host.
+%This is done via the \texttt{networks} setting for all container definitions, in this case setting the network to \texttt{IFAS-net}.
+Two networks were defined for the implemented system: \texttt{IFAS-net} and \texttt{mattermost-net}.
+
+The two networks exist in order to separate \ac{IFAS} functionality more cleanly from the client application -- the only point at which the two interact with each other is when the Mattermost web application sends user feedback events to \ac{IFAS}' Event Store (cf. \cref{figure:implementation:orchestration:network}).
+Both networks are default bridge networks, which means that they use a software bridge running in the Docker host to communicate with containers connected to the same bridge.
+Communication may occur via another container's IP address or name; for example, the bridge can query data for indexing in Elasticsearch via the base URL \texttt{http://elasticsearch:9200}, where the 9200 denotes the port at which the Elasticsearch container exposes its \ac{HTTP} interface.
+
+This configuration enables Event Store, Elasticsearch, Kibana and the bridge application to freely communicate with each other using the respective service's name.
+Hence, neither are the \ac{IFAS} services able to establish communications with a service from the \texttt{mattermost-net} network, nor the other way around.
+The exception to this rule is when the Mattermost web application communicates with the Event Store service in the \texttt{IFAS-net} network, but this is only possible as the Event Store service definition explicitly defines that port 2113 shall be exposed publicly.
+\ac{IFAS} also exposes the Kibana web application on port 5601 and the Mattermost network serves the chat application on port 80.
+
+\begin{figure}[ht]
+\caption[Network diagram of the final architecture of \ac{IFAS}.]{
+	Network diagram of the final architecture of \ac{IFAS}.
+        Hexagons represent Docker services, the switch icons represent a Docker bridge network.
+        Services connected to a bridge network via solid lines can communicate with each other freely within the network.
+        Dashed lines represent (possible) connections from the outside of the network, with the opened port being written at the receiving end of the connection.}
+        \makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/orchestration-network}
+}
+        \label{figure:implementation:orchestration:network}
+\end{figure}
+
+\subsection{Clustering}
+
+Both Event Store and Elasticsearch offer clustering support, but these were deliberately \emph{not} used for this version of \ac{IFAS}.
+The reason for this decision is that the performance boost and especially the failover safety introduced by setting up a cluster of Event Store or Elasticsearch nodes is not necessary for \ac{IFAS} at this stage of development, but would introduce additional complexity during implementation and evaluation.
+However, this will very likely become relevant when setting the system up for production usage.
+For this reason, the following section contains a short description as to how to make use of clustering in \ac{IFAS}.
+
+\paragraph{Clustering in Event Store}
+In order to improve availability and read performance, a cluster of multiple Event Store nodes can be set up.
+Event Store offers two different types of nodes in clusters: Database nodes and management nodes.
+The latter is part of the commercial features of Event Store and thus not further discussed here.
+\Cref{appendix:code:implementation:docker:clustering:eventstore} in the appendix shows the source code of a Compose file setting up an Event Store cluster consisting of three database nodes.
+This is very similar to the single-node version used in \ac{IFAS}, except for two environment variables which pass the cluster size and its DNS address to every node, so the nodes are able to find each other and vote for a master node.
+The documentation\footnote{\url{appendix:code:implementation:docker:clustering:eventstore}} recommends that an odd number of nodes is used, as Event Store uses a quorum based voting protocol (there cannot be a tie if an odd number of nodes is expected to take part in the voting procedure).
+When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in before the cluster in order to distribute the burden equally over all nodes.
+
+\paragraph{Clustering in Elasticsearch}
+As described in Elasticsearch's documentation\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/guide/master/distributed-cluster.html}}, an integral concept concerning an Elasticsearch cluster are \emph{shards}.
+Shards are worker units that store (parts of) an index.
+They are automatically created, enlarged, and shrinked by Elasticsearch as documents are added or removed from the respective index.
+Elasticsearch differentiates between \emph{primary} shards and \emph{replica} shards: Each document of an index belongs to exactly one primary shard, replica shards are copies of primary shards.
+When a cluster is run in single-node mode, all primary shards are stored on this one node and no replica shards exist.
+As soon as a second node is added to the cluster, replica shards are automatically added in order to improve failover safety.
+If a third node is added, primary shards are re-allocated from the first node onto the other nodes, thus improving horizontal scalability.
+All this happens automatically, as long as all nodes are given the same \texttt{cluster\_name}.
+Thus, the Compose configuration is similar to the one for the Event Store cluster.
+
+The Event Store-Elasticsearch bridge is designed to profit from this as well.
+Additional instances of the bridge can be created to listen to the same persistent subscription without interfering with each other because Event Store's persistent subscriptions support the competing consumers messaging pattern.
+Running multiple bridge instances improves failover safety because the other instances can stand in for the failing one.
+Horizontal scalability is also provided on this end, as the bridge instances work independent of each other.
+A possible bottleneck exists on the Event Store side, as the persistent subscription's state is managed on the server side.
+
+In conclusion, when running \ac{IFAS} in a production environment, at least two additional Event Store and Elasticsearch nodes should be added by including the respective service definitions to the Compose file.
+The service definitions then also have to provide the cluster names and -- for the Event Store cluster -- the cluster's DNS address via environment variables.
+In the case of Event Store, a load balancer should also be implemented.
+This would form three-node clusters, which immensely improves both failover safety and horizontal scalability.
+Additional instances of the Event Store-Elasticsearch bridge can be created as well, if necessary.
