@@ -4,15 +4,15 @@
 \label{ch:evaluation}
 
 \todo{Check for consistent tense}
+
+The evaluation for \acf{IFAS} is split into two main parts.
+First, the system's applicability for collecting and analyzing passive user feedback is tested in a case study (cf. \cref{sec:evaluation:user}).
+Second, \ac{IFAS}' performance is examined in three separate tests, whose results are combined afterwards in order to come up with a total processing time (cf. \cref{sec:evaluation:performance}).
 %Research question for \acf{IFAS}, WIP: "\todo{not specific enough}Can \ac{IFAS} be used to capture and analyze passive user feedback?"
 
-Checks wether the goals in \cref{sec:design:goals} are fulfilled.
-
-[Blurb about user tests ...]
-
-Additionally, a performance test shall ensure that \acf{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
-For this purpose, 10.000\todo{number not final} \texttt{ExperimentParticipated} events with groups and decisions are created and sent to Event Store by an application explicitly built for this objective.
-Details about this test can be found in \cref{sec:evaluation:performance}.
+%Additionally, a performance test shall ensure that \acf{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
+%For this purpose, 10.000\todo{number not final} \texttt{ExperimentParticipated} events with groups and decisions are created and sent to Event Store by an application explicitly built for this objective.
+%Details about this test can be found in \cref{sec:evaluation:performance}.
 
 % aus \cite{Easterbrook2008a} - What kind of research question are you asking?
 
@@ -51,6 +51,9 @@ The performance test (cf. \cref{sec:evaluation:performance}) proves that the sys
 %
 % this is an asynchronous remote test
 
+The test subjects are between 26 and 57 years old, with four women and eight men.
+While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
+
 \subsection{Experiment Set-Up}
 
 Setting up the experiment consisted of several steps:
@@ -61,19 +64,6 @@ Third, a test document was created which instructs the test subjects what to do 
 This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback at the end.
 The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
-\paragraph{Metrics Selection}
-
-WIP
-\cite{Kelly:2003:IFI:959258.959260}
-\cite{Claypool2001} % Scrolling vs. explicit rating: good indicator
-\cite{Claypool2001} % Time spent on page vs explicit rating: good indicator
-
-% Identifying the metrics to evaluate created customer value and product success was a challenge both in relation to dedicated experiments and to the general observation of product usage \cite{lindgren2015software}
-
-% active channel usage (posted msgs)
-% passive channel usage (scrolling)
-% clicking (?)
-
 \paragraph{Sending feedback to IFAS}
 
 For the experiment, the web version of the Mattermost client was modified in order to send the desired events to \ac{IFAS}.
@@ -81,6 +71,7 @@ This involves both implicit feedback events in general as well as very specific 
 In detail, the following data is gathered during the experiment:
 
 \begin{description}
+\label{list:cases}
 \item[Click analysis]
 Every click that the user does during the experiment is sent to \ac{IFAS} as a \texttt{UserClicked} event.
 This contains the current URL as well as the click coordinates and window size.
@@ -106,6 +97,27 @@ It should be noted that the sample size achieved via this experiment does not su
 
 In order to provide some content in the chat channels for test subjects to consume, the channels called ``Cats'' and ``Dogs'' were each filled with three pictures of cats and dogs.
 The assumption is that people will scroll through the contents of the respective channel if the pictures appeal to them, which was shown to correlate strongly with interest in the page~\cite{Claypool2001}.
+
+\paragraph{Metrics Selection}
+
+Choosing the right metric for evaluating is a common challenge when planning experiments~\cite{lindgren2015software}.
+For the A/B test, metric selection was rather straightforward as the initial question (``How does variant B influence the tutorial buttons's click rate?'') already suggests that the click rate for the two variants should be evaluated.
+The same goes for the feature analysis case, in which the proportions of the channel switching actions executed via either mechanic are compared.
+It should be noted that, in a production environment, the results from A/B tests should also be compared in terms of their influence on the \acf{OEC}.
+
+For the channel usage case, a paper by \citet{Claypool2001} provides a useful metric: The authors identified a strong correlation between the scrolling amount in a document and its rating.
+Interpreting the contents of a Mattermost channel as a document that users may or may not want to read, this insight is used for the passive channel usage case.
+In addition, the amount of sent messages in a channel is used as a metric for evaluating channel usage.
+
+%\cite{Kelly:2003:IFI:959258.959260}
+%\cite{Claypool2001} % Scrolling vs. explicit rating: good indicator
+%\cite{Claypool2001} % Time spent on page vs explicit rating: good indicator
+
+% Identifying the metrics to evaluate created customer value and product success was a challenge both in relation to dedicated experiments and to the general observation of product usage \cite{lindgren2015software}
+
+% active channel usage (posted msgs)
+% passive channel usage (scrolling)
+% clicking (?)
 
 \paragraph{Creating visualizations in Kibana}
 
@@ -227,7 +239,7 @@ This question is used to validate the amount of sent messages that are forwarded
 
 \end{description}
 
-As the experiment is, from the test subject's perspective, very similar to a usability test, a pilot test with one participant was execute upon the recommendation of \citeauthor{rubin2008handbook} in their usability testing handbook~\cite{rubin2008handbook}.
+As the experiment is, from the test subject's perspective, very similar to a usability test, a pilot test with one participant was executed upon the recommendation of \citeauthor{rubin2008handbook} in their usability testing handbook~\cite{rubin2008handbook}.
 A pilot test is useful for establishing whether the test is suitable for the desired audience; if problems with the task scenarios are found, they can be adapted before the experiment is executed.
 The pilot test yielded that there are no apparent problems with the task scenarios or the post-test questionnaire.
 
@@ -256,13 +268,9 @@ The test was conducted as an onsite test, on the same laptop that the performanc
 Prior to every test run, the respective Mattermost account was prepared, the application was opened on a web browser, and the test document was opened next to the browser window.
 Each user was given a short introduction about what the experiment is about and that they can ask questions at any point during the test.
 
-The test subjects are between 26 and 57 years old, with four women and eight men.
-While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
-\todo{Correct place for this?}
-\todo{Zeitraum, bio, anzahl, m/w, Dauer, Probleme?}
-
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the questionnaire took the users about 2 minutes.
+Aside from the occasional hint about the location of the button for invoking the channel switcher, no problems became apparent during execution.
 
 After all subjects had performed the experiment, the results were gathered and processed.
 Various charts representing the questionnaire results were created using R and ggplot.
@@ -270,9 +278,8 @@ The passive feedback results from \ac{IFAS} were created using Kibana's built-in
 
 \subsection{Results}
 
-...
+Visualizations created in \ac{IFAS}' Kibana application are used to analyze the passive user feedback collected during the case study.
 The visualizations are printed exactly as shown in Kibana in order to represent how \ac{IFAS} visualizes data.
-
 After all tests were finished, a report of the questionnaire's results was created (cf. \cref{figure:evaluation:user:survey-report}).
 The results from the questionnaire are used throughout this section in order to compare them with the results reported by \ac{IFAS}.
 
@@ -294,7 +301,7 @@ The difference in the two charts is in how the bars are split:
 The upper chart splits the bars by click target, i.e. URL, while the lower chart splits the bars by user.
 In other words, the upper chart additionally displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
 
-\begin{figure}[h]
+\begin{figure}[ht]
         \caption[Dashboard displaying the count of the test subject's clicks over time.]{
         Dashboard displaying the count of the test subject's clicks over time.
         The upper visualization splits the bars by URL, thus additionally comparing popularity of the application's pages measured by click rate.
@@ -482,11 +489,19 @@ As it is somewhat complicated to test the performance of the whole \ac{IFAS} sta
 In combination, this results in a fitting evaluation of the \ac{IFAS} stack's performance in general.
 The combined insights from these experiments are explained in \cref{subsec:evaluation:performance:insights}.
 
-During the planning phase of the experiments, it became apparent that it is problematic to come up with a realistic and representative number of events that \ac{IFAS} should be able to process.
-For this reason, a study by \citet{Henze2011} was taken into consideration which presents an experiment about touch performance of smartphone users.
-\citeauthor{Henze2011} collected 120,626,225 touch events, so if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
-However, \ac{IFAS} is currently not intended for scenarios in which 120 million events are created within a few seconds or minutes, and thus the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
-Both the tests for the indexing time of Elasticsearch and for the rendering time of Kibana are executed with an index of 120 million documents.
+During the planning phase of the experiments, problems arose in regards to coming up with a realistic and representative number of events that \ac{IFAS} should be able to process.
+One point of reference is Netflix' A/B testing platform; in a blog post about their architecture they state that the Netflix platform handles about 150,000 to 450,000 requests per second~\cite{WEB:Netflix:2016}.
+Building a system as powerful as Netflix' is not realistic though, especially with the limited resources in terms of time and money that are given for this thesis.
+Instead, the amount of requests threshold stated in the Netflix blog post serves as a point of reference by submitting up to 150,000 events to \ac{IFAS} and then measuring how long it takes the system to process these events.
+The resulting total processing duration can then be used to approximately compare \ac{IFAS} performance with the performance of the Netflix architecture.
+For example, if \ac{IFAS} is able to process the 150,000 events within 50 seconds -- compared to the 1 second that the Netflix system needs -- this yields a rough estimate of the relative power of $1/50$.
+
+Another important number is the total amount of events that \ac{IFAS} should be able to handle.
+For this reason, a study by \citet{Henze2011} was taken into consideration which presents an experiment about touch performance of smartphone users, in which 120,626,225 touch events were collected over three months.
+The rounded number of 120 million events was taken as a benchmark which \ac{IFAS} should be able to achieve.
+%if \ac{IFAS} is able to handle a similar number of events, it can be argued that the system's performance is adequate for performing testing and logging in general.
+%However, \ac{IFAS} is currently not intended for scenarios in which 120 million events are created within a few seconds or minutes, and thus the tests regarding the event processing performance of the bridge application are capped at 150,000 events.
+Both the tests for the indexing time of Elasticsearch and for the rendering time of Kibana are thus executed with 120 million documents.
 
 If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}.
 
@@ -500,12 +515,12 @@ These events in turn are fed into Elasticsearch as fast as possible by the bridg
 
 Thus, this experiment measures the time it takes to read a persistent subscription of fixed size from beginning to end and post the given events to Elasticsearch.
 It does not take into account the duration for sending these these events from the client to the event store and saving them there for two reasons:
-Firstly, this is highly dependent on the type of client application, and secondly, Event Store offers very limited capabilities for monitoring its performance in an efficient manner.\todo{is this legit?}
+Firstly, this is highly dependent on the type of client application, and secondly, Event Store offers very limited capabilities for monitoring its performance in an efficient manner.
 
 An earlier version of the bridge application was using the rather simple approach of immediately issuing an \ac{HTTP} POST request for every event upon arrival.
 Early tests showed that this is not a fitting approach because the multitude of HTTP requests introduced a huge overhead in terms of computational effort an latency.
 This resulted in an unsatisfactory performance of the bridge application (multiple minutes for 100,000 events).
-Instead of using this naive implementation of the bridge application, a more sophisticated mechanic was introduced which involves buffering mulitple events in the bridge and then doing a bulk indexing call to Elasticsearch.
+Instead of using this naive implementation of the bridge application, a more sophisticated mechanic was introduced which involves buffering multiple events in the bridge and then doing a bulk indexing call to Elasticsearch.
 The specifics of this implementation are explained in \cref{sec:implementation:bridge}.
 
 \subsubsection{Experiment Set-Up}
@@ -556,10 +571,10 @@ Again, the reasons for this are unknown and could be implementation-specific, bu
 \end{table}
 
 All experiments are executed for 50,000 (50k), 100,000 (100k) and 150,000 (150k) events for every configuration available.
-This yields 30 different experiments in total, which are each repeated 15 times\todo{update number?} in order to eliminate the impact of statistical outliers.
+This yields 30 different experiments in total, which are each repeated 15 times in order to eliminate the impact of statistical outliers.
 
 The experiments were executed on a 2012 Macbook Pro featuring an Intel Core i7 2.7 GHz and 16GB memory.
-Docker was configured to be allowed to use 4 out of 8 possible threads from the CPU; Intel's i7 processor has 4 CPUs, each of which manages 2 execution threads
+Docker was configured to be allowed to use 4 out of 8 possible threads from the CPU; Intel's i7 processor has 4 CPUs, each of which manages 2 execution threads.
 Docker's memory was set to 4 GiB, with a swap space of 1 GiB.
 
 \subsubsection{Execution}
@@ -710,7 +725,6 @@ It can additionally be observed that configurations 3 to 6 initially process a f
 The initial peak and subsequent dropdown can partly be explained by the computational complexity of managing such a large amount of events over a long timespan.
 But the peak near the respective end of the plot remains mysterious.
 
-\todo{Cluster only for redundancy!}
 The first thought was that a memory leak in the bridge application caused this behavior, but the fact that performance suddenly increases again near the end of the subscription made this very unlikely.
 Instead, inspection of the docker containers' resources via the \texttt{docker stats} command revealed that the single Event Store instance suffered heavy CPU load, most of the time near 200\% (i.e. half of the CPU resources allocated to Docker).
 Both the bridge application and Elasticsearch had no problems with handling the amount of events that came in -- CPU load, memory consumption and network activity remained within acceptable bounds.
@@ -742,6 +756,7 @@ This is more than three times faster than the ideal processing rate of the Event
 
 The test for Elasticsearch's indexing performance uses a modified version of the Event Store-Elasticsearch bridge application.
 Instead of reading the events from an Event Store subscription, this modified bridge just generates \texttt{ExperimentParticipated} events on its own and sends them via the same bulk indexing call to Elasticsearch.
+This isolates the experiment results for the Elasticsearch test from the processing rate of the Event Store subscription.
 The modified bridge application generates 10,000 events, then sends them to Elasticsearch and waits for a response.
 This procedure is repeated until 120 million events are sent and indexed as documents in Elasticsearch.
 As a result, the Event Store performance is isolated from this test, which allows for more accurate evaluation of the capabilities of Elasticsearch.
@@ -899,8 +914,9 @@ For 150,000 events and the A/B test visualization, with a automatic refresh rate
 
 This is a worst case computation, because it assumes that each processing step of \ac{IFAS} runs sequentially, and it uses the average visualization duration for the Kibana visualization for 120 million hits.
 In praxis, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
-As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will probably have finished indexing as soon as the last events are processed by the bridge and sent over to Elasticsearch.
-With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
+As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will presumably have finished indexing very soon after the last events are processed by the bridge and sent over to Elasticsearch.
+When comparing this with the 150,000 events per second that the Netflix platform is able to handle~\cite{WEB:Netflix:2016}, \ac{IFAS} is about $1/46$ as fast.
+%With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
@@ -909,7 +925,7 @@ Just as for the case study, the four factors for validity can be examined for th
 Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
 
 External validity in general is again problematic as the tests were only executed on a single machine.
-This is not an issue here, because the results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware but not excessively powerful).
+This is not an issue here, because the results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GiB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware, but not excessively powerful).
 
 Again, personal stakes in the developed system compromise reliability to some extent.
 However, it would be harder in the case of the performance test to actually influence the results than for the case study, and as the consequences of doing so would be rather severe, this possibility can be discarded.
