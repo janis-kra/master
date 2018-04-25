@@ -112,6 +112,11 @@ For the channel usage case, a paper by \citet{Claypool2001} provides a useful me
 Interpreting the contents of a Mattermost channel as a document that users may or may not want to read, this insight is used for the passive channel usage case.
 In addition, the amount of sent messages in a channel is used as a metric for evaluating channel usage.
 
+Gathering passive user feedback via eye tracking software is a valid alternative to the more traditional approaches via clickthrough data, but is not considered in this thesis for two reasons.
+First, requiring an eye tracker for gathering implicit user feedback of generic web applications would be impractical.
+Second, cursor movement was shown to be a good approximation of where the user's gaze is located~\cite{Huang2011}, thus it is expected that using an eye tracker would not yield significant additional insights in the given context anyway.
+This could of course be different for other use cases.
+
 %\cite{Kelly:2003:IFI:959258.959260}
 %\cite{Claypool2001} % Scrolling vs. explicit rating: good indicator
 %\cite{Claypool2001} % Time spent on page vs explicit rating: good indicator
@@ -968,3 +973,27 @@ Three use cases come to mind here: Periodic monitoring of a server's resource us
 Results could then be represented using several visualizations depending on the use case, including area charts and line graphs.
 Especially for time-based data, these two dimensional visualizations seem valuable, as the powerful time filtering options of Kibana facilitate analysis of such data.
 Kibana also has a dedicated ``Monitoring'' section which can be used to examine the performance of the Elasticsearch cluster.
+
+\section{Evaluation of Fitness Functions}
+\label{sec:evaluation:fitness}
+
+With the results from the performance tests, the fitness functions that were left out of the analysis in the previous evaluation (cf. \cref{section:design:architecture}) can now be added.
+The results are displayed in \cref{figure:evaluation:fitness}.
+See \cref{sec:implementation:fitness} for the initial definitions of the different fitness functions.
+
+Regarding the desired latency of \ac{IFAS}, the current state of the architecture reaches one point each for reaching the 60s and 48s thresholds, respectively.
+The bottleneck of the current \ac{IFAS} implementation is the Event Store's persistent subscription, which reaches about 5,000 events per second; all other parts of the system are faster.
+This yields a score of three out of five for the throughput fitness function.
+None of the desired characteristics regarding high availability are reached in the current \ac{IFAS} implementation, thus a score of 0 is displayed for that fitness function.
+Both latency and especially availability are thus points in which \ac{IFAS} has plenty of room for improvement in its current state.
+
+\begin{figure}[ht]
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-eval}
+}
+        \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the evalatuion was done.]{
+        Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.
+        The results from the previous fitness function analysis in \cref{figure:implementation:fitness} are enhanced with the values for availability, throughput, and latency.
+        }
+        \label{figure:evaluation:fitness}
+\end{figure}

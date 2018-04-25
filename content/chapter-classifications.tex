@@ -14,10 +14,11 @@ Afterwards, possible software solutions are listed and then the evaluation part 
 
 According to the initial motivation for this thesis (cf. \cref{sec:intro:motivation}), the architecture of \ac{IFAS} was envisioned with the principles of evolutionary architectures in mind.
 For this reason, \ac{IFAS} follows a microservice approach for its architecture: The storage, aggregation and analysis capabilities shall be provided by separate microservices instead of one monolith application.
-This makes the architecture more open to future change, which is the main reason behind applying an evolutionary architecture (cf. \cref{sec:fundamentals:evolutionary}).
-Such a future change could, for example, be an additional service with machine learning capabilities that learn about patterns in the user feedback.
-The machine learning service could be added to the system without much effort and then read / write the relevant data from / to the Elasticsearch service.
+This makes the architecture more open to future, incremental change, which is the main reason behind applying an evolutionary architecture (cf. \cref{sec:fundamentals:evolutionary}).
+Such an incremental change could, for example, be an additional service with machine learning capabilities that learn about patterns in the user feedback.
+The machine learning service could be added to the architecture without much effort and then communicate with the Elasticsearch service in order to read and write the relevant data.
 This additional data could then also be accessed via Kibana.
+However, none of the existing services in \ac{IFAS} have to know about this new hypothetical machine learning service, thus reducing the impact of this change.
 
 \section{Data Storage Solutions}
 \label{sec:classifications:storage}
@@ -59,11 +60,15 @@ This is often solved via \emph{sharding}, where the data is split over multiple 
 \item [HTTP interface]
 The storage solution shall have a \ac{HTTP} interface, therefore allowing other services and applications to store and retrieve data via a universally supported medium.
 As most solutions considered in this chapter do indeed offer a \ac{HTTP} interface, this is the most straightforward way of interconnecting the different services and applications.
-\ac{HTTP} may have worse performance than protocols operating on lower levels in the \ac{OSI}\footnote{\url{https://support.microsoft.com/en-us/help/103884/the-osi-model-s-seven-layers-defined-and-functions-explained}} stack.
+\ac{HTTP} may have worse performance than protocols operating on lower levels in the \ac{OSI}\footnote{\url{https://support.microsoft.com/en-us/help/103884/}} stack.
 Examples for such protocols are the \ac{TCP} and the \ac{UDP}, but the advantages in terms of flexibility make \ac{HTTP} the favored solution.
 In cases where performance is critical, TCP could still be used if supported.
 It should be noted that almost any storage solution can be extended to have an \ac{HTTP} interface by writing a wrapper in a general purpose programming language that exposes the database functionality.
 However, this introduces additional overhead and complexity, as the database wrapper would have to be implemented manually -- not to mention potential security issues.
+\item [Hosting]
+\ac{IFAS} is planned to run on a Docker machine.
+Thus, all services have to support this and in particular should not exclusively be \ac{SaaS} running on the respective companies servers.
+This is beneficial in terms of platform independence and also regarding data protection, as running \ac{IFAS} as a \ac{SaaS} would mean potentially giving the company running the service access to the accumulated user feedback data.
 \item [Free License]
 The designed system shall be as widely applicable as possible and therefore not impose any financial requirements on the potential applicant.
 Thus, the storage solution shall be available free for commercial use, e.g. in form of an open source license such as the GNU GPL\footnote{\url{https://www.gnu.org/licenses/gpl.html}} or Apache License\footnote{\url{https://www.apache.org/licenses/}}.
@@ -209,8 +214,7 @@ The concrete requirements are as follows:
 As flexibility is key in a distributed \ac{CSE} system (cf. \cref{subsec:classifications:storage:req}) and the storage solution in general communicates via HTTP, the data aggregation service must also have a HTTP interface.
 %If both solutions support another protocol that offers advantages such as increased performance, this protocol may be used as well; an example for such a protocol would be \ac{TCP}.
 \item [Hosting]
-\ac{IFAS} is planned to run on a Docker machine.
-Thus, all services have to support this and in particular should not exclusively be \ac{SaaS} running on the respective companies servers.
+Just as for the storage solution, the data aggregation solution shall also be available as a Docker container.
 \item [Search]
 The aggregation service shall have some form of search functionality.
 At the very least, this feature should include a keyword search; more elaborate search types such as full-text or fuzzy search are useful but not mandatory.

@@ -11,6 +11,44 @@ The full source code is available via GitHub\footnote{\url{https://github.com/ja
 %After consideration of the goals for the \acf{IFAS} and the results from the classifications made earlier (cf. \cref{ch:classifications}), the system was designed.
 %This activity includes specific decisions such as which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
 
+\section{IFAS Fitness Functions}
+\label{sec:implementation:fitness}
+
+As recommended when building an evolutionary architecture (cf. \cref{sec:fundamentals:evolutionary}), several fitness functions were created.
+These are based on the goals defined earlier in the introduction and when the different software solutions for \ac{IFAS} were evluated (cf. \cref{sec:intro:objectives,ch:classifications}).
+After all aspects of the systems architecture and implementation are explained, \cref{section:design:architecture} at the end of this chapter evaluates the architecture's conformance to the defined fitness functions in its current state and as far as possible.
+Further evaluation of the performance-related fitness functions is done at the end of the evaluation (cf. \cref{sec:evaluation:fitness}).
+As the idea behind fitness functions is to enable guided change -- in contrast to defining fulfillment criteria that have to be met as soon as the architecture is enacted -- not all criteria will be met 100\% when the \ac{IFAS} architecture and implementation is finished.
+Instead, the fitness functions can be used to facilitate further development of the system and evolvement of the architecture (cf. \cref{ch:future-work}).
+Thus, the fitness also do \emph{not} constitute the objectives for the thesis -- these are still as described in \cref{sec:intro:objectives}.
+
+All fitness functions rate the architecture on a scale of 0 to 5, although some can only be measured binary (i.e. either 0 or 5).
+It should be noted that fitness functions in general are defined on a rather subjective point of view, with best practices in mind, and are thus subject to change as the architecture evolves.
+The fitness functions for \ac{IFAS} are as follows:
+
+\begin{description}
+\item[Low Latency] The system must achieve a latency -- i.e. the time from arrival of the user feedback to its visualization in Kibana -- of usually under one minute.
+Achieving this yields a score of 1, additional points are achieved for each subsequent 12 second speedup.
+A latency of 12 seconds or lower thus results in a score of 5.
+\item[High Throughput] The system must achieve a throughput of at least 1000 events per second.
+Achieving this yields a score of 1, additional points are achieved for 2500, 5000, 10000 and 25000 events per second.
+\item[High Availability] The system must be highly available, which means that user feedback can be supplied to it at all times even though individual services are down.
+This can for example be achieved by setting up clusters for redundancy.
+One point each is achieved for: Redundancy clusters for Event Store and Elasticsearch, redundancy services for the bridge and Kibana, automatic reboot on system crash. 
+\item[Compatibility] The architecture must be available for integration into existing architectures.
+This is achieved if no restrictions are imposed upon the target system.
+An example for such a restriction would be the need for an native Event Store installation.
+\item[Evolvability] The architecture must be built with evolvability in mind, i.e. according to the principles of evolving architectures.
+\item[Scalability] The architecture must be horizontally scalable.
+One point each is achieved for: Horizontal scaling for Event Store, bridge service, and Elasticsearch.
+Two points are achieved if horizontal scaling is theoretically possible but not implemented yet.
+\item[Data Security] The user feedback data that is collected using \ac{IFAS} must not leave the server that it runs on, once they are received by the system (3 points).
+Both interfaces that \ac{IFAS} exposes must have password protection (2 points, 1 each).
+\item[Acquisition Cost] The software included in the system must have no acquisition cost whatsoever.
+\item[Legal Requirements] The software included in the system must be available for commercial use.
+\end{description}
+
+
 \section{Client Application}
 \label{sec:implementation:client}
 
@@ -253,37 +291,6 @@ Its Dockerfile uses the official Microsoft image\footnote{\url{https://hub.docke
 The service definition for the event generator using this Dockerfile is contained in the \ac{IFAS} Compose file in \cref{appendix:code:docker:docker-compose}.
 A few environment variables set the Event Store's service name, username and password such that the event generator can login and post events.
 
-\section{Final Architecture}
-\label{section:design:architecture}
-
-Each \ac{IFAS} component is implemented as a standalone Docker service that communicates with the other services via \ac{TCP} or \ac{HTTP}.
-These services are executed in one multi-container Docker application, whose logical architecture is visualized in the component diagram in \cref{figure:design:architecture}.
-
-The services that implement the main functionality of \ac{IFAS} are the three integral services discussed in \cref{ch:classifications} -- data storage, aggregation, and analysis -- as well as the bridge between storage and aggregation.
-The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
-Kibana also communicates with Elasticsearch over the same port.
-All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
-These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
-
-This Docker application also includes the services running the Mattermost client.
-The diagram displays an abstraction of the client component, which internally consists of three services:
-The Mattermost server, the customized Mattermost web application, and an NGINX service which exposes the web application for usage via a web browser to port 80.
-As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
-Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
-Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
-It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
-
-\begin{figure}[ht]
-\makebox[\textwidth][c]{
-        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
-}
-        \caption[Component diagram of the final architecture of \ac{IFAS}.]{
-        Component diagram of the final architecture of \ac{IFAS}.
-        Provided interfaces of a service have the number of the connected port attached.
-        If a provided interface projects out of the Docker node, the port is exposed outside of the Docker application for other applications to connect with, such as a web browser connecting to Kibana on port 5601.}
-        \label{figure:design:architecture}
-\end{figure}
-
 \section{Service Orchestration}
 \label{sec:implementation:orchestration}
 
@@ -337,6 +344,7 @@ The exception to this rule is when the Mattermost web application communicates w
 \end{figure}
 
 \subsection{Clustering}
+\label{sec:implementation:orchestration:clustering}
 
 Both Event Store and Elasticsearch offer clustering support, but these were deliberately \emph{not} used for this version of \ac{IFAS}.
 The reason for this decision is that the performance boost and especially the failover safety introduced by setting up a cluster of Event Store or Elasticsearch nodes is not necessary for \ac{IFAS} at this stage of development, but would introduce additional complexity during implementation and evaluation.
@@ -374,3 +382,57 @@ The service definitions then also have to provide the cluster names and -- for t
 In the case of Event Store, a load balancer should also be implemented.
 This would form three-node clusters, which immensely improves both failover safety and horizontal scalability.
 Additional instances of the Event Store-Elasticsearch bridge can be created as well, if necessary.
+
+
+\section{Final Architecture}
+\label{section:design:architecture}
+
+Each \ac{IFAS} component is implemented as a standalone Docker service that communicates with the other services via \ac{TCP} or \ac{HTTP}.
+These services are executed in one multi-container Docker application, whose logical architecture is visualized in the component diagram in \cref{figure:design:architecture}.
+
+The services that implement the main functionality of \ac{IFAS} are the three integral services discussed in \cref{ch:classifications} -- data storage, aggregation, and analysis -- as well as the bridge between storage and aggregation.
+The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
+Kibana also communicates with Elasticsearch over the same port.
+All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
+These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
+
+This Docker application also includes the services running the Mattermost client.
+The diagram displays an abstraction of the client component, which internally consists of three services:
+The Mattermost server, the customized Mattermost web application, and an NGINX service which exposes the web application for usage via a web browser to port 80.
+As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
+Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
+Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
+It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
+
+\begin{figure}[ht]
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
+}
+        \caption[Component diagram of the final architecture of \ac{IFAS}.]{
+        Component diagram of the final architecture of \ac{IFAS}.
+        Provided interfaces of a service have the number of the connected port attached.
+        If a provided interface projects out of the Docker node, the port is exposed outside of the Docker application for other applications to connect with, such as a web browser connecting to Kibana on port 5601.}
+        \label{figure:design:architecture}
+\end{figure}
+
+In order to get an idea how far the architecture has evolved up to this point, the fitness functions defined in \cref{sec:implementation:fitness} can be applied on the current state of the architecture.
+The results are visualized in \cref{figure:implementation:fitness}.
+
+The legal requirements are all fulfilled by the licenses of the chosen software solutions; this also checks off the acquisition cost function as all the chosen solutions are available free of charge.
+Regarding the architecture's data security, all aspects except the password protection of the Kibana web application are fulfilled.
+The scalability characteristics are only fulfilled in theory, as horizontal scalability is possible in \ac{IFAS} but not implemented yet (cf. \cref{sec:implementation:orchestration:clustering}).
+Although the architecture was built with the principles of evolutionary architectures in mind, evolvability was not rated perfectly as there is very probably still room for improvement in this regard.
+Compatibility was rated five out of five points, as \ac{IFAS} is completely implemented in Docker and thus makes as few assumptions about the system it runs on as possible.
+Availability, throughput and latency cannot be rated yet as no performance tests have been made at this point.
+
+\begin{figure}[ht]
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-impl}
+}
+        \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.]{
+        Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.
+        Results that were obtained during the performance tests (latency, throughput, availability) are not factored in here.
+        }
+        \label{figure:implementation:fitness}
+\end{figure}
+

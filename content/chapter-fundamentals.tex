@@ -5,16 +5,33 @@
 
 [insert fluff piece about fundamentals here]
 
+\section{Passive User Feedback}
+\label{sec:fundamentals:implicit}
+
+The need for frequent user feedback in order to improve software products is not a particularly new notion.
+When agile software development started to gain traction in the early 2000's the need for continuous, fast user feedback was already recognized~\cite{Williams2003}.
+User feedback is typically divided into two classes, active and passive.
+
+As \citeauthor{Bosch2012} describes, active user feedback is explicitly and knowingly given by a user~\cite{Bosch2012}.
+This can be done verbally or in writing.
+Possible sources for active user feedback include questionnaires and interviews, but also written comments on social media.
+The nature of the interaction forces a user giving the feedback to engage in additional activities, e.g. rating documents or commenting on their experience.
+This can be problematic because the users may not see the benefit in the supplementary effort~\cite{Kelly:2003:IFI:959258.959260}.
+
+Passive user feedback circumvents the disadvantages of active feedback by automatically collecting data while the user operates the application.
+This removes the cost on the user side altogether~\cite{Kelly:2003:IFI:959258.959260}, but the cost on the implementation side remains or may even be higher.
+The fact that passive user feedback can be collected in large quantities without additional cost makes this type of user feedback very useful for data-based decision making~\cite{Bosch2012}.
+Passive feedback is essential when executing A/B tests because of the sheer quantity of required data needed in order to detect a statistically relevant change in the analyzed metric~\cite{Kohavi2009}.
+Another term for passive user feedback is implicit user feedback, these terms are used interchangeably in this thesis.
+
+Both techniques can be combined in order to counter their respective disadvantages.
+For example, the qualitative nature of active user feedback can help to interpret the large data sets accumulated via passive user feedback collection~\cite{Kelly:2003:IFI:959258.959260}.
+
 \section{\acf{CSE}}
 \label{sec:fundamentals:edsd}
 
 % kopiert aus Motivation, muss noch eingearbeitet werden:
 The last step in the Stairway to Heaven of \ac{CSE} is introducing an innovation system, also referred to as an \emph{experiment system}~\cite{Olsson2012}.
-Several companies have published their findings about experimentation in the software development process, in the form of scientific papers or blog posts.
-Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cite{Tang2010}, Facebook~\cite{Bakshy2014}, and Netflix~\cite{WEB:Netflix:2016} issued reports about best practices and pitfalls that they experienced, all concluding that introducing experimentation into the software development process benefits both the choice about which features to implement as well as their quality.
-In addition, several authors have published scientific papers in which they propose models and architectures for experimental software development~\cite{Fagerholm2014,Fagerholm2017,Johanssen2017,Lindgren2015}.
-Although practitioners in the software industry often claim that they embrace experimentation and innovation in their research and development process, these practices are still not fully adopted according to a study by \citet{lindgren2015software}.
-Especially the systematic and continuous aspects of experimentation lack adoption.
 
 \cite{Olsson2012}
 \cite{Bosch2012}
@@ -37,30 +54,41 @@ This approach is contrary to the more classical software development methods, in
 \section{Evolutionary Software Architecture}
 \label{sec:fundamentals:evolutionary}
 
-\citet{ford2017building} describe that evolutionary architectures try to battle the common wisdom that a software architecture is in general difficult to change once it is built.
-The underlying assumption is that it is hard to anticipate all needs of the architecture beforehand and thus, changes become expensive in regards to both money and time.
+Evolutionary software architectures focus on \emph{evolvability} of an architecture.
+An example for an evolutionary architecture is the microservice architecture~\cite{WEB:EvolArch:2016}.
+
+The concept of evolutionary architectures is well explained in the book by \citet{ford2017building}.
+They argue that a software architecture is in general difficult to change once it is built, a notion that is easy to follow but difficult to find a solution for.
+The underlying assumption is that it is hard to anticipate all needs of the architecture beforehand and thus, changes become expensive in regards to both money and time once the architecture is enacted after the planning phase is over.
+But if decisions regarding the architecture are postponed until the \emph{last responsible moment}, i.e. the last moment at which it is still responsible to make the decision, evolving the architecture becomes easier because when this last responsible moment comes, the architects have gained additional knowledge about the problem domain, their code, etc.
 By factoring change into the architecture itself, incremental changes are claimed to be possible later in the development process, when a conventional architecture would not have allowed for such a change with as little effort.
-This can for example be achieved by using a microservice architecture~\cite{WEB:EvolArch:2016}.
+This can be achieved by focusing on \emph{incremental} and \emph{guided} change.
 
-...
+Architectures that allow small, \emph{incremental change} are easier to evolve by the development team and easier to deploy by the operations team because the scope of the change is smaller than, say, for a monolithic application.
+The example that \citeauthor{ford2017building} use for incremental change is a service that allows rating of certain items on a web page on a scale of 1 to 5 stars in whole numbers.
+When the team responsible for this rating service releases a new version of the service that now also allows for half-star ratings, problems with the integration of other services could arise.
+But in a properly executed evolutionary architecture, the two versions of the rating service can run alongside each other while the development teams migrate their existing services that still consume the old rating service to the new one.
 
-\section{Passive User Feedback}
-\label{sec:fundamentals:implicit}
+The principle of \emph{guided change} helps a team of software architects to focus on and protect certain aspects of their architecture while it evolves over the months and years.
+This is achieved by defining a so-called fitness function for the architecture.
+When envisioning the architecture, desired attributes of the architecture are fixed and the fitness function can later be used to evaluate the current architecture in comparison to the desired state.
+These attributes can range from technical aspects such as the achieved throughput, to more abstract aspects like modular coupling.
+As an architecture evolves, the values of specific fitness functions do not always improve.
+Instead, it is possible and even intended that some characteristics of the architecture suffer when a change is made.
+For example, when a redundancy node is added to a database in order to improve availability, it is possible that requirements regarding the worst-case latency of the whole system suffer.
+Analysis of the architecture's fitness functions can help to detect such dependencies between different services and characteristics of the architecture.
+Fitness functions come in a lot of different shapes, which are not discussed here but can be read up on in the book by \citet{ford2017building}.
 
-\cite{Kelly:2003:IFI:959258.959260}
+\Cref{figure:fundamentals:evolutionary:fitness} shows an exemplary visualization of four fitness functions for a hypothetical architecture.
+In this case, throughput of the architecture is achieved perfectly, while modular coupling, legal requirements, and availability are rated one, two, and three points out of five, respectively.
+The benchmarks for each fitness function have to be specified in the architecture's documentation, as well as the steps that have to be executed in order to apply the respective fitness function.
+For example, modular coupling could be analyzed automatically using a code analysis tool, while legal requirements would probably have to be evaluated manually by a domain expert.
 
-Gathering passive user feedback via eye tracking software is a valid alternative to using clickthrough data, but is not considered in this thesis for two reasons.
-First, requiring an eye tracker for gathering implicit user feedback of generic web applications would be impractical.
-Second, cursor movement was shown to be a good approximation of where the user's gaze is located~\cite{Huang2011}, thus it is expected that using an eye tracker would not yield significant additional in the given context anyway.
-
-\section{Continuous experimentation surveys}
-\label{sec:related:surveys}
-
-\cite{lindgren2015software}
-
-\cite{Bosch2012}
-
-\cite{Gutbrod2017}
+\begin{figure}[h]
+        \includegraphics[width=\textwidth]{gfx/fitness-function-example}
+        \caption{An exemplary visualization of an architecture's fitness function; adapted from~\cite{WEB:EvolArch:2016}.}
+        \label{figure:fundamentals:evolutionary:fitness}
+\end{figure}
 
 \section{Controlled Experiments}
 \label{sec:fundamentals:experiments}
@@ -86,58 +114,60 @@ Having a fitting \ac{OEC} eliminates the need to carefully balance out the other
 Sessions per user would be a much better \ac{OEC} in this example, \citeauthor{Kohavi2013a} says.
 
 
-\section{Event sourcing}
+\section{Event Sourcing}
 \label{sec:fundamentals:event}
 
 %abstract: what is event sourcing
 The core premise of event sourcing~\cite{WEB:Fowler:2005} is that all changes to the application state are stored as immutable events, in the order in which they occur.
 In aggregation, these events represent the whole application state.
-%, contrary to classical relational databases,
-\citet{Overeem2017} and \citet{Erb2016} have done some research on event sourcing and \citet{evans2004domain} grazes the topic in his book, stating that event sourcing is useful for X.
-Apart from these few examples, literature in form of books or scientific papers regarding event sourcing is rather rare.
-Several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{young2010whyeventsourcing} explain the concepts and methods in great extent though.
-\todo{vertiefen}
+
+An event is a description of something that has happened in the past, such as an update of a customer's address.
+In order to make this more clear, events are named as verbs in the past tense, e.g. \texttt{AddressChangedEvent}.
+Event sourcing organizes these events in so-called streams.
+Streams are an append-only data structure, which has the benefit that a stream cannot only answer \emph{what} the current state is, but also \emph{how} it was reached.
 
 Inherent to event sourcing is the lack of an explicit schema, just as in NoSQL databases~\cite{fowler2013schemaless}.
 Instead, the schema is represented implicitly within the application itself.
 This enables more flexibility, as any type of data can be saved in storage without defining a schema first.
 However, it also comes with some drawbacks, especially when this implicit schema changes; \citet{Overeem2017} investigate these.
-\ac{IFAS} assumes that the implicit schema is not changed after its initial launch.
+
+%, contrary to classical relational databases,
+\citet{Overeem2017} and \citet{Erb2016} have done some research on event sourcing and \citet{evans2004domain} grazes the topic in his book.
+Apart from these few examples, literature in form of books or scientific papers regarding event sourcing is rather rare.
+Several extensive blog posts by \citet{WEB:Fowler:2005} and \citet{young2010whyeventsourcing} explain the concepts and methods in great extent though.
 
 \subsection{Features}
 
 % what can you do with event sourcing: aggregation, rollback
 When all changes to the application state are introduced via event objects, various capabilities arise which are not possible if only the application state is stored.
-As \citet{WEB:Fowler:2005} describes, these are Complete Rebuild, Temporal Query, and Event Replay:
+As \citet{WEB:Fowler:2005} describes, these are Complete Rebuild, Temporal Query, and Event Replay.
 
-\begin{description}
-\item [Complete Rebuild]
-The application state can be discarded and then rebuilt by querying all events that occurred since the beginning.
-\item [Temporal Query]
+Complete rebuild means that the application state can be discarded and then rebuilt by querying all events that occurred since the beginning.
+This is possible because no event in an event store is ever deleted.
 Instead of doing a complete rebuild up to the present application state, the rebuild can also be done to a given date somewhere in the past.
-By doing so, the application state at the given point in time is re-created.
-\item [Event Replay]
-In another variant of the complete rebuild, it is also possible to change a certain past event and then replay all subsequent events, which yields a variant of the current application state reflecting the consequences introduced by the modified event.
-This can be done just for testing purposes, for correcting a wrong event or for fixing errors caused by events occurring in the wrong order.
-\item [Reversing Events]
-If the events are designed according to [...] it is possible to undo a given event by creating its reverse version.
+By doing so, the application state at the given point in time is re-created, which is called a temporal query.
+In another variant of the complete rebuild, called event replay, it is also possible to change a certain past event and then replay all subsequent events.
+This yields a variant of the current application state reflecting the consequences introduced by the modified event.
+Event replay can be done just for testing purposes, for correcting a wrong event or for fixing errors caused by events occurring in the wrong order.
+
+If the events are designed accordingly, it is also possible to undo a given event by creating its reverse version.
 This is easy if the event encodes the difference between the occurring event and the application state at that point, for example for events that add or subtract a numeral value.
 Reversing of events is not that straightforward if this difference approach is not used -- the events should include the previous and updated value in that case, but this is not ideal in every case.
 It is important to note that event reversability can also be achieved by reverting to a given snapshot of the application state and then replaying all events \emph{except} the event that shall be undone.
-\item [Delayed Application]
-% or whatever it is called
-\item [Parallel Model]
-\end{description}
 
 A well known example for a system which makes use of event sourcing techniques is the version control system Git\footnote{\url{http://git-scm.com/}}.
-It does complete rebuilds when a project is checked out for the first time and uses temporal queries for introducing changes when switching to an existing branch. \todo{check if this is really how Git does this}
+It does complete rebuilds when a project is checked out for the first time and uses temporal queries for introducing changes when switching to an existing branch.
 
 % what can you NOT do / disadvantages
 Aside from its advantages, event sourcing is not an ideal storage solution for all use cases.
 First of all, event sourcing introduces a level of indirection to the application, which makes the system architecture more complicated.
 Additionally, as this is an altogether different concept than storing the state directly in a database, it is thus hard to grasp and thoroughly understand for most developers.
-% External Updates
-% External Queries
+
+Event sourcing uses the \acf{CQRS} pattern for separating read and write models.
+The rationale behind this pattern is that the more complex a data model becomes, the more implicit representations for it exist~\cite{WEB:Fowler:2011}.
+When writing to the model, additional validation logic could be executed, while multiple records may be summarized into a single one when they are read.
+As this can become confusing very soon, \ac{CQRS} strictly separates the read model from the write model.
+Requests that read from the model in \ac{CQRS} are called queries, requests that write to the model are called commands.
 
 % What about code changes?
 
@@ -145,11 +175,10 @@ Additionally, as this is an altogether different concept than storing the state 
 As events are immutable, event sourcing does not have a delete operation, because immutability prohibits deletion.
 It is however possible to create explicit removal events -- for example a \texttt{CustomerRemoved} event for deleting a customer -- which in the end results in an application state where the item in question is not present anymore.
 
-\cite{WEB:Fowler:2011}
-
-
 \subsection{Subscriptions}
 
+The reference implementation for a data store using event sourcing is the Event Store\footnote{\url{https://eventstore.org/}}.
+It adds some features on top of the already explained event sourcing mechanics, one of which are subscriptions.
 Subscriptions are a mechanic that allow clients to be notified when new events are written to a stream.
 There are three types of subscriptions:
 
