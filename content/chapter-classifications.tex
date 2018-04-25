@@ -5,17 +5,16 @@
 
 This chapter examines the various possible software solutions for the different parts of the \acf{IFAS}.
 These parts are data storage, data aggregation, and data analysis, as described in \cref{sec:intro:objectives}.
+This chapter also contains considerations about the choice of data source and about container orchestration (cf. \cref{sec:design:data-source,sec:classification:orchestration}).
 
 Before requirements for each part of \ac{IFAS} can be envisioned, a more detailed set of goals for the system is needed.
 Using the objectives described in the introduction (cf. \cref{sec:intro:objectives}) as a starting point, more concrete and finely grained requirements were created.
 These are listed at the beginning of each subchapter.
 Afterwards, possible software solutions are listed and then the evaluation part describes to which extent each software solution fulfills these requirements.
 
-% evolutionary SW architecture
-
-According to the initial motivation for this thesis (cf. \cref{sec:intro:motivation}), the broader architecture of \ac{IFAS} was envisioned with the principles of evolutionary architectures in mind.
+According to the initial motivation for this thesis (cf. \cref{sec:intro:motivation}), the architecture of \ac{IFAS} was envisioned with the principles of evolutionary architectures in mind.
 For this reason, \ac{IFAS} follows a microservice approach for its architecture: The storage, aggregation and analysis capabilities shall be provided by separate microservices instead of one monolith application.
-This makes the architecture more open to future change, which is the main reason behind applying an evolutionary architecture (cf. \cref{sec:fundamentaly:evolutionary}).
+This makes the architecture more open to future change, which is the main reason behind applying an evolutionary architecture (cf. \cref{sec:fundamentals:evolutionary}).
 Such a future change could, for example, be an additional service with machine learning capabilities that learn about patterns in the user feedback.
 The machine learning service could be added to the system without much effort and then read / write the relevant data from / to the Elasticsearch service.
 This additional data could then also be accessed via Kibana.
