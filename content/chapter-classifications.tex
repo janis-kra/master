@@ -11,6 +11,15 @@ Using the objectives described in the introduction (cf. \cref{sec:intro:objectiv
 These are listed at the beginning of each subchapter.
 Afterwards, possible software solutions are listed and then the evaluation part describes to which extent each software solution fulfills these requirements.
 
+% evolutionary SW architecture
+
+According to the initial motivation for this thesis (cf. \cref{sec:intro:motivation}), the broader architecture of \ac{IFAS} was envisioned with the principles of evolutionary architectures in mind.
+For this reason, \ac{IFAS} follows a microservice approach for its architecture: The storage, aggregation and analysis capabilities shall be provided by separate microservices instead of one monolith application.
+This makes the architecture more open to future change, which is the main reason behind applying an evolutionary architecture (cf. \cref{sec:fundamentaly:evolutionary}).
+Such a future change could, for example, be an additional service with machine learning capabilities that learn about patterns in the user feedback.
+The machine learning service could be added to the system without much effort and then read / write the relevant data from / to the Elasticsearch service.
+This additional data could then also be accessed via Kibana.
+
 \section{Data Storage Solutions}
 \label{sec:classifications:storage}
 
@@ -130,12 +139,23 @@ Using event sourcing as the technique for storing passive user feedback is a nat
 By storing the events that occur when a user uses the respective application, the complete interaction trace can be computed just by querying the event store.
 Modification of the application state in general can be done simply by issuing a new event that reflects this change (e.g. an \texttt{AddressChangedEvent} if a customer's address shall be modified).
 If other changes are dependent on this change, it is also possible to make use of the event replay technique by modifying the event that introduced the erroneous change and then replaying all subsequent events.
+Event replayability could also be used to further mitigate the risk of creating experimental features: If a change in the software causes some faulty event to be created, it can later be modified or deleted.
+Incorrect changes that are based on this faulty event can automatically be corrected using the Retroactive Event technique~\cite{WEB:Fowler:2005-3}.
+Contrary to classical relational databases, the overall application state in an event store would not be corrupted by this.
 Event Store supports multi-node clusters which replicate all written data from the master node to the other members of the cluster; this improves general read-performance and failover resiliency.
 Write-performance is improved inherently by the architecture, as stated on its website's documentation:
 Instead of having to update existing data, Event Store has an append-only architecture where data is never updated but merely appended to an existing stream.
 A strong selling point of Event Store are its persistent subscriptions, which allow for multiple consumers to listen for changes to an event stream simultaneously.
 Event Store is available under the BSD license and thus free for personal and commercial use.
 As it checks off all requirements, Event Store is the ideal candidate for the storage solution of the passive user feedback analysis system.
+
+\ac{IFAS} using an Event Store as the storage solution can have additional advantages for evolutionary software architectures.
+\citet{ford2017building} argue that distributed systems work well with the Parallel Model concept~\cite{WEB:Fowler:2005-2}.
+The rationale is that using Parallel Model, services can work with their own specialized read model without interfering with or complicating the overall application state.
+This facilitates the construction of bounded contexts because every service can have its own read model, which has the benefit of potentially reducing the impact that a change to the model of one service has on the rest of the system.
+As no data is really deleted when doing event sourcing, it is not possible to remove data which would have been useful later on when the architecture changes.
+Additionally, if the evolvement of the architecture requires changes to the \emph{write} model, an extra Event Store instance can be started which hosts an experimental new version of the write model.
+Then, as soon as the change to the new model shall be executed, it should be possible to replay the state from the original Event Store onto the new one without any data loss or downtime.
 
 All \ac{SQL} databases that were initially considered do not fulfill the cascading update requirement and at least one of the mandatory requirements.
 While Postgres\footnote{\url{https://www.postgresql.org/}} does not support sharding or other horizontal scaling solutions, MySQL\footnote{\url{https://www.mysql.com/}} and Oracle database\footnote{\url{https://www.oracle.com/database/}} have proprietary license models when used in a commercial context, which makes it difficult to recommend those databases.
@@ -396,6 +416,7 @@ The chosen technologies for the client application are backed by the fact that r
 As the data is sent via \ac{HTTP}, the client application could in theory also be implemented in any other programming language which supports sending of \ac{HTTP} requests, such as Java or C\#.
 
 \section{Container Orchestration}
+\label{sec:classification:orchestration}
 
 According to the objectives specified in the introduction (cf. \cref{sec:intro:objectives}), it shall be possible deploy \ac{IFAS} on any of the most widely used operating systems, i.e. Windows, Linux and MacOS.
 This can be achieved by implementing the services as an orchestration of Docker services, as Docker is supported by each of the required operating systems.

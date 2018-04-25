@@ -5,12 +5,44 @@
 
 [insert fluff piece about fundamentals here]
 
-\section{Experiment-driven Software Development}
+\section{\acf{CSE}}
 \label{sec:fundamentals:edsd}
-\todo{evolutionary software architecture?}
+
+% kopiert aus Motivation, muss noch eingearbeitet werden:
+The last step in the Stairway to Heaven of \ac{CSE} is introducing an innovation system, also referred to as an \emph{experiment system}~\cite{Olsson2012}.
+Several companies have published their findings about experimentation in the software development process, in the form of scientific papers or blog posts.
+Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cite{Tang2010}, Facebook~\cite{Bakshy2014}, and Netflix~\cite{WEB:Netflix:2016} issued reports about best practices and pitfalls that they experienced, all concluding that introducing experimentation into the software development process benefits both the choice about which features to implement as well as their quality.
+In addition, several authors have published scientific papers in which they propose models and architectures for experimental software development~\cite{Fagerholm2014,Fagerholm2017,Johanssen2017,Lindgren2015}.
+Although practitioners in the software industry often claim that they embrace experimentation and innovation in their research and development process, these practices are still not fully adopted according to a study by \citet{lindgren2015software}.
+Especially the systematic and continuous aspects of experimentation lack adoption.
+
 \cite{Olsson2012}
 \cite{Bosch2012}
  what \citet{Bosch2012} calls \emph{data-based decision making}.
+
+The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+
+The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2014}.
+The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+
+\cite{Bosch2012}: First, it is focused on continuously evolving the software by frequently deploying new versions. Second, customers and customer usage data play a central role throughout the development process. Third, development is focused on innovation and testing as many ideas as possible with customers to drive customer satisfaction and, consequently, revenue growth.
+
+
+\section{Evolutionary Software Architecture}
+\label{sec:fundamentals:evolutionary}
+
+\citet{ford2017building} describe that evolutionary architectures try to battle the common wisdom that a software architecture is in general difficult to change once it is built.
+The underlying assumption is that it is hard to anticipate all needs of the architecture beforehand and thus, changes become expensive in regards to both money and time.
+By factoring change into the architecture itself, incremental changes are claimed to be possible later in the development process, when a conventional architecture would not have allowed for such a change with as little effort.
+This can for example be achieved by using a microservice architecture~\cite{WEB:EvolArch:2016}.
+
+...
 
 \section{Passive User Feedback}
 \label{sec:fundamentals:implicit}
@@ -94,6 +126,7 @@ Reversing of events is not that straightforward if this difference approach is n
 It is important to note that event reversability can also be achieved by reverting to a given snapshot of the application state and then replaying all events \emph{except} the event that shall be undone.
 \item [Delayed Application]
 % or whatever it is called
+\item [Parallel Model]
 \end{description}
 
 A well known example for a system which makes use of event sourcing techniques is the version control system Git\footnote{\url{http://git-scm.com/}}.
