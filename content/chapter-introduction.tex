@@ -12,19 +12,19 @@
 % copy from proposal:
 
 Best practices in software development changed dramatically since its origins in the 1950's~\cite{boehm2006view}.
-Software engineering in most of the 20th century was largely based on careful planning and specification, therefore also rather slow-paced and inflexible.
-Since twenty years, however, these plan-driven development methods have been frustrating many people because the influencing circumstances change more and more rapidly, not least due to the growing importance of the internet~\cite{Williams2003}.
-Product features, which were perfectly valid at the time of their envisioning, would become outdated, irrelevant or otherwise undesirable while the feature was still being planned or implemented as a result of this rapidly changing environment -- not to mention features that are in fact not desired by the customers in the first place.
-This insight is often not gained until the feature is shipped to the customer.
-As a consequence, short release cycles and fast customer feedback have steadily been growing in importance.
+Software engineering in most of the 20th century was largely based on careful planning and specification, therefore also rather slow-paced and inflexible~\cite{boehm2006view}.
+For the last twenty years, however, these plan-driven development methods have been perceived as frustrating for many people because the influencing circumstances have been changing more and more rapidly, partly due to the growing importance of the internet~\cite{Williams2003}.
+As a result of this rapidly changing environment, product features which were perfectly valid at the time of their envisioning can become outdated, irrelevant or otherwise undesirable while the feature is still being planned or implemented -- not to mention features that are in fact not desired by the customers in the first place.
+This insight is often only gained after the feature is shipped to the customer.
+As a consequence, short release cycles and fast customer feedback have steadily become more important.
 These values are emphasized in \acf{CSE}~\cite{Bosch2014}, which adopts and extends the principles from \emph{DevOps} and agile software development~\cite{Fitzgerald2017,fowler2001agile}.
 
-Adopting the core premises of \ac{CSE} is considered to be a gradual process, which is represented by the \emph{Stairway to Heaven}~\cite{Olsson2012} (see~\cref{fig:stairway}).
-Starting from classical software development, the next step is agile software development.
+Adopting the core premises of \ac{CSE} is considered to be a gradual process, which is describe as the \emph{Stairway to Heaven} by \citet{Olsson2012} (see~\cref{fig:stairway}).
+Starting from classical software development, the next step is agile software development, which focuses on flexibility, efficiency, and speed.
 This step is followed by continuous integration, in which integration of the developed software is frequently verified by automated builds and tests~\cite[Maintaining Model Integrity, pp.~341~ff.]{evans2004domain}.
 An extension of this is continuous deployment, where the software is automatically deployed to production in continuous cycles.
 The last step in the Stairway to Heaven is ``Research \& Development as an Experiment System''.
-This means that the continuity gained in the previous steps is used for frequently experimenting with the software and deploying new versions in order to develop software that fits the customer's needs best.
+This means that the continuity gained in the previous steps is used for frequently experimenting with the software and deploying new versions in order to develop software that best fits the customer's needs.
 Such an experiment system allows for quicker responses to market changes and more accurate estimation of customer needs~\cite{Olsson2012}.
 
 \begin{figure}[ht]
@@ -33,7 +33,7 @@ Such an experiment system allows for quicker responses to market changes and mor
         \label{fig:stairway}
 \end{figure}
 
-The last step in the Stairway to Heaven requires frequent gathering and analysis of customer feedback, because otherwise an experiment's results could neither be verified nor refuted.
+The last step in the Stairway to Heaven requires frequent gathering and analysis of customer feedback, because otherwise the hypotheses that the experiments were executed for could neither be verified nor refuted.
 Such feedback may be gathered using active or passive methods.
 Active user feedback can yield useful qualitative observations about the product.
 The fact that the user has to explicitly take time for giving their feedback, e.g. in form of a survey or an interview, can prove to be problematic in terms of time and effort on both sides.
@@ -44,7 +44,7 @@ It is thus obtained \emph{implicitly}, hence the equivalent term \emph{implicit 
 Both approaches for collecting user feedback have their individual advantages and disadvantages.
 When experimentation is an integral part of the software engineering process however, the speed and frequency of user feedback becomes more and more important, as \citet{lindgren2015software} have discovered in a study about the state of experimentation in software engineering.
 They further state that most techniques which the survey's participants use for feedback gathering are the more familiar \emph{active} techniques, such as stakeholder interviews and usability tests.
-Passive techniques are used more rarely and in a less systemic manner, although their advantages are recognized by the survey's participants.
+Passive techniques are used rarer and in a less systematic manner, although their advantages are recognized by the survey's participants.
 A well-known example for post-deployment passive user feedback collection are A/B tests, where the experiment system automatically reports users' decisions and the variant that they were experiencing.
 The results of such an A/B test allow for data-driven decision making about the users' acceptance of a developed feature.
 This is opposed to deciding based on active user feedback, which would be too time-consuming to collect in order to allow for a data-driven decision, and an \emph{opinion}-based decision by individuals with stakes in the project.
@@ -53,7 +53,7 @@ This is opposed to deciding based on active user feedback, which would be too ti
 While the overall area of experimentation in software development is well researched, most papers are either more of a report about the state of the art, or a rather abstract description of an architecture.
 %This also applies to the paper that initially proposed the Stairway to Heaven concept~\cite{Olsson2012}.
 While these reports are very practice-oriented, they lack a more general view on the problem at hand, and the other way around for the more architecture-focused papers.
-That is problematic for potential applicants of experimentation techniques in general and \ac{CSE} in particular, because it leaves a gap between theory and current practice.
+That is problematic for potential adopters of experimentation techniques in general and \ac{CSE} in particular, because it leaves a gap between theory and current practice.
 
 Therefore, the aim of this thesis is to bridge this gap and provide a more holistic view on collecting, aggregating and analyzing passive user feedback.
 %This will enable applicants to implement their own experiment systems as described in \ac{CSE}, based on a proven architecture.
@@ -61,14 +61,14 @@ Therefore, the aim of this thesis is to bridge this gap and provide a more holis
 %This thesis aims at taking a more holistic approach to the experiment system concept from \ac{CSE} by designing and implementing a system that allows for easy collection of passive user feedback (\cref{sec:intro:goals} describes the objectives in more detail).
 The result is a system of interacting services which provide the ability to collect, aggregate and analyze passive user feedback in order to facilitate innovation and experimentation in the research and development process.
 %It is anticipated that this system will profit from the usage of event sourcing, especially for its integration into existing experiment systems, but this has to be further investigated in the thesis.
-The resulting system shall be called \ac{IFAS}.
+The resulting system is called \ac{IFAS}.
 It can be adopted by individuals and companies in the software industry who want to fully embrace \ac{CSE} and thus take the last step in the Stairway to Heaven.
 
 \ac{IFAS} utilizes existing software solutions for the different parts of its functionality in order to save both time and effort:
 Event Store for data storage, Elasticsearch for aggregating data, and Kibana for visualizing this data for analysis by the \ac{IFAS} user.
 The system is implemented as a composition of Docker services and thus available on Linux, Windows, and MacOS.
 In its current state, \ac{IFAS} is able to handle about 5,000 events per second and makes them available for analysis in Kibana after usually at most 46.5 seconds.
-It facilitates the execution various tasks related to experiment systems, including A/B tests, feature analysis, and monitoring.
+It facilitates the execution of various tasks related to experiment systems, including A/B tests, feature analysis, and monitoring.
 
 %\cite{Bosch2014}
 
@@ -76,9 +76,9 @@ It facilitates the execution various tasks related to experiment systems, includ
 \label{sec:intro:motivation}
 
 % Netflix example
-A famous success story for software development with a focus on experimentation -- especially A/B testing -- is that of movie and TV series streaming service Netflix~\cite{WEB:Netflix:2016}.
-Big changes such as UI redesigns as well as small ones such as the teaser images for their movies are tested using this platform.
-It manages experiments for the whole Netflix platform, which handles 150,000 to 450,000 requests per second (as of 2016), so the experimentation platform is quite elaborate.
+A famous success story for software development with a focus on experimentation -- especially A/B testing -- is that of the movie and TV series streaming service Netflix~\cite{WEB:Netflix:2016}.
+Big changes such as UI redesigns as well as small ones such as the teaser images for their movies are tested using their experimentation platform.
+It manages experiments for the whole Netflix platform, which handles 150,000 to 450,000 requests per second (as of 2016).
 From the A/B server that handles, amongst others, the experiment metadata, to the application responsible for the visualization, the presented platform spans at least eight different services.
 While this level of complexity is fine and probably needed for an application landscape as big as Netflix', it is not a suitable pattern in terms of cost and complexity for smaller businesses that want to get started with experimentation.
 \ac{IFAS} aims to fulfill this need by only using software available without charge and by reducing complexity through omitting service layers which are unnecessary for applications that do not expect such heavy load as Netflix does.
@@ -109,7 +109,7 @@ New products & Advertising\newline Mockups\newline BASES testing & Product alpha
 \end{table}
 
 % Evolutionary architecture idea
-The initial motivation for this thesis was to build an experiment system for evolutionary architectures.
+An additional motivation for this thesis was to build an experiment system specifically suited for evolutionary architectures.
 In essence, an evolutionary architecture is an architecture which is designed with future changes in mind~\cite{ford2017building,WEB:EvolArch:2016}.
 This is opposed to more traditional approaches where the architecture is designed once and then fixed for the remainder of the project -- or at least only changed very reluctantly because it involves a lot of time and effort.
 \ac{IFAS} is designed with the principles of evolutionary architectures in mind, details can be found in \cref{ch:classifications}.
@@ -181,21 +181,21 @@ The most important ones are \acf{CSE}, event sourcing, and Docker.
 
 The related work chapter (cf. \cref{ch:related-work}) deals with scientific papers which have already explored the topics of passive user feedback and \ac{CSE} to some degree.
 
-Parts of the research phase were also allotted to researching and comparing appropriate software for the different parts of \ac{IFAS}.
+Parts of the research phase were also allotted to evaluating and comparing appropriate software for the different parts of \ac{IFAS}.
 The actual classification and comparison of these solutions is described in \cref{ch:classifications}.
 This chapter also includes reasons for the decision against the Rico data source and in favor of a customized web application as well as some considerations regarding container orchestration (cf. \cref{sec:design:data-source,sec:classification:orchestration}).
 
 The actual design and implementation is described in the subsequent \cref{ch:implementation}.
 This includes implementation details and general considerations about the client application that connects to \ac{IFAS}, as well as descriptions of the configurations of the various services that make up the main functionality.
-Also, an additional bridge application between the storage and aggregation layers was implemented, the need and details of which are represented in \cref{sec:implementation:bridge}.
-This chapter also gives a description of the finalized system architecture (cf. \cref{section:design:architecture}).
+Also, an additional bridge application between the storage and aggregation layers was implemented, the need and details of which are discussed in \cref{sec:implementation:bridge}.
+This chapter also gives a description of the final system architecture (cf. \cref{section:design:architecture}).
 
 Finally, the implemented solution was evaluated by executing two experiments (cf. \cref{ch:evaluation}).
-The first experiment for the evaluation is a user survey, in which test subjects executed various tasks and afterwards answered several questions about these tasks in a questionnaire (cf. \cref{sec:evaluation:user}).
+The first experiment for the evaluation is a case study, in which test subjects executed various tasks and afterwards answered several questions about these tasks in a questionnaire (cf. \cref{sec:evaluation:user}).
 The results of the questionnaire are compared to the passive user feedback gathered before.
 The second experiment tests the performance of \ac{IFAS} in three separate steps, each focusing on a different part of the system (cf. \cref{sec:evaluation:performance}).
 
-Possibilities for future work are given in its own chapter, followed by the conclusion (cf. \cref{ch:future-work,ch:conclusion}).
+Possibilities for future work are given in their own chapter, followed by the conclusion (cf. \cref{ch:future-work,ch:conclusion}).
 The appendix at the end of the document contains source code and configuration files of the various applications and services as they are mentioned throughout this thesis.
 An enclosed DVD contains the full source code of all implementation work (also available via GitHub\footnote{\url{https://github.com/janis-kra/master-impl}}\todo{link to "final" tag when done}).
-The instructions that the test subjects were given during the user survey that was part of the evaluation is attached after the appendix.
+The instructions that the test subjects were given during the case study that was part of the evaluation is attached after the appendix.

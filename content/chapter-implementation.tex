@@ -58,30 +58,32 @@ This section first discusses the problems with implementing sending of implicit 
 \subsection{Challenges with reliable feedback sending}
 \label{subsec:implementation:client:problems}
 
-When tracking user interactions in a web application, the technical idiosyncrasies of reliably sending data via \ac{XHR} requests using JavaScript can become problematic.
+When tracking user interactions in a web application, this is implemented using \ac{XHR} requests in JavaScript.
+The technical idiosyncrasies of \emph{reliably} sending data via \ac{XHR} requests can become problematic though.
 This is explained in this section via the concrete example of click tracking.
 For various reasons, which are discussed below, there are no valid alternatives to doing asynchronous \ac{XHR} requests for click tracking for this use case though.
 
 The gist of the problem is that when a user clicks a link in a web application, this normally introduces a redirect to a new page, therefore potentially aborting the asynchronous \ac{XHR} request~\cite{Kohavi2010}.
-This problem could be solved by doing a synchronous request instead of an asynchronous one, but this is not a desirable solution because the whole web application would block for the duration of the request.
+This problem could be solved by doing a synchronous request instead of an asynchronous one, but this is not a desirable solution because the whole web application would block -- i.e. not handle any more user actions requiring the execution of JavaScript code -- for the duration of the request.
 If the user's internet connection is slow -- e.g .when accessing the application on a mobile phone -- or the logging server is experiencing heavy load, this can introduce a noticeable and annoying delay.
 These delays can be a reason to make the user abandon the application altogether~\cite{Kohavi2010,Dmitriev2017}.
 
 In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used for this use case for two reasons.
 The concept of the \texttt{sendBeacon} method is that it can be used to asynchronously send a small amount of data to a server prior to the user leaving the page, in a reliable way.
-However, this is not implemented yet in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
+However, this is not yet implemented in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
 Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id -- attaching custom headers via the \texttt{sendBeacon} method is not supported though.
 
-Another possibility for delivering implicit user feedback is the web beacon technique, which work by sending a request for a special 1x1 pixel image on a server.
-While this was a very popular method a few years ago, improvements in web browser and the JavaScript language make web beacons rather outdated.
-\citet{Kohavi2012} report additional problems with browsers aborting requests made via the web beacon technique.
+Another possibility for delivering implicit user feedback is the web beacon technique, which works by sending a request for a special 1x1 pixel image on a server.
+While this was a very popular method a few years ago, improvements in web browsers and the JavaScript language make web beacons rather outdated.
+This alone would not be a valid reason for abandoning this technique, but \citet{Kohavi2012} report additional problems with browsers aborting requests made via the web beacon technique.
 Thus, web beacons are not a suitable alternative for sending the feedback to the server.
 
 For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
-This would introduce click data being lost when the request is dropped, but as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem.
+This would introduce click data being lost when the request is dropped on a traditional website, where such a request is often sent when the user navigates \emph{away} from the website.
+But as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem because the user never really leaves the website and thus the JavaScript execution context is only closed if the user explicitly closes the aplpication.
 
-Technically, there exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
-Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
+%There exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
+%Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
 
 \subsection{Feedback Sending Module}
 
@@ -117,7 +119,7 @@ As this event is used as the data source for an A/B test, it also contains infor
 \item[PostCreated]
 Every time a message is sent in Mattermost, a new \texttt{PostCreated} event is fired.
 This event contains extensive data about the message itself, such as its contents and the sender's id, as well as a lot of metadata such as the channel the message was posted to and the time it was created.
-The resulting data is used to compute the metric regarding active channel usage.
+The resulting data is used to compute metrics regarding active channel usage via sent messages.
 \item[UserClicked]
 These events are used to capture all clicks that a user performs in the application.
 The intention is that for any application, these events give an analyst enough information to identify what the user was doing at any given point.
@@ -130,7 +132,7 @@ This event encaspulates information about the URL at which the scrolling occured
 Using this event's data, the scrolling amount metric can be computed.
 \end{description}
 
-Parts of the data contained in these events may be redundant or unspecific in some cases, but helps to recreate the user's steps if this is needed.
+Parts of the data contained in these events may be redundant or unspecific in some cases, but help to recreate the user's steps if this is needed.
 The additional data could also be used to later measure additional metrics.
 %If this is undesirable because the additional data takes up too much disk space, or because of moral concerns regarding the hoarding 
 In a production environment, the specificity of these events could be improved by assigning unique ids to every element in the web application, or at least to the ones which are of special interest.
@@ -139,7 +141,7 @@ Especially the \texttt{UserClicked} events would benefit from this.
 \section{Event Store Configuration}
 \label{sec:implementation:storage}
 
-The storage layer of \ac{IFAS} is realized by Event Store.
+The storage layer of \ac{IFAS} is implemented by Event Store.
 An officially maintained Docker image\footnote{\url{https://hub.docker.com/r/eventstore/eventstore/}} is used as the starting point and requires little additional configuration.
 At the time of implementation, the current Event Store version was 4.1.0.
 
@@ -191,22 +193,25 @@ One possible and seemingly convenient solution would be using Logstash\footnote{
 Logstash is another application from the Elastic stack; it serves the exact purpose to integrate data from various sources into Elasticsearch.
 It is possible to consume Atom feeds via Logstash's \ac{RSS} plugin, which Event Store offers an interface for.
 This is not feasible in this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which Event Store does.
-Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to abandon Logstash as a possible solution.
+Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to disregard Logstash as a possible solution.
 
 Instead of using an existing service that listens to Atom feeds such as Logstash, a custom implementation is the better approach here.
-This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows amongst others for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.
+This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.
 The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}~\cite{WEB:EvtSt-Which-Api}.
-It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all due to the heterogenous technology that a microservice architecture allows~\cite[Key Benefits,pp.~4f]{newman2015building}.
+However, the \ac{API} can also communicate via \ac{HTTP} if a service requires this.
+Mixing different protocols for communication between services is not a problem due to the heterogenous technology landscape that a microservice architecture allows~\cite[Key Benefits,pp.~4f]{newman2015building}.
+%It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all
+
 
 Assuming the Event Store stream already exists, setting up the bridge to transfer new events to an Elasticsearch index would then be a two-step process.
 First, a persistent subscription has to be created within the Event Store administration overlay.
-Then, an instance of the bridge service has to be started, configured to listen to the newly created subscription.
+Then, an instance of the bridge service has to be started and configured to listen to the newly created subscription.
 This would cause the bridge to transfer all existing events which were not read previously to the respective Elasticsearch indices, and then also posting all subsequently received events to this index.
 
 It would also be possible to implement the bridge in a way that allows the service to listen to multiple subscriptions simultaneously.
 This would require a more complex service which introduces two problems.
-First, it introduces an unnecessary implementation overhead, and second, its additional complexity could lead to scaling problems.
-Writing complex, large serices is in general discouraged to do in a microservice architecture~\cite[Key Benefits,pp.~5f]{newman2015building}.
+First, it introduces an unnecessary implementation overhead, and second, its additional complexity could lead to scalability related problems.
+Writing complex, large services is in general discouraged to do in a microservice architecture~\cite[Key Benefits,pp.~5f]{newman2015building}.
 Instead, multiple instances of the same service should be executed alongside each other, with their respective configuration for listening to a specific stream.
 
 Thanks to persistent subscriptions, it is possible to temporarily take the bridge instance offline -- as the subscription state is persisted on the server side, the bridge can transfer all events that occurred while it was offline as soon as it comes online again.
@@ -247,7 +252,7 @@ The official Elasticsearch Docker image\footnote{\url{https://www.elastic.co/gui
 
 Additional configuration is supplied to the image mostly via a configuration file called \texttt{elasticsearch.yml} that is mounted into the image's file system.
 The file's contents can be viewed in the appendix under \cref{appendix:code:implementation:docker:elasticsearch-yml}.
-It should be mentioned that it is necessary to enable \ac{CORS} in the configuration file in order to allow the bridge service to query the Index \ac{API} via \ac{HTTP}.
+It is necessary to enable \ac{CORS} in the configuration file in order to allow the bridge service to query the Index \ac{API} via \ac{HTTP}.
 In addition to the settings from the \texttt{elasticsearch.yml} configuration file, the minimum and maximum Java heap sizes are set via an environment variable in the service definition.
 The heap size is set to 512 MB, which is a rather low setting and can safely be increased in a production environment to a higher value in order to improve performance.
 % WRONG As a security measure, Elasticsearch's \texttt{ulimit} is set to 1 in order to avoid any additional processes besides the Elasticsearch process begin run in the container.
@@ -262,7 +267,7 @@ It exposes no ports outside of the \ac{IFAS} application, as communication only 
 \section{Kibana Service Configuration}
 \label{sec:implementation:analysis}
 
-Kibana, which is used as the data analysis service, is configured in a similar way as the Elasticsearch service as they both belong to the Elastic stack.
+Kibana, which is used as the data analysis service, is configured in a similar way to the Elasticsearch service as they are originally distributed as part of the same software stack.
 The service definition for Kibana can be found in the main \ac{IFAS} Compose file that is referenced in the appendix under \cref{appendix:code:docker:docker-compose}.
 As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}, also with version 6.1.1.
 
@@ -348,7 +353,7 @@ The exception to this rule is when the Mattermost web application communicates w
 
 Both Event Store and Elasticsearch offer clustering support, but these were deliberately \emph{not} used for this version of \ac{IFAS}.
 The reason for this decision is that the performance boost and especially the failover safety introduced by setting up a cluster of Event Store or Elasticsearch nodes is not necessary for \ac{IFAS} at this stage of development, but would introduce additional complexity during implementation and evaluation.
-However, this will very likely become relevant when setting the system up for production usage.
+However, this will very likely become relevant when setting up the system for production usage.
 For this reason, the following section contains a short description as to how to make use of clustering in \ac{IFAS}.
 
 \paragraph{Clustering in Event Store}
@@ -358,12 +363,12 @@ The latter is part of the commercial features of Event Store and thus not furthe
 \Cref{appendix:code:implementation:docker:clustering:eventstore} in the appendix shows the source code of a Compose file setting up an Event Store cluster consisting of three database nodes.
 This is very similar to the single-node version used in \ac{IFAS}, except for two environment variables which pass the cluster size and its DNS address to every node, so the nodes are able to find each other and vote for a master node.
 The documentation\footnote{\url{appendix:code:implementation:docker:clustering:eventstore}} recommends that an odd number of nodes is used, as Event Store uses a quorum based voting protocol (there cannot be a tie if an odd number of nodes is expected to take part in the voting procedure).
-When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in before the cluster in order to distribute the burden equally over all nodes.
+When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in front of the cluster in order to distribute the burden equally over all nodes.
 
 \paragraph{Clustering in Elasticsearch}
 As described in Elasticsearch's documentation\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/guide/master/distributed-cluster.html}}, an integral concept concerning an Elasticsearch cluster are \emph{shards}.
 Shards are worker units that store (parts of) an index.
-They are automatically created, enlarged, and shrinked by Elasticsearch as documents are added or removed from the respective index.
+They are automatically created, enlarged, and shrunk by Elasticsearch as documents are added or removed from the respective index.
 Elasticsearch differentiates between \emph{primary} shards and \emph{replica} shards: Each document of an index belongs to exactly one primary shard, replica shards are copies of primary shards.
 When a cluster is run in single-node mode, all primary shards are stored on this one node and no replica shards exist.
 As soon as a second node is added to the cluster, replica shards are automatically added in order to improve failover safety.
@@ -399,9 +404,9 @@ These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to
 This Docker application also includes the services running the Mattermost client.
 The diagram displays an abstraction of the client component, which internally consists of three services:
 The Mattermost server, the customized Mattermost web application, and an NGINX service which exposes the web application for usage via a web browser to port 80.
-As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
-Details about this setup go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
-Data is transfered to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
+%As \ac{IFAS} is agnostic of the client application that serves the user feedback, this is merely displayed as ``Mattermost'' in the diagram.
+Details about the internal architecture of the Mattermost Docker service definition go beyond the scope of this thesis, but can be read up on the Github page for the Mattermost-Docker repository\footnote{\url{https://github.com/mattermost/mattermost-docker}}.
+Data is transferred to \ac{IFAS} via its exposed port 2113, which the Mattermost web application connects to.
 It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
 
 \begin{figure}[ht]

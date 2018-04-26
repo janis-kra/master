@@ -99,7 +99,7 @@ It should be noted that the sample size achieved via this experiment does not su
 \end{description}
 
 In order to provide some content in the chat channels for test subjects to consume, the channels called ``Cats'' and ``Dogs'' were each filled with three pictures of cats and dogs.
-The assumption is that people will scroll through the contents of the respective channel if the pictures appeal to them, which was shown to correlate strongly with interest in the page~\cite{Claypool2001}.
+The assumption is that people will scroll through the contents of the respective channel if the pictures appeal to them -- more on that in the following section about metrics selection.
 
 \paragraph{Metrics Selection}
 
@@ -278,7 +278,7 @@ Each user was given a short introduction about what the experiment is about and 
 
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the questionnaire took the users about 2 minutes.
-Aside from the occasional hint about the location of the button for invoking the channel switcher, no problems became apparent during execution.
+Aside from the occasional hint about the location of the button for invoking the channel switcher after it had not been found initially, no problems became apparent during execution.
 
 After all subjects had performed the experiment, the results were gathered and processed.
 Various charts representing the questionnaire results were created using R and ggplot.
@@ -298,7 +298,7 @@ The results from the questionnaire are used throughout this section in order to 
         \caption{questionnaire results.}
         \label{figure:evaluation:user:survey-report}
 \end{figure}
-\todo{update and create custom report}
+\todo{update report figure}
 
 
 \paragraph{Click analysis}
@@ -468,7 +468,8 @@ These results legitimate on the one hand the presence of both channel switching 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
 
-\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
+\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.\todo{briefly explain what this means}
+
 Construct validity is given for the executed case study, as the underlying theoretical concepts were correctly exercised.
 The same holds for internal validity, as can be seen by comparing the results from the passive and active user feedback.
 
@@ -495,7 +496,7 @@ As it is somewhat complicated to test the performance of the whole \ac{IFAS} sta
 \end{enumerate}
 
 In combination, this results in a fitting evaluation of the \ac{IFAS} stack's performance in general.
-The combined insights from these experiments are explained in \cref{subsec:evaluation:performance:insights}.
+The combined insights from these experiments are explained in \cref{subsec:evaluation:performance:total-processing-time}.
 
 During the planning phase of the experiments, problems arose in regards to coming up with a realistic and representative number of events that \ac{IFAS} should be able to process.
 One point of reference is Netflix' A/B testing platform; in a blog post about their architecture they state that the Netflix platform handles about 150,000 to 450,000 requests per second~\cite{WEB:Netflix:2016}.
@@ -553,6 +554,10 @@ Thus, the formula for the values in any configuration is $ 2^c * v $ with config
 When executing the tests, the bridge application would sometimes stop receiving events although the subscription status indicated that there were still events in flight, i.e. being transmitted.
 The exact reason for this is unknown, but this behavior only occurred if the client-side buffer size was set to 1280 or higher, and never for values less than or equal to 640.
 For this reason, the client-side buffer size was fixed to 640 for all configurations.
+
+Instead of just incrementing the values for each configuration, it would in theory have been possible to test other combinations or even all possible permutations of the listed configurations.
+This was not done because it would have resulted in up to $10^3$ different configurations, which would have taken too long to execute and evaluate.
+They could however prove to be beneficial for identifying a better configuration, so this is a candidate for future work.
 
 For values higher than configuration level 9, the experiment suffered similar problems and thus configuration levels are capped to that number.
 Again, the reasons for this are unknown and could be implementation-specific, but are not further investigated because digging too deep into Event Store performance optimization is out of scope for this thesis (cf. \cref{ch:future-work}).
@@ -717,7 +722,7 @@ These plots do not show a median or average distribution; instead, a specific ex
 \end{figure}
 
 For each experiment size, the processed events over time are visualized in a separate line plot for each configuration, which are then merged in one figure.
-The x-axes of all the plots indicate the time in seconds, while the y-axes indicate the amount of events that were processed by the bridge application.
+The x-axes of all the plots indicate the time in seconds, while the y-axes indicate the amount of events that were processed by the bridge application at a given point in time.
 In this case, both axes use a continuous scale.
 For improved visibility of patterns in the plots, an additional red line displays the smoothed conditional mean for each configuration.
 
@@ -906,7 +911,7 @@ The mean query duration with caching enabled is only 1.1ms, which means that mos
 \subsection{Total Processing Time}
 \label{subsec:evaluation:performance:total-processing-time}
 
-As stated in \cref{sec:design:goals}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should not be greater than 60 seconds.
+As stated in \cref{sec:intro:objectives}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should not be greater than 60 seconds.
 In order to verify this, the \emph{total processing time} can be computed by adding up the durations that were gathered during the performance test.
 In the end, the total processing time for a given amount of events $x$, a visualization $v$, and the automatic refresh rate $r$ can be calculated as follows:
 
@@ -930,8 +935,9 @@ When comparing this with the 150,000 events per second that the Netflix platform
 \label{subec:evaluation:user:validity}
 
 Just as for the case study, the four factors for validity can be examined for the performance test.
-Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
+These factors are construct validity, internal validity, external validity, and reliability.
 
+Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
 External validity in general is again problematic as the tests were only executed on a single machine.
 This is not an issue here, because the results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GiB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware, but not excessively powerful).
 
