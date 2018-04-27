@@ -3,7 +3,8 @@
 \chapter{Fundamentals}
 \label{ch:fundamentals}
 
-[insert fluff piece about fundamentals here]
+This chapter gives basic information about various topics that are needed for the understanding of this thesis.
+All knowledge presented in this chapter was worked out by third parties and is thus not part of the contributions of this thesis.
 
 \section{Passive User Feedback}
 \label{sec:fundamentals:implicit}
@@ -26,31 +27,31 @@ Another term for passive user feedback is implicit user feedback, these terms ar
 
 Both techniques can be combined in order to counter their respective disadvantages.
 For example, the qualitative nature of active user feedback can help to interpret the large data sets accumulated via passive user feedback collection~\cite{Kelly:2003:IFI:959258.959260}.
-
-\section{\acf{CSE}}
-\label{sec:fundamentals:edsd}
-
-% kopiert aus Motivation, muss noch eingearbeitet werden:
-The last step in the Stairway to Heaven of \ac{CSE} is introducing an innovation system, also referred to as an \emph{experiment system}~\cite{Olsson2012}.
-
-\cite{Olsson2012}
-\cite{Bosch2012}
- what \citet{Bosch2012} calls \emph{data-based decision making}.
-
-The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
-Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
-Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
-This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
-
-The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2014}.
-The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
-Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
-Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
-This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
-
-\cite{Bosch2012}: First, it is focused on continuously evolving the software by frequently deploying new versions. Second, customers and customer usage data play a central role throughout the development process. Third, development is focused on innovation and testing as many ideas as possible with customers to drive customer satisfaction and, consequently, revenue growth.
-
-
+%
+%\section{\acf{CSE}}
+%\label{sec:fundamentals:edsd}
+%
+%% kopiert aus Motivation, muss noch eingearbeitet werden:
+%The last step in the Stairway to Heaven of \ac{CSE} is introducing an innovation system, also referred to as an \emph{experiment system}~\cite{Olsson2012}.
+%
+%\cite{Olsson2012}
+%\cite{Bosch2012}
+% what \citet{Bosch2012} calls \emph{data-based decision making}.
+%
+%The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+%Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+%Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+%This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+%
+%The core premise in innovation experiment systems is the continuous implementation and validation of assumptions about envisioned features via experiments in short sprints~\cite{Bosch2014}.
+%The results of such an experiment are then used for deciding wether the feature should become a part of the final product.
+%Thus, the goal in this case is to increase the effectiveness of developing a software product by implementing the \emph{right} features.
+%Experiments are also used in order to compare different implementations of the same feature, thus improving the quality of an existing feature.
+%This approach is contrary to the more classical software development methods, in which the stakeholders make certain assumptions which result in the envisioning of a feature, with feedback by a customer or stakeholder being given only much later in the development process~\cite{Bosch2012}.
+%
+%\cite{Bosch2012}: First, it is focused on continuously evolving the software by frequently deploying new versions. Second, customers and customer usage data play a central role throughout the development process. Third, development is focused on innovation and testing as many ideas as possible with customers to drive customer satisfaction and, consequently, revenue growth.
+%
+%
 \section{Evolutionary Software Architecture}
 \label{sec:fundamentals:evolutionary}
 
@@ -85,8 +86,8 @@ The benchmarks for each fitness function have to be specified in the architectur
 For example, modular coupling could be analyzed automatically using a code analysis tool, while legal requirements would probably have to be evaluated manually by a domain expert.
 
 \begin{figure}[h]
-        \includegraphics[width=\textwidth]{gfx/fitness-function-example}
         \caption{An exemplary visualization of an architecture's fitness function; adapted from~\cite{WEB:EvolArch:2016}.}
+        \includegraphics[width=\textwidth]{gfx/fitness-function-example}
         \label{figure:fundamentals:evolutionary:fitness}
 \end{figure}
 
@@ -98,21 +99,23 @@ As the ship was charging citrus fruits, the captain of the ship decided to do an
 The other half of the crew did not eat any citrus fruits; these were the \emph{control} group.
 Although the reasons were not known during that moment, the experiment was a success: The treatment group got better, and eventually all sailors had citrus fruits added to their diet~\cite{rossi2003evaluation,marks2000progress}.
 
-This anecdote is an example for the simplest type of controlled experiment, in which users are randomly assigned to either the control or the treatment group.
+This anecdote is an example for the simplest type of controlled experiment, the A/B test.
+In such an A/B test, \emph{experimental units} are randomly assigned to either the control or the treatment group and in consequence seeing the respective variant of the feature under test.
+When testing a web application, the experimental unit typically is the end user.
 While the treatment group is treated with the new version of the system that is being tested, the control group experiences the same system as before, without the modification.
-Thus, each group contains 50\% of the user base, and the results of the control group can be used in order to control wether the treatment had any statistically significant effect~\cite{Kohavi2009}.
-\todo{not enough about controlled experiments}
-%The test that detects wether two variants are statistically different is called the \emph{null hypothesis}.
-% more details in Kohavi2009
+Thus, if all users participate in the experiment, each group contains 50\% of the user base.
+The results of the control group can be used in order to validate wether the treatment had any statistically significant effect~\cite{Kohavi2009}.
 
-...
-
-When executing controlled experiments, an important factor is the choice of metric that is used for comparign results.
+When executing controlled experiments, an important factor is the choice of metric that is used for comparing results.
 \citet{Kohavi2013a} stresses the importance of defining an \ac{OEC} which distills important metrics such as revenue or customer satisfaction in one single metric.
 Having a fitting \ac{OEC} eliminates the need to carefully balance out the other metrics, as they are represented by the \ac{OEC}.
 \citeauthor{Kohavi2013a} gives an example where market share is a bad \ac{OEC} for a search engine, as worsening the search algorithm would increase the amount of search queries in the short term and thus increase market share; in the long run, users would use an alternative product and thus this \ac{OEC} would drop again.
 Sessions per user would be a much better \ac{OEC} in this example, \citeauthor{Kohavi2013a} says.
 
+Some additional details regarding statistical tests are of importance if A/B tests are executed in a production environment~\cite{Kohavi2009}.
+These details all relate to the sample size of the experiment in some way, which is the amount of experimental units -- e.g. users -- that participate in the experiment.
+The desired sample size of the finished experiment can be computed based on a variety of factors, including the desired difference in the \ac{OEC} that should be detectable and the acceptable standard error~\cite{mason2003statistical}.
+However, the specifics of these computations are not relevant for the understanding of this thesis.
 
 \section{Event Sourcing}
 \label{sec:fundamentals:event}
@@ -175,7 +178,7 @@ Requests that read from the model in \ac{CQRS} are called queries, requests that
 As events are immutable, event sourcing does not have a delete operation, because immutability prohibits deletion.
 It is however possible to create explicit removal events -- for example a \texttt{CustomerRemoved} event for deleting a customer -- which in the end results in an application state where the item in question is not present anymore.
 
-\subsection{Subscriptions}
+\subsection{Event Store: Subscriptions}
 
 The reference implementation for a data store using event sourcing is the Event Store\footnote{\url{https://eventstore.org/}}.
 It adds some features on top of the already explained event sourcing mechanics, one of which are subscriptions.
@@ -198,15 +201,25 @@ It is not relevant which of the services handle a specific message, as each beha
 Therefore, it is possible to set up multiple worker services for feeding event store data into a consuming service and thus enable horizontal scalability.
 \end{description}
 
-\section{Evaluation Fundamentals}
+\section{Empirical Validity}
 \label{sec:fundamentals:evaluation}
 
-ISTQB fundamental testing process~\cite{graham2008foundations}
-Dwell Time(?)~\cite{Liu2010}\cite{Kim2014}
-Experiment validity
+When doing empirical research in the field of software engineering, it is important that the conclusions drawn from the results are in fact \emph{valid} in the eyes of the reader.
+\citet{Easterbrook2008a} list four factors for validity of empirical work: Construct validity, internal validity, external validity, and reliability.
 
-\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
+Construct validity revolves around the correct interpretation and application of existing theoretical concepts of the problem domain.
+Problems with construct validity occur if these concepts are not applied correctly and consistently.
+For example, if the researcher doing an A/B test (cf. \cref{sec:fundamentals:experiments}) chooses MAC addresses as the experimental unit, construct validity is at risk because the same user can access the software on different devices with different MAC addresses.
 
+Internal validity focuses on drawing the correct conclusions from the present results.
+If the data is interpreted correctly, internal validity is given.
+
+External validity, on the other hand, focuses on the generality of the results.
+If the research is conducted with a very homogenous subject group -- e.g. exclusively male test subjects -- external validity is at risk because the results would probably be different if the same research was done with a more diverse group of test subjects.
+
+The last factor for validity of empirical work is reliability.
+Reliability can be at risk if the researcher introduces bias.
+\citeauthor{Easterbrook2008a} explicitly mention that it can be problematic if the researcher has personal stakes in the software under test.
 
 \section{Docker}
 \label{sec:fundamentals:docker}
@@ -214,13 +227,15 @@ Experiment validity
 Docker\footnote{\url{https://www.docker.com}} is a container platform that allows for lightweight and flexible virtualization of services and applications.
 The central concept of Docker are its containers, which package application code as well as dependent libraries, binaries, and settings.
 It is important to note that a Docker container does not contain a host operating system -- a main difference between a container and a \ac{VM}.
-This makes containers more lightweight than \ac{VM}s, resulting in a smaller footprint in terms of CPU usage, main memory and storage.
-A container is executed by the Docker engine, which is available for all modern operating systems such as Linux, Windows and MacOS.
+This makes containers more lightweight than \ac{VM}s, resulting in a usually smaller footprint in terms of CPU usage, main memory, and storage.
+A container is executed by the Docker engine, which is amongst others available for Linux, Windows and MacOS.
 
 Docker containers are defined by a \emph{Dockerfile}, which hosts a set of instructions that tell the Docker engine how to build the image which in the end is instantiated in a container (\cref{code:fundamentals:docker:dockerfile} shows an exemplary Dockerfile).
 Each instruction of the Dockerfile creates another filesystem layer, which in combination produce the final image.
-In this case, the Dockerfile states that the base image shall be the \texttt{nginx} image with version \texttt{1.13}; this creates the first image layer.
-The \texttt{COPY} instruction copies the contents of the folder where the Dockerfile resides into the stated destination in the target filesystem, such that the copied files can be served by the NGINX instance; this creates the second image layer.
+In the printed example, the Dockerfile states that the base image shall be the \texttt{nginx} image with version \texttt{1.13}.
+This instruction creates the first image layer.
+The \texttt{COPY} instruction copies the contents of the folder where the Dockerfile resides into the stated destination in the target filesystem, such that the copied files can be served by the NGINX instance.
+This creates the second image layer.
 It is very important to note that the Docker engine saves image layers as diffs, meaning that a layer is described by its  difference with the layer below.
 This results in high reusability of image layers: When the \texttt{COPY} instruction in the example Dockerfile is changed, only the second image layer has to be rebuilt, allowing for much faster build times.
 %This suffices to bootstrap the containers itself, but in most cases additional configuration files are loaded into the container via volumes.
@@ -231,7 +246,7 @@ Containers can be created and run via the Docker \ac{CLI}.
 For example, the NGINX image previously described in \cref{code:fundamentals:docker:dockerfile} would first be containerized and then executed via the instructions given in \cref{code:fundamentals:docker:cli}.
 The \texttt{-p} option specifies that the container's port 80 shall be exposed as port 8000 on the host operating system.
 
-\lstinputlisting[label={code:fundamentals:docker:cli},caption={Build and run the NGINX example container via the Docker CLI},language=bash]{sourcecode/docker-cli.sh}
+\lstinputlisting[label={code:fundamentals:docker:cli},caption={Commands for building and running the NGINX example container via the Docker CLI},language=bash]{sourcecode/docker-cli.sh}
 
 However, building and running images and containers via the Docker \ac{CLI} becomes tedious when a combination of multiple containers has to be managed.
 \emph{Docker Compose} facilitates container composition by storing these build and run definitions in a single configuration file, using the data serialization language \ac{YAML}.
@@ -240,14 +255,14 @@ The image is then built, and the container subsequently run, via two commands as
 While the approach using the Docker CLI may seem more concise in this limited example, Compose's advantages when combining multiple interconnected services become apparent when doing more complex container composition (cf. \cref{sec:implementation:orchestration}).
 
 \lstinputlisting[label={code:fundamentals:docker:compose-yml},caption={Example docker-compose.yml}]{sourcecode/docker-compose-example.yml}
-\lstinputlisting[label={code:fundamentals:docker:compose-run},caption={Build and run the NGINX example container via Compose},language=bash]{sourcecode/run-via-compose.sh}
+\lstinputlisting[label={code:fundamentals:docker:compose-run},caption={Commands for building and running the NGINX example container via Compose},language=bash]{sourcecode/run-via-compose.sh}
 
 The container architecture of Docker solves two challenges when creating distributed systems: application independence and bridging the development-operations gap.
 Application independence is achieved by running every application in its own container which can only interact with other containers via explicitly defined interfaces (e.g. HTTP).
 Secondly, Docker facilitates bridging the gap between the developers and operations teams, as the environment that the application is executed in -- the Docker container -- does not change between the development and production stages.
 This makes Docker a popular technology for implementing DevOps.
 
-Instead of Docker, a lot of alternative technologies could have been chosen as the virtualization solution.
+Instead of Docker, a few alternative technologies could have been chosen as the virtualization solution.
 These alternatives include services such as Vagrant, Kubernetes and Apache Mesos, some of which make use of Docker internally.
-Docker was favored over the alternatives because of its maturity, good documentation, and my previous experiences with it, making this a partly subjective decision.
+Docker was favored over the alternatives because of its maturity, good documentation, and previous personal experience with it -- making this a partly subjective decision.
 It would also be possible to run the passive user feedback system natively on a server or multiple servers, but this would have introduced unnecessary complications.

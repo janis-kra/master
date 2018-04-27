@@ -281,8 +281,8 @@ Filling out the questionnaire took the users about 2 minutes.
 Aside from the occasional hint about the location of the button for invoking the channel switcher after it had not been found initially, no problems became apparent during execution.
 
 After all subjects had performed the experiment, the results were gathered and processed.
-Various charts representing the questionnaire results were created using R and ggplot.
-The passive feedback results from \ac{IFAS} were created using Kibana's built-in reporting feature.
+Various charts representing the questionnaire results were created, again using R and ggplot.
+The passive feedback results from \ac{IFAS} were created by making screenshots of the visualizations and dashboards in Kibana.
 
 \subsection{Results}
 
@@ -291,15 +291,20 @@ The visualizations are printed exactly as shown in Kibana in order to represent 
 After all tests were finished, a report of the questionnaire's results was created (cf. \cref{figure:evaluation:user:survey-report}).
 The results from the questionnaire are used throughout this section in order to compare them with the results reported by \ac{IFAS}.
 
-\begin{figure}[h]
-		\makebox[\textwidth][c]{
-        \includegraphics[width=1.3\textwidth]{gfx/survey.pdf}
+\begin{figure}[t]
+        \caption[Results for each question of the user survey.]{
+        Results for each question of the user survey, answered by twelve testers.
+        The four horizontal bar charts show the relative amounts of testers who gave each answer.
+        In the vertical bar chart, each bar displays the individual answer of the respective user.
         }
-        \caption{questionnaire results.}
+		\makebox[\textwidth][c]{
+        \includegraphics[width=1.1\textwidth]{gfx/survey.pdf}
+        }
         \label{figure:evaluation:user:survey-report}
 \end{figure}
 \todo{update report figure}
 
+\FloatBarrier
 
 \paragraph{Click analysis}
 
@@ -309,7 +314,7 @@ The difference in the two charts is in how the bars are split:
 The upper chart splits the bars by click target, i.e. URL, while the lower chart splits the bars by user.
 In other words, the upper chart additionally displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
 
-\begin{figure}[ht]
+\begin{figure}[t]
         \caption[Dashboard displaying the count of the test subject's clicks over time.]{
         Dashboard displaying the count of the test subject's clicks over time.
         The upper visualization splits the bars by URL, thus additionally comparing popularity of the application's pages measured by click rate.
@@ -317,7 +322,7 @@ In other words, the upper chart additionally displays information about how many
         \Cref{figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user} show how interaction with the visualization can give additional insights by applying filters to the displayed data.
         }
    		\makebox[\textwidth][c]{
-        \includegraphics[width=1.3\textwidth]{gfx/dashboard-clicks.png}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks.png}
 		}
         \label{figure:evaluation:user:dashboard-clicks}
 \end{figure}
@@ -333,18 +338,24 @@ The initial dashboard spans a time range of roughly five days, but can be set to
 This was done in the dashboard in \cref{figure:evaluation:user:dashboard-clicks-zoom}, where the time span is set to a single afternoon during which six experiments were executed.
 Instead of a 3 hour interval, as in the initial dashboard, the interval in this case is 10 minutes.
 
-\begin{figure}[h]
-        \caption{todo.}
+\begin{figure}[t]
+        \caption[Click dashboard with a more specific time filter.]{
+        This dashboard shows the same as \cref{figure:evaluation:user:dashboard-clicks}, but with a different time filter.
+	While in the original dashboard each bar visualizes a time span of 3 hours, this dashboard's bars' time span is set to 5 minutes, allowing for a much more detailed view on the displayed data.
+        }
         \makebox[\textwidth][c]{
-        \includegraphics[width=\textwidth]{gfx/dashboard-clicks-zoom.png}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom.png}
         }
         \label{figure:evaluation:user:dashboard-clicks-zoom}
 \end{figure}
 
-\begin{figure}[h]
-        \caption{todo.}
+\begin{figure}[t]
+        \caption[Click dashboard with a more specific time filter and a specific user.]{
+        This dashboard shows another version of the dashboard in \cref{figure:evaluation:user:dashboard-clicks}, with a specific user selected via the lower bar chart which causes Kibana to automatically apply a more specific time filter as well.
+	This further combination of filters allows for a more detailed analysis.
+        }
   		\makebox[\textwidth][c]{
-        \includegraphics[width=\textwidth]{gfx/dashboard-clicks-zoom-user.png}
+        \includegraphics[width=1.1\textwidth]{gfx/dashboard-clicks-zoom-user.png}
         }
         \label{figure:evaluation:user:dashboard-clicks-zoom-user}
 \end{figure}
@@ -353,6 +364,8 @@ Clicking on a bar on either chart applies a filter to the whole dashboard.
 For example, if the purple bar in the lower chart was clicked and the time interval was further refined to an even shorter timespan (cf. \cref{figure:evaluation:user:dashboard-clicks-zoom-user}), it is possible to retrace in great detail where the respective user was active at which point in time.
 As the click events also contain data about the click coordinates and the window size, it would even be possible to reconstruct where exactly the user clicked.
 Such a visualization was not implemented for the purpose of this thesis however.
+
+\FloatBarrier
 
 \paragraph{Channel usage}
 
@@ -363,9 +376,9 @@ Similar results are reported by the bar chart for passive channel usage, which m
 Here, users scrolled for a total amount of 62 seconds in the ``Dogs'' channel, as opposed to 25 seconds in the ``Cats'' channel.
 This results in a 2.48:1 ratio in favor of the ``Dogs'' channel.
 
-\begin{figure}[h]
+\begin{figure}[t]
         \caption[Dashboard giving an overview over active and passive channel usage.]{
-        Dashboard giving an overview over active and passive channel usage.
+        This dashboard gives an overview over active and passive channel usage.
         The top visualization computes channel interest via the total amount of messages (therefore \emph{active} channel usage).
         The lower visualization computes channel interest via the total amount of scrolling that the users do in the respective channel while reading messages (therefore \emph{passive} channel usage).
         }
@@ -390,6 +403,7 @@ The reason for this is that there was a mistake when implementing the feedback c
 This also outlines an inherent challenge with passive user feedback systems in general: If the data that the system uses is not supplied in the correct manner, the system cannot report accurate results.
 Although this is unfortunate, this does not impact the other results negatively, as the other visualizations only make use of the relative differences between message amounts, not absolute numbers.
 
+\FloatBarrier
 
 \paragraph{A/B test}
 
@@ -397,8 +411,13 @@ The results of the A/B test itself are rather inconclusive: While the treatment 
 Especially when considering the sample size of merely 12 people, this is not a statistically relevant difference -- but conducting a statistically relevant A/B test was not the goal in the first place.
 The various visualizations in the experimentation dashboard (cf. \cref{figure:evaluation:user:dashboard-ab-test}) show that \ac{IFAS} is well suited to collect and analyze data for A/B testing.
 
-\begin{figure}[h]
-        \caption{todo.}
+\begin{figure}[t]
+        \caption[Dashboard for the A/B test about the styling of the button that starts the Mattermost tutorial.]{
+        Dashboard for the A/B test about the styling of the button that starts the Mattermost tutorial.
+        The bar chart on the left displays the actual experiment results, where the two stacks in each bar show the relative amount of decisions in favor of starting the tutorial (blue) and skipping the tutorial (red).
+        The left bar of this chart displays the results of the treatment group, the right one displays the results of the control group.
+        On the top right is a pie chart that displays the proportions of the treatment and control group sizes.
+        The bottom right gauge visualization displays the current sample size in comparison with a previously computed target sample size, i.e. if this gauge reaches 100\%, the experiment is finished.}
 		\makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/dashboard-ab-test.png}
         }
@@ -436,6 +455,7 @@ Using the questionnaire's results, the same data could be retrieved by just coun
 %
 %\paragraph{A/B test: Sample Size}
 
+\FloatBarrier
 
 \paragraph{Feature Analysis: Channel Switch Mode} 
 
@@ -447,8 +467,10 @@ Contrary to initial expectations, there was no clear preference for either metho
 This corresponds with the results from the post-test questionnaire, in which exactly half of the users claimed that they had mostly used the channel switcher.
 These results legitimate on the one hand the presence of both channel switching methods in the Mattermost application, and on the other hand the accuracy of the data that \ac{IFAS} has gathered and now displays.
 
-\begin{figure}[h]
-        \caption{todo.}
+\begin{figure}[t]
+        \caption[Pie chart visualizing the proportions between channel switching actions.]{
+        This pie chart visualizes the proportions between the amounts of invocations of the two different mechanics for channel switching in Mattermost.
+        When hovering the mouse over a part of the chart, additional information about the data point are displayed, in this case the total amount of channel switching actions via the sidebar.}
 		\makebox[\textwidth][c]{
         \includegraphics[width=1.1\textwidth]{gfx/visualization-feature-analysis.png}
         }
@@ -464,6 +486,8 @@ These results legitimate on the one hand the presence of both channel switching 
 %        \caption{Click Heatmap}
 %        \label{fig:evaluation:user:click-heatmap}
 %\end{figure}
+
+\FloatBarrier
 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
@@ -563,7 +587,7 @@ For values higher than configuration level 9, the experiment suffered similar pr
 Again, the reasons for this are unknown and could be implementation-specific, but are not further investigated because digging too deep into Event Store performance optimization is out of scope for this thesis (cf. \cref{ch:future-work}).
 
 \begin{table}
-\caption{Configuration table}
+\caption{Table of all configurations used in the performance tests and their respective settings.}
 \centering
 \makebox[\textwidth][c]{
 \begin{tabular}{l|l|l|l}
@@ -621,7 +645,7 @@ Second, the amount of sent events over time for each configuration and size is v
 These are used for giving additional insight as to how the discrepancies in the total indexing durations can be explained.
 This evaluation yields an an interesting phenomenon regarding a subscription's performance over time.
 
-\paragraph{Total indexing duration}
+\paragraph{Total processing duration}
 
 The box plots given in \cref{fig:evaluation:performance:mean-durations-50k,fig:evaluation:performance:mean-durations-100k,fig:evaluation:performance:mean-durations-150k} visualize the total amount of time it took each configuration to process the respective amount of events and send them to Elasticsearch for indexing.
 The x-axes indicate the configuration number representing the settings that were used.
@@ -630,7 +654,7 @@ The y-axes of the box plots indicate the total duration in seconds for processin
 While the x-axes use a continuous scale, the y-axes use a logarithmic scale in order to better illustrate differences between the faster configurations.
 
 \begin{figure}[h]
-        \caption{50k}
+        \caption{Comparison of the total processing durations from Event Store to Elasticsearch of the different configurations, for 50,000 events in total.}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-50k.pdf}
 }
@@ -638,7 +662,7 @@ While the x-axes use a continuous scale, the y-axes use a logarithmic scale in o
 \end{figure}
 
 \begin{figure}[h]
-        \caption{100k}
+        \caption{Comparison of the total processing durations from Event Store to Elasticsearch of the different configurations, for 100,000 events in total.}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-100k.pdf}
 }
@@ -646,7 +670,7 @@ While the x-axes use a continuous scale, the y-axes use a logarithmic scale in o
 \end{figure}
 
 \begin{figure}[h]
-        \caption{150k}
+        \caption{Comparison of the total processing durations from Event Store to Elasticsearch of the different configurations, for 150,000 events in total.}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth,keepaspectratio]{gfx/mean-durations-150k.pdf}
 }
@@ -682,7 +706,8 @@ For more demanding use cases, more research into Event Store performance tuning 
 
 \begin{table}
 \centering
-\caption{Median processing durations for the ideal configuration (configuration 8) for all experiment sizes.}
+\caption[Median processing durations for the ideal configuration for all experiment sizes.]
+{Median processing durations for the ideal configuration (configuration 8) for all experiment sizes.}
 \begin{tabular}{l|l}
 \textbf{Experiment Size} & \textbf{Median processing duration} \\ \hline
 50,000 & 11.763s \\
@@ -698,7 +723,7 @@ The line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:eva
 These plots do not show a median or average distribution; instead, a specific experiment run was chosen that serves best for explaining the observations about the different configurations that were made earlier.
 
 \begin{figure}[h]
-        \caption{50k}
+        \caption{Collection of line plots for all configurations, each displaying the amount of processed events over time for the respective configuration (50,000 events).}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/config-comparison_50k.pdf}
 }
@@ -706,7 +731,7 @@ These plots do not show a median or average distribution; instead, a specific ex
 \end{figure}
 
 \begin{figure}[h]
-        \caption{100k}
+        \caption{Collection of line plots for all configurations, each displaying the amount of processed events over time for the respective configuration (100,000 events).}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/config-comparison_100k.pdf}
 }
@@ -714,7 +739,7 @@ These plots do not show a median or average distribution; instead, a specific ex
 \end{figure}
 
 \begin{figure}[h]
-        \caption{150k}
+        \caption{Collection of line plots for all configurations, each displaying the amount of processed events over time for the respective configuration (150,000 events).}
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/config-comparison_150k.pdf}
 }
@@ -894,7 +919,8 @@ Enabling caching decreases the mean request duration by a factor of more than 25
 The mean query duration with caching enabled is only 1.1ms, which means that most of the mean request duration applies to network request specific tasks, such as serializing and deserializing JSON as well as network delays.
 
 \begin{table}
-\caption{Comparison of mean query duration and mean request duration for a 120 million hits pie-chart visualization in Kibana; amount of hits is always 120 million as the request itself never changes. The total mean rendering durations takes into account additional time for rendering and painting the visualization, which was measured to be at most 60ms.}
+\caption[Comparison of mean query duration and mean request duration for a 120 million hits pie-chart visualization in Kibana]{
+Comparison of mean query duration and mean request duration for a 120 million hits pie-chart visualization in Kibana; amount of hits is always 120 million as the request itself never changes. The total mean rendering durations takes into account additional time for rendering and painting the visualization, which was measured to be at most 60ms.}
 \label{table:kibana-config-comparison}
 \centering
 \begin{tabular}{r|l|l|l}
@@ -993,13 +1019,13 @@ This yields a score of three out of five for the throughput fitness function.
 None of the desired characteristics regarding high availability are reached in the current \ac{IFAS} implementation, thus a score of 0 is displayed for that fitness function.
 Both latency and especially availability are thus points in which \ac{IFAS} has plenty of room for improvement in its current state.
 
-\begin{figure}[ht]
-\makebox[\textwidth][c]{
-        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-eval}
-}
+\begin{figure}[t]
         \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the evalatuion was done.]{
         Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.
         The results from the previous fitness function analysis in \cref{figure:implementation:fitness} are enhanced with the values for availability, throughput, and latency.
         }
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-eval}
+}
         \label{figure:evaluation:fitness}
 \end{figure}

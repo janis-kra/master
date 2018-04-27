@@ -410,13 +410,13 @@ Data is transferred to \ac{IFAS} via its exposed port 2113, which the Mattermost
 It would also be possible to run the client application in a separate environment; the only required change would be to expose port 2113 of the Event Store container such that the client can send events from outside the Docker application.
 
 \begin{figure}[ht]
-\makebox[\textwidth][c]{
-        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
-}
         \caption[Component diagram of the final architecture of \ac{IFAS}.]{
         Component diagram of the final architecture of \ac{IFAS}.
         Provided interfaces of a service have the number of the connected port attached.
         If a provided interface projects out of the Docker node, the port is exposed outside of the Docker application for other applications to connect with, such as a web browser connecting to Kibana on port 5601.}
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/docker-architecture.pdf}
+}
         \label{figure:design:architecture}
 \end{figure}
 
@@ -431,13 +431,13 @@ Compatibility was rated five out of five points, as \ac{IFAS} is completely impl
 Availability, throughput and latency cannot be rated yet as no performance tests have been made at this point.
 
 \begin{figure}[ht]
-\makebox[\textwidth][c]{
-        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-impl}
-}
         \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.]{
         Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.
         Results that were obtained during the performance tests (latency, throughput, availability) are not factored in here.
         }
+\makebox[\textwidth][c]{
+        \includegraphics[width=1.2\textwidth]{gfx/fitness-function-impl}
+}
         \label{figure:implementation:fitness}
 \end{figure}
 

@@ -124,9 +124,9 @@ See \cref{table:classifications:storage} for a summary of the analysis.
 As scalability is hard to grade on an absolute scale without doing time-expensive benchmarks, this requirement is not explicitly listed in the table.
 Instead, the table states whether the solution in general supports clustering which is an indicator of good scalability capabilities; each solution's scalability is reasoned about in their respective passages in the textual evaluations.
 
-\begin{table}[b]
+\begin{table}[t]
 \centering
-\caption{Classification of storage solutions; the requirements regarding basic storage capabilities and modifying data are not listed because all solutions satisfy these.}
+\caption[Classification of storage solutions]{Classification of storage solutions; the requirements regarding basic storage capabilities and modifying data are not listed because all solutions satisfy these.}
 \makebox[\textwidth][c]{
 \begin{tabular}{l|l|l|l|l|l}
 \textbf{Name} & \textbf{Type} & \textbf{Casc. Updates} & \textbf{Clustering} & \textbf{HTTP} & \textbf{License} \\ \hline
@@ -226,7 +226,7 @@ At the very least, this feature should include a keyword search; more elaborate 
 When search queries become more complicated, it would be advantageous to have some form of \ac{DSL} which allows for combination of complex search queries.
 \item [Aggregation Features]
 In order to combine data by date and time, the solution shall have the ability to aggregate data over time.
-For this specific use case of collecting and evaluating passive user feedback, I expect such a feature to be useful for evaluating an experiment that ran for a specific time frame or for evaluating the behavior of users at a certain time of day, e.g. at night.
+For this specific use case of collecting and evaluating passive user feedback, such a feature can be useful for evaluating an experiment that ran for a specific time frame or for evaluating the behavior of users at a certain time of day, e.g. at night.
 It shall also be possible to aggregate data by location if such information is contained in the data set.
 This could be useful, for example, if an experiment with regional or cultural focus is executed, or regional differences in a global experiment are expected.
 Aggregators shall be combinable, such that more complex aggregations become possible.
@@ -268,7 +268,7 @@ An overview of the solutions and their support for the presented requirements is
 
 \begin{table}[t]
 \centering
-\caption{Classification of data aggregation solutions. Support for arbitrary data structures, search capabilities, and combination of aggregations is not considered here since all solutions fulfill this requirement.}
+\caption[Classification of data aggregation solutions]{Classification of data aggregation solutions. Support for arbitrary data structures, search capabilities, and combination of aggregations is not considered here since all solutions fulfill this requirement.}
 \makebox[\textwidth][c]{
 \begin{tabular}{l|l|l|l|l|l|l|l}
 \textbf{Name} & \textbf{HTTP} & \textbf{Hosting} & \textbf{DSL} & \textbf{Time Aggr.} & \textbf{Loc. Aggr.} & \textbf{Scalability} & \textbf{License} \\ \hline
@@ -362,7 +362,7 @@ Both Kibana and Grafana fulfill all requirements (cf. \cref{table:classification
 Classification of data analysis solutions.
 As all solutions meet all requirements, more nuanced differences decide about the ideal candidate.}
 \makebox[\textwidth][c]{
-\begin{tabular}{l|l|l|l|l|l|l}
+\begin{tabular}{l|l|l|l|l|l}
 \textbf{Name} & \textbf{Exploration} & \textbf{Visualization} & \textbf{Browser based} & \textbf{Hosting} & \textbf{License} \\ \hline
 Kibana & yes & yes & yes & Docker & Apache v2 \\
 Grafana & yes & yes & yes & Docker & Apache v2 \\
