@@ -65,7 +65,7 @@ In preparation of this step, several metrics for measuring properties of the sys
 Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
 Third, a test document was created which instructs the test subjects what to do for each case in the study.
 This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback at the end.
-The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
+%The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
 \paragraph{Sending feedback to IFAS}
 
@@ -77,7 +77,7 @@ In detail, the following data is gathered during the experiment:
 \label{list:cases}
 \item[Click analysis]
 Every click that the user does during the experiment is sent to \ac{IFAS} as a \texttt{UserClicked} event.
-This contains the current URL as well as the click coordinates and window size.
+This contains, amongst others, the current URL as well as the click coordinates and window size.
 \item[Channel usage (active)]
 The client also reports when messages are sent in one of the channels.
 This happens in the form of \texttt{MessageSent} events, which contain the sender, the channel in which the message was sent, and the content of the message.
@@ -278,7 +278,8 @@ Each user was given a short introduction about what the experiment is about and 
 
 The test took about 5 to 10 minutes, depending on the subject's experience with computers in general and web-based chat applications in particular.
 Filling out the questionnaire took the users about 2 minutes.
-Aside from the occasional hint about the location of the button for invoking the channel switcher after it had not been found initially, no problems became apparent during execution.
+In some cases, the button for calling the channel switcher had not been found initially, so a hint was given where to find it.
+Aside from that, no problems became apparent during execution.
 
 After all subjects had performed the experiment, the results were gathered and processed.
 Various charts representing the questionnaire results were created, again using R and ggplot.
@@ -492,7 +493,8 @@ These results legitimate on the one hand the presence of both channel switching 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
 
-\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.\todo{briefly explain what this means}
+\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
+See \cref{sec:fundamentals:evaluation} for a description of what each factor means.
 
 Construct validity is given for the executed case study, as the underlying theoretical concepts were correctly exercised.
 The same holds for internal validity, as can be seen by comparing the results from the passive and active user feedback.
@@ -937,7 +939,7 @@ Comparison of mean query duration and mean request duration for a 120 million hi
 \subsection{Total Processing Time}
 \label{subsec:evaluation:performance:total-processing-time}
 
-As stated in \cref{sec:intro:objectives}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should not be greater than 60 seconds.
+As stated in \cref{sec:intro:objectives}, the total time from creation of an event to the event's contents being displayed in a given Kibana visualization should usually not be greater than 60 seconds.
 In order to verify this, the \emph{total processing time} can be computed by adding up the durations that were gathered during the performance test.
 In the end, the total processing time for a given amount of events $x$, a visualization $v$, and the automatic refresh rate $r$ can be calculated as follows:
 
@@ -961,7 +963,7 @@ When comparing this with the 150,000 events per second that the Netflix platform
 \label{subec:evaluation:user:validity}
 
 Just as for the case study, the four factors for validity can be examined for the performance test.
-These factors are construct validity, internal validity, external validity, and reliability.
+These factors are construct validity, internal validity, external validity, and reliability (cf. \cref{sec:fundamentals:evaluation}).
 
 Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
 External validity in general is again problematic as the tests were only executed on a single machine.

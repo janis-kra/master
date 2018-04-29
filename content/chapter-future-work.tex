@@ -3,12 +3,28 @@
 \chapter{Future Work}
 \label{ch:future-work}
 
-%Fagerholm et al. [4] combine the above-mentioned ideas with key elements from the lean startup methodology [5] and propose a framework for continuous experimentation. Continuous experimentation refers to the constant testing of the value of products as an integral part of the development process in order to evolve the products towards high-value creation -- \cite{lindgren2015software}
+Although the goals for this thesis were fulfilled, \ac{IFAS} opens up several possibilities for future work.
+These are discussed in this chapter.
 
-% Zitat: difficult to get some of the customers to agree that we can monitor their users 	\cite{lindgren2015software}
+First, there are several opportunities for improving the implementation of the bridge application (cf. \cref{subsec:implementation:client:problems}).
+The implementation done for this thesis focuses on efficiency, but lacks in extensibility and documentation.
+Especially when considering usage of \ac{IFAS} in a production environment, this area of the system should be revisited.
 
-% performance tuning for event store
+Another more practical area of possible improvement is the performance of the Event Store's persistent subscriptions.
+As mentioned in \cref{sec:evaluation:performance}, Event Store seems to have problems delivering more than 5,000 events per second over the subscription, which can be problematic for large systems.
+This challenge could possibly be solved by finding a better configuration for the persistent subscription or by using another type of subscription, but this would have to be further investigated.
 
-% extend with other services, such as machine learning!
+The aforementioned performance optimizations are also reflected in the current evaluation of the fitness functions that were defined for \ac{IFAS} (cf. \cref{sec:evaluation:fitness}), where \ac{IFAS}' current throughput is rated with three out of five possible points.
+In its current implementation, the system also has room for improvement in other areas:
+Scalability, latency, and especially availability can presumably be improved a great deal by setting up Event Store and Elasticsearch clusters within \ac{IFAS}.
+In general, the defined fitness functions can help when evolving the \ac{IFAS} architecture further and should be revisited regularly.
 
-% fitness functions
+Several studies have identified additional problems on the organizational level and related to the actual instrumentation of experiment systems~\cite{Lindgren2015,lindgren2015software,gutbrod2017software}.
+Extending \ac{IFAS} with a service for defining experiments via a web application and fetching the resulting experiment definitions via an \ac{API} by client applications could further facilitate continuous experimentation.
+This would probably involve defining or reusing a domain-specific language for describing experiments that the client and \ac{IFAS} understand.
+The work by \citet{Bakshy2014} seems to be a good starting point for this.
+
+Another opportunity for extending \ac{IFAS} lies in the combination with additional services that interact with the system.
+It would for example be possible to include a machine learning service in the system.
+The machine learning service could read user feedback data from Elasticsearch, analyze the data, and feed the generated learnings back to Elasticsearch.
+This newly processed user feedback data could then be visualized in Kibana.

@@ -3,46 +3,53 @@
 \chapter{Related Work}
 \label{ch:related-work}
 
-[insert fluff piece about related work here]
-
-
-\section{Experimentation in the software development process}
-\label{sec:related:experimentation}
-
-\cite{Olsson2012}
+As already stated in the introduction (cf. \cref{ch:intro}), \acf{IFAS} aims to bridge a gap between theoretical frameworks for continuous software engineering on the one hand and praxis reports and surveys on the other hand.
+These related works are discussed in their respective sections in this chapter.
 
 \section{Continuous experimentation surveys}
 \label{sec:related:surveys}
 
-\cite{lindgren2015software}
+In addition to explaining the concepts of \ac{CSE} in general, \citeauthor{Olsson2012} present a multiple-case study about the barriers that software companies experience when trying to embrace \ac{CSE}~\cite{Olsson2012}.
+The authors identify common problems when climbing the proverbial ``Stairway to Heaven'', but have not gained conclusive insights about how to make the last step towards research and development as an experiment system.
 
-\cite{Bosch2012}
+\citeauthor{Lindgren2015} released two papers about a survey they conducted with ten Finnish software development companies about how they practice continuous experimentation in their companies~\cite{Lindgren2015,lindgren2015software}.
+The survey was based on interviews with individual employees of the participating companies and thematic analysis of the companies' code.
+\citeauthor{Lindgren2015} conclude that continuous experimentation in research and development is viewed as a desirable practice, but is not conducted in a regular and systematic manner.
+The authors state that the most important challenges in the participating companies are more on the organizational level, such as changing the organizational culture and finding correct measures for customer value.
 
-\cite{gutbrod2017software}
+Another study regarding this topic was done by \citet{gutbrod2017software}.
+They did a qualitative interview study with software startups regarding how they approach experimentation, which yields a number of challenges related to experimentation in the research and development phases.
+Their results indicate that there are a lot of challenges related to the organizational level, much like what \citeauthor{Lindgren2015} found out~\cite{Lindgren2015}.
+However, \citeauthor{gutbrod2017software} also state that the lacking adoption of experimentation is partly due to lack of technical expertise and infrastructure.
 
-\section{Frameworks and models for continuous experimentation}
+\section{Frameworks and Models for \ac{CSE}}
 \label{sec:related:frameworks}
 
-In a recent paper, \citeauthor{Johanssen2017} talk about stuff~\citet{Johanssen2017}.
-Breiterer Rahmen und etwas theoretischer, aber Teil des Papers ist ein System zum Sammeln von impliziten User Feedback und Anreicherung des expliziten UF mit dem impliziten
+\citeauthor{Johanssen2017} try to solve the last step towards research and development as an experiment system by introducing their vision for a \ac{CSE} infrastructure~\cite{Johanssen2017}.
+The envisioned system employs a so-called \emph{knowledge repository}, containing information about features and their relations to proposals for new features and the corresponding user feedback.
+This user feedback is collected using passive techniques such as A/B tests, which are executed and monitored via a dedicated component.
+Although \citeauthor{Johanssen2017} have not yet implemented such a system yet and the description remains rather brief, it seems that the vision for (parts of) this system is similar to what \ac{IFAS} aims to achieve.
 
-\cite{Lindgren2015}
--a little too meta for my needs
--seems to be a more detailed version of "Software development as an experiment system: a qualitative survey on the state of the practice"
--similar findings in the end, but more detailed explanation etc.
--read in more depth when necessary
+\citeauthor{Fagerholm2014} explore the building blocks of a system for continuous experimentation~\cite{Fagerholm2014}.
+The result is a theoretical model for an organization-wide experimentation infrastructure.
+They state that in order to make use of continuous experimentation, the organization must must have the possibility to release features, complete with instrumentation, planning, plan management, backchannels to a product roadmap.
+Parts of this theoretical model is software to collect, store, and analyze experiment results.
+This is the part that \ac{IFAS} would fulfill in this broader framework for continuous experimentation.
 
-\cite{Fagerholm2014} Describes a theoretical framework for an experimentation infrastructure (organization-wide).
-Could use this as a building block for my experimentation infrastructure, or at least in the fundamentals / related work.
+Based on this system is another paper by \citeauthor{Fagerholm2017}, in which the term ``RIGHT model for Continuous Experimentation'' is coined~\cite{Fagerholm2017}.
+Again, \ac{IFAS} could take the role of the system that collect, stores, and analyzes experiment results.
+In general, this model is of a theoretical nature and goes beyond just the software part of an experiment system.
 
-\cite{Fagerholm2017}
-- model for continuous experimentation
-- broader context for my experimentation architecture
-
-\section{Continuous experimentation at large scale}
+\section{Large Scale Experiment Systems}
 \label{sec:related:large}
 
-Several companies have published their findings about experimentation-driven software development in the form of scientific papers or blog posts.
-Amongst others, Microsoft~\cite{Kohavi2013}, LinkedIn~\cite{Xu2015}, Google~\cite{Tang2010}, Facebook~\cite{Bakshy2014}, and Netflix~\cite{WEB:Netflix:2016} issued reports about best practices and pitfalls that they experienced.
-Due to the immense size of the companies that leverage these systems, the scope of the architectures described in these publications is much bigger than what will be developed in this thesis.
-Also, none of the implementations make use of event sourcing.
+Several companies have published their findings about large scale experiment systems and their unique challenges in the form of scientific papers or blog posts.
+Amongst others, Microsoft, LinkedIn, Google, Facebook, and Netflix issued reports about best practices and pitfalls that they experienced~\cite{Kohavi2013,Xu2015,Tang2010,Bakshy2014,WEB:Netflix:2016}.
+After a more general introduction, most reports focus on a very specific problem regarding the execution, analysis, or managing of experiments.
+As these reports focus on experimentation on a rather large scale, their applicability for smaller scale experiment systems is further limited.
+Nonetheless, some of the architectural descriptions in these reports and the specific software used in these systems were useful as a starting point when designing \ac{IFAS}' architecture as well as for later comparison.
+
+%The rather large size of the described systems of the companies that leverage these systems, the scope of the architectures described in these publications is much bigger than what was developed in this thesis.
+
+
+%Also, none of the implementations make use of event sourcing.
