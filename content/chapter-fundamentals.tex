@@ -87,7 +87,9 @@ For example, modular coupling could be analyzed automatically using a code analy
 
 \begin{figure}[h]
         \caption{An exemplary visualization of an architecture's fitness function; adapted from~\cite{WEB:EvolArch:2016}.}
-        \includegraphics[width=\textwidth]{gfx/fitness-function-example}
+        \makebox[\textwidth][c]{
+                \includegraphics[width=1.1\textwidth]{gfx/fitness-function-example}
+        }
         \label{figure:fundamentals:evolutionary:fitness}
 \end{figure}
 
@@ -205,7 +207,7 @@ Therefore, it is possible to set up multiple worker services for feeding event s
 \label{sec:fundamentals:evaluation}
 
 When doing empirical research in the field of software engineering, it is important that the conclusions drawn from the results are in fact \emph{valid} in the eyes of the reader.
-\citet{Easterbrook2008a} list four factors for validity of empirical work: Construct validity, internal validity, external validity, and reliability.
+\citet{Easterbrook2008} list four factors for validity of empirical work: Construct validity, internal validity, external validity, and reliability.
 
 Construct validity revolves around the correct interpretation and application of existing theoretical concepts of the problem domain.
 Problems with construct validity occur if these concepts are not applied correctly and consistently.
@@ -219,7 +221,7 @@ If the research is conducted with a very homogenous subject group -- e.g. exclus
 
 The last factor for validity of empirical work is reliability.
 Reliability can be at risk if the researcher introduces bias.
-\citeauthor{Easterbrook2008a} explicitly mention that it can be problematic if the researcher has personal stakes in the software under test.
+\citeauthor{Easterbrook2008} explicitly mention that it can be problematic if the researcher has personal stakes in the software under test.
 
 \section{Docker}
 \label{sec:fundamentals:docker}

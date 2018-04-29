@@ -3,18 +3,15 @@
 \chapter{Evaluation}
 \label{ch:evaluation}
 
-\todo{Check for consistent tense}
-
 The evaluation for \acf{IFAS} is split into two main parts.
-First, the system's applicability for collecting and analyzing passive user feedback is tested in a case study (cf. \cref{sec:evaluation:user}).
+First, the system's adequacy for collecting and analyzing passive user feedback is tested in a case study (cf. \cref{sec:evaluation:user}).
 Second, \ac{IFAS}' performance is examined in three separate tests, whose results are combined afterwards in order to come up with a total processing time (cf. \cref{sec:evaluation:performance}).
-%Research question for \acf{IFAS}, WIP: "\todo{not specific enough}Can \ac{IFAS} be used to capture and analyze passive user feedback?"
 
 %Additionally, a performance test shall ensure that \acf{IFAS} is able to handle large amounts of user feedback, both during processing as well as when visualizing the results in Kibana.
-%For this purpose, 10.000\todo{number not final} \texttt{ExperimentParticipated} events with groups and decisions are created and sent to Event Store by an application explicitly built for this objective.
+%For this purpose, 10.000 \texttt{ExperimentParticipated} events with groups and decisions are created and sent to Event Store by an application explicitly built for this objective.
 %Details about this test can be found in \cref{sec:evaluation:performance}.
 
-% aus \cite{Easterbrook2008a} - What kind of research question are you asking?
+% aus \cite{Easterbrook2008} - What kind of research question are you asking?
 The experiments had to be planned and executed carefully in order to have high internal and external validity~\cite{Huitt2010}.
 Existing studies about best practices and pitfalls of running controlled experiments were useful during the planning and execution phases~\cite{Kohavi2009}.
 
@@ -54,7 +51,7 @@ The performance test (cf. \cref{sec:evaluation:performance}) proves that the sys
 %
 % this is an asynchronous remote test
 
-The test subjects are between 26 and 57 years old, with four women and eight men.
+The test subjects are between 25 and 60 years old, with four women and eight men.
 While everyone stated in a short interview prior to the test that they had previously used a chat application on their mobile phone, three test subjects had not yet used a web-based chat application.
 
 \subsection{Experiment Set-Up}
@@ -87,8 +84,8 @@ Scrolling up and down in a channel indicates interest in the content, therefore 
 \texttt{WindowScrolled} events are sent whenever the user scrolls through the channel history.
 These contain the scrolling's amount and duration.
 \item[Feature analysis]
-Two methods of switching channels exist in Mattermost: Clicking the channel name in the left-side menu and using the channel switcher, which is a more advanced method were the desired channel's name has to be typed in order to switch to it.
-As a representation of how \ac{IFAS} can be used to analyze how and to what extent application features are utilized by the users, the channel switching method is monitored.
+Two methods of switching channels exist in Mattermost: Clicking the channel name in the left-side menu and using the channel switcher, which is a more advanced method where the desired channel's name has to be typed in order to switch to it.
+As a representation of how \ac{IFAS} can be used to analyze how and to what extent application features are used by the users, the channel switching method is monitored.
 Whenever the user switches the channel, a \texttt{ChannelSwitcher} event is sent, which contains the method of channel switching and the channel that was switched to.
 \item[A/B test]
 When a new user logs into Mattermost for the first time, they are greeted with a short tutorial.
@@ -135,7 +132,7 @@ The visualizations are printed in the results part of this subchapter (cf. \cref
 
 \begin{description}
 \item[Click analysis: Page clicks over time]
-Click analysis gives Kibana access to, amongst others, the issuer, target, and time of each click.
+Click analysis gives Kibana access to,\linebreak amongst others, the issuer, target, and time of each click.
 This data is represented by a vertical bar chart, plotting the amount of messages over time.
 Each chart is split by target, i.e. URL, and thus gives information about which page on the website was clicked how many times at a given timestamp.
 As each channel has a different URL in Mattermost, this can be used as an indicator for absolute and relative channel interest.
@@ -145,7 +142,7 @@ If the bars of the chart described above are split by user and not by URL, other
 Now, the chart represents how active a user is in the application at which time.
 High click rates could also indicate other problems, for example problems with the UI because the user clicks around the application cluelessly.
 
-\item[Channel usage (active): Messages per channel and overall messages]  
+\item[Channel usage (active): Messages per channel]  
 This horizontal bar chart that plots the amount of messages that were sent.
 Each bar represents a specific channel, thus giving information about the absolute amount of messages as well as the relative amount compared to other channels.
 
@@ -171,10 +168,10 @@ A pie chart displaying the relative size of each group helps to make this visibl
 In order for an A/B test to be statistically significant, the sample size has to be big enough.
 %There exist various formulae for computing the desired sample size, dependent on various variables, which are not delved into here.
 A gauge chart can help to display the current sample size in comparison with the desired sample size; if the gauge reaches 100\%, the results of the experiment can be assumed as statistically relevant.
-The gauge's threshold value has to be manually computed when setting up the visualilzation.
+The gauge's threshold value has to be manually computed when setting up the visualization.
 
 \item[Feature Analysis: Channel Switch Mode] 
-The question about which mechanic for switching channels, if any, is more popular among users is asked by this pie chart.
+The question about which feature for switching channels, if any, is more popular among users is answered by this pie chart.
 The chart is split according to the relative amount of channel switches that occurred via each method.
 As all users see identical versions of both features, this is represented by a simple pie chart and not by a split bar chart as for the A/B test.
 
@@ -282,8 +279,8 @@ In some cases, the button for calling the channel switcher had not been found in
 Aside from that, no problems became apparent during execution.
 
 After all subjects had performed the experiment, the results were gathered and processed.
-Various charts representing the questionnaire results were created, again using R and ggplot.
-The passive feedback results from \ac{IFAS} were created by making screenshots of the visualizations and dashboards in Kibana.
+The charts representing the questionnaire results were created, again using R and ggplot.
+Screenshots of the visualizations and dashboards in Kibana show the passive feedback results from \ac{IFAS}.
 
 \subsection{Results}
 
@@ -303,17 +300,16 @@ The results from the questionnaire are used throughout this section in order to 
         }
         \label{figure:evaluation:user:survey-report}
 \end{figure}
-\todo{update report figure}
 
 \FloatBarrier
 
 \paragraph{Click analysis}
 
-The click analysis data does not directly map to a case in the experiment, but nevertheless yields interesting insights into application usage.
-Both vertical bar charts displayed in the click analysis dashboard (cf. \cref{figure:evaluation:user:dashboard-clicks}) display the total amount of clicks over time, where the timestamp interval in this case is 3 hours.
+When analyzing the users' clicks on the different pages of the Mattermost application, the proportion between clicks on the \texttt{/channels/cats} and \texttt{/channels/dogs} URLs seems to indicate that there was more activity and thus more interest in the ``Cats'' channel.
+This is visualized in the dashboard in \cref{figure:evaluation:user:dashboard-clicks}, where both vertical bar charts display the total amount of clicks over time.
 The difference in the two charts is in how the bars are split:
 The upper chart splits the bars by click target, i.e. URL, while the lower chart splits the bars by user.
-In other words, the upper chart additionally displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
+In other words, the upper chart displays information about how many of the clicks at each timestamp are allotted to which URL, while the lower chart gives information about which user did how many clicks at a given timestamp.
 
 \begin{figure}[t]
         \caption[Dashboard displaying the count of the test subject's clicks over time.]{
@@ -328,12 +324,11 @@ In other words, the upper chart additionally displays information about how many
         \label{figure:evaluation:user:dashboard-clicks}
 \end{figure}
 
-The proportion between clicks on the \texttt{/channels/cats} and \texttt{/channels/dogs} URLs seems to indicate that there was more activity and thus more interest in the ``Cats'' channel.
-However, as the analysis of channel usage later in this chapter shows, this is not the case.
-The amount of clicks on a page therefore does not seem to be a good indicator of interest in the content in this setting.
-This fits the findings by \cite{Claypool2001}, who also concluded that mouse clicking is not a useful interest indicator~\cite{Claypool2001}.
+However, as the analysis of channel usage later in this chapter shows, the assumption that users had more interest in the ``Cats'' channel than in the ``Dogs'' channel is false.
+This leads to the hypothesis that the amount of clicks on a page is \emph{not} an adequate indicator of interest in the page's content.
+This fits the findings by \citeauthor{Claypool2001}, who concluded that mouse clicking is not a useful interest indicator~\cite{Claypool2001}.
 
-Additionally, the click analysis dashboard serves as an example how the experimenter can interact with Kibana visualizations (cf. \cref{figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user}).
+The click analysis dashboard serves as an example of how the experimenter can interact with Kibana visualizations (cf. \cref{figure:evaluation:user:dashboard-clicks,figure:evaluation:user:dashboard-clicks-zoom,figure:evaluation:user:dashboard-clicks-zoom-user}).
 Kibana allows the user to filter the viewed data in a lot of ways, including the time.
 The initial dashboard spans a time range of roughly five days, but can be set to shorter (or longer) time spans in order to inspect the data in more detail.
 This was done in the dashboard in \cref{figure:evaluation:user:dashboard-clicks-zoom}, where the time span is set to a single afternoon during which six experiments were executed.
@@ -418,7 +413,7 @@ The various visualizations in the experimentation dashboard (cf. \cref{figure:ev
         The bar chart on the left displays the actual experiment results, where the two stacks in each bar show the relative amount of decisions in favor of starting the tutorial (blue) and skipping the tutorial (red).
         The left bar of this chart displays the results of the treatment group, the right one displays the results of the control group.
         On the top right is a pie chart that displays the proportions of the treatment and control group sizes.
-        The bottom right gauge visualization displays the current sample size in comparison with a previously computed target sample size, i.e. if this gauge reaches 100\%, the experiment is finished.}
+        The bottom right gauge visualization displays the \emph{current} sample size in comparison with a previously computed \emph{target} sample size, i.e. if this gauge reaches 100\%, the experiment is finished.}
 		\makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/dashboard-ab-test.png}
         }
@@ -466,7 +461,7 @@ When hovering the mouse over the chart, the absolute and relative values for the
 
 Contrary to initial expectations, there was no clear preference for either method: \ac{IFAS} reports that in 53.5\% of the cases, the channel was switched via the sidebar.
 This corresponds with the results from the post-test questionnaire, in which exactly half of the users claimed that they had mostly used the channel switcher.
-These results legitimate on the one hand the presence of both channel switching methods in the Mattermost application, and on the other hand the accuracy of the data that \ac{IFAS} has gathered and now displays.
+These results legitimize on the one hand the presence of both channel switching methods in the Mattermost application, and on the other hand the accuracy of the data that \ac{IFAS} has gathered and now displays.
 
 \begin{figure}[t]
         \caption[Pie chart visualizing the proportions between channel switching actions.]{
@@ -493,7 +488,7 @@ These results legitimate on the one hand the presence of both channel switching 
 \subsection{Validity}
 \label{subec:evaluation:user:validity}
 
-\citet{Easterbrook2008a} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
+\citet{Easterbrook2008} list four factors for validity of empirical work in general: Construct validity, internal validity, external validity, and reliability.
 See \cref{sec:fundamentals:evaluation} for a description of what each factor means.
 
 Construct validity is given for the executed case study, as the underlying theoretical concepts were correctly exercised.
@@ -503,7 +498,7 @@ However, external validity is at least problematic for this case study.
 On the one hand, the test subjects come from different professional backgrounds and are rather diverse in both gender and age, which improves external validity.
 But on the other hand, the sample size of twelve test subjects is rather small and affected by the fact that all of them are acquaintances of the experimenter.
 Thus, other results could probably turn up for different test subjects.
-This problem was known from the start, but could not be circumvented because the time constraints did not allow for a \emph{marginally} bigger and more representative sample size.
+This problem was known from the start, but could not be circumvented because the time constraints did not allow for a bigger and more representative sample size.
 
 Reliability cannot be measured as of now, as \ac{IFAS} was created specifically for this thesis and thus no other researcher was able to examine it.
 One possible problem regarding reliability is that the research has a stake in the software that is being evaluated.
@@ -521,12 +516,12 @@ As it is somewhat complicated to test the performance of the whole \ac{IFAS} sta
 \item Rendering time of a visualization in Kibana (cf. \cref{subsec:evaluation:performance:kibana})
 \end{enumerate}
 
-In combination, this results in a fitting evaluation of the \ac{IFAS} stack's performance in general.
+In combination, these results yield a total processing time of the whole \ac{IFAS} stack.
 The combined insights from these experiments are explained in \cref{subsec:evaluation:performance:total-processing-time}.
 
 During the planning phase of the experiments, problems arose in regards to coming up with a realistic and representative number of events that \ac{IFAS} should be able to process.
 One point of reference is Netflix' A/B testing platform; in a blog post about their architecture they state that the Netflix platform handles about 150,000 to 450,000 requests per second~\cite{WEB:Netflix:2016}.
-Building a system as powerful as Netflix' is not realistic though, especially with the limited resources in terms of time and money that are given for this thesis.
+Building a system as powerful as Netflix' is not realistic though, especially with the limited resources in terms of time and money that were available for this thesis.
 Instead, the amount of requests threshold stated in the Netflix blog post serves as a point of reference by submitting up to 150,000 events to \ac{IFAS} and then measuring how long it takes the system to process these events.
 The resulting total processing duration can then be used to approximately compare \ac{IFAS} performance with the performance of the Netflix architecture.
 For example, if \ac{IFAS} is able to process the 150,000 events within 50 seconds -- compared to the 1 second that the Netflix system needs -- this yields a rough estimate of the relative power of $1/50$.
@@ -543,17 +538,17 @@ If not otherwise stated, all statistical analyses and plots in this section were
 \subsection{Client to Event Store to Elasticsearch}
 \label{subsec:evaluation:performance:evt-es-bridge}
 
-For the purpose of testing the performance of \ac{IFAS}, a predefined number of\linebreak \texttt{ExperimentParticipated} events is created and sent to the Event Store instance in rapid succession.
+For the purpose of testing the performance of \ac{IFAS}, a predefined number of\linebreak \texttt{ExperimentParticipated} events are created and sent to the Event Store instance in rapid succession.
 This test makes use of the event generator program, the implementation of which is described in \cref{sec:implementation:event-generator}.
 A dedicated persistent subscription is created by the event generator, which the Event Store-Elasticsearch bridge listens on.
 These events in turn are fed into Elasticsearch as fast as possible by the bridge application.
 
 Thus, this experiment measures the time it takes to read a persistent subscription of fixed size from beginning to end and post the given events to Elasticsearch.
-It does not take into account the duration for sending these these events from the client to the event store and saving them there for two reasons:
+It does not take into account the duration for sending these events from the client to the event store and saving them there for two reasons:
 Firstly, this is highly dependent on the type of client application, and secondly, Event Store offers very limited capabilities for monitoring its performance in an efficient manner.
 
 An earlier version of the bridge application was using the rather simple approach of immediately issuing an \ac{HTTP} POST request for every event upon arrival.
-Early tests showed that this is not a fitting approach because the multitude of HTTP requests introduced a huge overhead in terms of computational effort an latency.
+Early tests showed that this is not a fitting approach because the multitude of HTTP requests introduced a huge overhead in terms of computational effort and latency.
 This resulted in an unsatisfactory performance of the bridge application (multiple minutes for 100,000 events).
 Instead of using this naive implementation of the bridge application, a more sophisticated mechanic was introduced which involves buffering multiple events in the bridge and then doing a bulk indexing call to Elasticsearch.
 The specifics of this implementation are explained in \cref{sec:implementation:bridge}.
@@ -568,7 +563,7 @@ These settings are as follows (descriptions taken from the Event Store documenta
 \item[Live Buffer Size] The size of the live buffer (in memory) before resorting to paging.
 \item[Buffer Size] The number of messages that should be buffered when in paging mode.
 \item[Read Batch Size] The size of the read batch when in paging mode.
-\item[Client-Side Buffer Size] The number of in-flight messages this client is allowed.
+\item[Client-Side Buffer Size] The number of outstanding messages that the server allows for a connecting client.
 \end{description}
 
 All these values are \emph{assumed} to be in Kilobyte, but this is only an educated guess as this is not documented anywhere.
@@ -644,7 +639,7 @@ This guarantees identical starting conditions for each experiment run.
 The results of the performance experiment are visualized in two ways.
 First, the total indexing duration of each configuration and size is described using the box plots given in \cref{fig:evaluation:performance:mean-durations-50k,fig:evaluation:performance:mean-durations-100k,fig:evaluation:performance:mean-durations-150k}.
 Second, the amount of sent events over time for each configuration and size is visualized in the line plots in \cref{fig:evaluation:performance:config-comparison_50k,fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k}.
-These are used for giving additional insight as to how the discrepancies in the total indexing durations can be explained.
+These are used for giving additional insight into how the discrepancies in the total indexing durations can be explained.
 This evaluation yields an an interesting phenomenon regarding a subscription's performance over time.
 
 \paragraph{Total processing duration}
@@ -681,7 +676,7 @@ While the x-axes use a continuous scale, the y-axes use a logarithmic scale in o
 
 The boxes in these plots represent the distribution of the indexing duration over multiple repetitions of the experiment as follows:
 First of all, the median over all 15 runs is indicated by the bold black line in the middle of each box, the box itself spans all values between the first and third quartile.
-The solid black lines -- also called ``whiskers'' -- extend from a box to the largest / lowest value that is no further than $ 1.5 * \text{IQR} $ away from the top / bottom of the box.
+The whiskers extend from a box to the largest / lowest value that is no further than $ 1.5 * \text{IQR} $ away from the top / bottom of the box.
 $\text{IQR}$ is the ``inter-quartile range'', i.e. the distance between the first and third quartiles.
 All data points that are outside of these ranges are called outliers, represented by a plus sign.
 
@@ -691,11 +686,11 @@ The resulting assumption is that the buffer sizes and the read batch size are th
 Thus, all configurations with buffer sizes below 32,000 and read batch size below 1,280 should be avoided if the expected rate at which user feedback is generated surpasses 50k events over 20 seconds, as some outliers in \cref{fig:evaluation:performance:mean-durations-50k} reach the 20 second limit.
 
 Another observation is that there is no \emph{best} configuration for all experiment sizes.
-Instead, for 50k events (cf. \cref{fig:evaluation:performance:mean-durations-50k}), configuration number 6 is by a thin margin better than configurations 7 to 9.
-Not only is its median duration slightly better, the minimum duration is also considerably lower than for other configurations.
+Instead, for 50k events (cf. \cref{fig:evaluation:performance:mean-durations-50k}), configuration number 6 is better than configurations 7 to 9 by a thin margin.
+Not only is its median duration slightly better, the minimum duration is also considerably lower than that of other configurations.
 This can be seen in \cref{fig:evaluation:performance:mean-durations-50k}, where the vertical line extending from the bottom of the box for configuration 6 represents the fastest run for 50k events over all configurations.
 In contrast to that, for 100k events configuration 7 is the best both in median and minimum.
-This applies to configuration 8 for the 150k events run.
+This applies to configuration 8 for the 150k-events run.
 
 It seems that the more events in total are processed by a subscription, the more efficiently Event Store can make use of the allocated resources for this subscription.
 A surplus of resources, however, seems to lower performance.
@@ -703,7 +698,7 @@ The effect is not very strong, but clearly visible in the plots; this can for ex
 Although this is an interesting observation that could be taken into account when designing a performance-critical system using persistent subscriptions, in the case of \ac{IFAS} it is safe to just pick the configuration which performs sufficiently well in all experiment sizes.
 This ideal configuration is configuration 8, with a buffer size and live buffer size of 128,000, read batch size of 10,240 and client-side buffer size of 640 (cf. \cref{table:median-durations-config-8} for the exact values).
 With such a configuration \ac{IFAS} is able to handle up to 150k events in 30 seconds, i.e. 5,000 events per second.
-For more demanding use cases, more research into Event Store performance tuning would have to be conducted.
+For more demanding use cases, more investigations into Event Store performance tuning would have to be conducted.
 
 
 \begin{table}
@@ -755,7 +750,7 @@ For improved visibility of patterns in the plots, an additional red line display
 
 When looking at the configurations for all experiment sizes and especially for the 100k and 150k experiments, it becomes apparent that for the lower configurations, the event processing rate drops low after a few seconds into the experiment.
 This happens for configuration 5 and lower in the 50k experiment, for configuration 6 and lower in the 100k experiment and for configuration 7 and lower for the 150k experiment.
-Thus, the more events have to be processed, the higher the buffer sizes and read batch size has to be in order to avoid this processing rate drop.
+Thus, the more events have to be processed, the higher the buffer sizes and read batch size has to be in order to avoid this drop in processing rate.
 
 The earlier evaluation of the total processing duration already yielded that the configurations 0 to 5 perform rather poorly for all experiments.
 When looking at the line plots, especially in \cref{fig:evaluation:performance:config-comparison_100k,fig:evaluation:performance:config-comparison_150k}, the reason for this becomes apparent:
@@ -773,9 +768,9 @@ An assumed possible solution for this was to make use of sharding in order to di
 However, after a few tests it became apparent that this is not the case: One of the shards showed an identical CPU usage pattern, while the other shards remained mostly inactive.
 %While this would very likely still result in 200\% CPU usage, distributing the processing complexity onto multiple shards was expected to result in overall faster processing times for the bridge application.
 %In order to test this assumption, the experiment was repeated for 100k events and configuration 7, which shows a particularly strong occurence of this phenomenon (cf. \cref{fig:evaluation:performance:config-comparison_100k,fig:evaluation}).
-%As \cref{todo} shows, setting up an Event Store cluster does not improve performance of persistent subscriptions.
-The assumption is that persistent subscriptions are managed by one shard only, but this cannot be validated at this point.
-If this effect degrades performance too much, a possible solution could be to partition the events into more different event types and send these to different Event Store shards
+%As \cref{...} shows, setting up an Event Store cluster does not improve performance of persistent subscriptions.
+The hypothesis is that persistent subscriptions are managed by one shard only, but this cannot be validated at this point.
+If this effect degrades performance too much, a possible solution could be to partition the events into a larger number of different event types and send these to different Event Store shards.
 Each shard could then manage separate persistent subscriptions that multiple instances of the bridge application could then listen to.
 
 %Instead, the messages per second rate was improved by tweaking several settings of the persistent subscription itself as well as the buffer size on the client side (i.e. the amount of messages per transaction that the client tells the server it can handle -- more buffer size means more messages per transaction, but could potentially overburden the client).
@@ -783,19 +778,19 @@ Each shard could then manage separate persistent subscriptions that multiple ins
 While the experiments were running, Docker's ressources were manually monitored using the \texttt{docker stats} command.
 The results are that the allocated ressources were sufficient for the experiments:
 While cumulative CPU usage peaked at 300\%, where 400\% would be the maximum, memory usage was rather low with about 1.5 GB for all containers.
-As the resources that were made available to Docker were never fully used, it can be deducted that both CPU and memory were sufficiently high in order to not have a negative impact on the experiments.
+As the resources that were made available to Docker were never fully used, it can be deducted that both CPU and memory were sufficient in order to not have a negative impact on the experiments.
 
 \subsection{Elasticsearch Indexing Time}
 \label{subsec:evaluation:performance:elasticsearch}
 
-This part of the \ac{IFAS} performance test is concerned with the speed at which the Elasticsearch service in is able to index documents.
+This part of the \ac{IFAS} performance test is concerned with the speed at which the Elasticsearch service is able to index documents.
 By adding 120 million documents to an index and measuring the total index time, it was determined that the Elasticsearch service indexes documents at a rate of about 16,000 documents per second.
 This is more than three times faster than the ideal processing rate of the Event Store's persistent subscription and the associated bridge application (cf. \cref{subsec:evaluation:performance:evt-es-bridge}).
 
 \subsubsection{Experiment Set-Up}
 
 The test for Elasticsearch's indexing performance uses a modified version of the Event Store-Elasticsearch bridge application.
-Instead of reading the events from an Event Store subscription, this modified bridge just generates \texttt{ExperimentParticipated} events on its own and sends them via the same bulk indexing call to Elasticsearch.
+Instead of reading the events from an Event Store subscription, this modified bridge just generates \texttt{ExperimentParticipated} events on its own and sends them to Elasticsearch via the same bulk indexing call.
 This isolates the experiment results for the Elasticsearch test from the processing rate of the Event Store subscription.
 The modified bridge application generates 10,000 events, then sends them to Elasticsearch and waits for a response.
 This procedure is repeated until 120 million events are sent and indexed as documents in Elasticsearch.
@@ -817,7 +812,7 @@ Elasticsearch was run with the standard settings of \ac{IFAS}, which uses the de
 \subsubsection{Execution}
 
 The experiment was executed by first running the modified bridge application which successively sends events in batches of size 10,000 until 120 million documents are indexed in Elasticsearch.
-After the indexing is completed, Elasticsearch's Indices API allows for fetching of statistics about the index that the documents were previously written to.
+After the indexing is completed, Elasticsearch's Indices API allows for fetching statistics about the index that the documents were previously written to.
 This yields, among others values, the total amount of indexed documents and the time that Elasticsearch spent indexing these documents, which in turn allows for computation of the indexing rate.
 
 \subsubsection{Results}
@@ -865,7 +860,7 @@ Kibana offers the possibility to view detailed statistics for every visualizatio
 These statistics are useful for measuring the performance for different reasons:
 
 \begin{description}
-\item[Query Duration] This is the time Elasticsearch needed to complete process the query; it thus represents the time it takes Elasticsearch to handle the aggregation itself, without any networking overhead.\footnote{\url{https://discuss.elastic.co/t/what-is-query-duration-and-request-duration-in-kibana/50553}}
+\item[Query Duration] This is the time Elasticsearch needed to completely process the query; it thus represents the time it takes Elasticsearch to handle the aggregation itself, without any networking overhead.\footnote{\url{https://discuss.elastic.co/t/what-is-query-duration-and-request-duration-in-kibana/50553}}
 If the aggregation is complex, the query duration is usually high.
 \item[Request Duration] In order to execute an aggregation and get its result, the request has to be sent to the Elasticsearch instance, which introduces additional overhead such as serializing and deserializing \ac{JSON} objects.
 The request duration thus represents the duration from the point in time where Kibana decides to send the aggregation query, to the point where the results arrive in deserialized form back in Kibana.
@@ -895,15 +890,14 @@ For this specific test, automatic refresh is disabled and instead the visualizat
 
 \subsubsection{Execution}
 
-Executing the experiment was a rather simple process:
 After bringing up the appropriate visualization in Kibana, the Visualization Spy was used to inspect the query duration, request duration and number of hits for the visualization.
 Instead of just running the experiment once, the average of each of these values for 10 repetitions was computed, in order to reduce the effect of potential outliers.
 
-The experiment is first run with query caching enabled in order to obtain the mean durations for cached queries.
-Afterwards, the experiment is repeated with disabled caching, which can be achieved using Elasticsearch's Indices API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-clearcache.html}}.
+The experiment was first run with query caching enabled in order to obtain the mean durations for cached queries.
+Afterwards, the experiment was repeated with disabled caching, which can be achieved using Elasticsearch's Indices API\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-clearcache.html}}.
 
 Fast request durations are of no help if the painting of the visualization itself is slow.
-For this reason, Google Chrome's developer tools are used to measure the render and paint durations for the visualization.
+For this reason, Google Chrome's developer tools were used to measure the render and paint durations for the visualization.
 
 \subsubsection{Results}
 
@@ -954,7 +948,7 @@ For 150,000 events and the A/B test visualization, with a automatic refresh rate
 \end{align*}
 
 This is a worst case computation, because it assumes that each processing step of \ac{IFAS} runs sequentially, and it uses the average visualization duration for the Kibana visualization for 120 million hits.
-In praxis, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
+In practice, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
 As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will presumably have finished indexing very soon after the last events are processed by the bridge and sent over to Elasticsearch.
 When comparing this with the 150,000 events per second that the Netflix platform is able to handle~\cite{WEB:Netflix:2016}, \ac{IFAS} is about $1/46$ as fast.
 %With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
@@ -967,7 +961,8 @@ These factors are construct validity, internal validity, external validity, and 
 
 Construct and internal validity are fulfilled for each test, as can be seen by reviewing their respective sections.
 External validity in general is again problematic as the tests were only executed on a single machine.
-This is not an issue here, because the results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GiB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware, but not excessively powerful).
+In order to achieve high external validity, the experiments would have to be repeated on a wide array of different machines, which were not available in sufficient numbers.
+%he results are merely used to show that \ac{IFAS} is able to perform acceptably on a system with reasonable resources (the used 4 GiB of RAM and 4 CPU cores of an Intel i7 processor are on par with current hardware, but not excessively powerful).
 
 Again, personal stakes in the developed system compromise reliability to some extent.
 However, it would be harder in the case of the performance test to actually influence the results than for the case study, and as the consequences of doing so would be rather severe, this possibility can be discarded.
@@ -1005,7 +1000,7 @@ Other representations are also possible, especially if additional variables are 
 The server or application that is to be monitored would have to be adapted in order to send the appropriate events containing the relevant data to \ac{IFAS}.
 Three use cases come to mind here: Periodic monitoring of a server's resource usage, observing error messages from an application or server, and tracking of existing domain-related data such as sales figures.
 Results could then be represented using several visualizations depending on the use case, including area charts and line graphs.
-Especially for time-based data, these two dimensional visualizations seem valuable, as the powerful time filtering options of Kibana facilitate analysis of such data.
+Especially for time-based data, these two-dimensional visualizations seem valuable, as the powerful time filtering options of Kibana facilitate analysis of such data.
 Kibana also has a dedicated ``Monitoring'' section which can be used to examine the performance of the Elasticsearch cluster.
 
 \section{Evaluation of Fitness Functions}

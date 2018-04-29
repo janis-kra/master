@@ -1,4 +1,5 @@
 #!/bin/bash
+
 runs=$1
 for (( run=0; run<$runs; run++ ))
 do
@@ -28,7 +29,6 @@ do
       live_buff_size=$(($factor*500))
       read_batch=$(($factor*20))
       echo "Experiment number $number of run $run, size $size"
-      #echo "Performance test no. $number for size=$size, client buffer=$client_buffer, buffer size=$buff_size, live buffer size=$live_buff_size, read batch=$read_batch"
       source ./performance.sh $size $client_buffer $buff_size $live_buff_size $read_batch $number $run
     done
   done

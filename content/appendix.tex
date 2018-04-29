@@ -12,9 +12,13 @@
 
 \lstinputlisting[label={appendix:code:docker:mattermost-compose},caption={Mattermost's docker-compose.yml}]{sourcecode/mattermost-compose.yml}
 
+\clearpage
+
 \lstinputlisting[label={appendix:code:implementation:docker:clustering:eventstore},caption={eventstore-cluster.yml}]{sourcecode/eventstore-clustering.yml}
 
 \lstinputlisting[label={appendix:code:implementation:docker:bridge-dockerfile},caption={Dockerfile for creating the Elasticsearch-Event Store bridge container}]{sourcecode/bridge-dockerfile.txt}
+
+\clearpage
 
 \lstinputlisting[label={appendix:code:implementation:docker:elasticsearch-yml},caption={elasticsearch.yml}]{sourcecode/elasticsearch.yml}
 
@@ -24,10 +28,22 @@
 
 \lstinputlisting[label={appendix:code:implementation:mattermost:feedbackjs},caption={feedback.js}]{sourcecode/feedback.js}
 
+\clearpage
 
 \section{Evaluation}
 
-\lstinputlisting[label={appendix:code:evaluation:performance:exec-perftests},caption={exec-perftests.sh}]{sourcecode/exec-perftests.sh}
-\lstinputlisting[label={appendix:code:evaluation:performance:performance},caption={performance.sh}]{sourcecode/performance.sh}
+\lstinputlisting[label={appendix:code:evaluation:performance:exec-perftests},caption={exec-perftests.sh - Script for running multiple performance tests with varying parameters. Calls the performance.sh script.}]{sourcecode/exec-perftests.sh}
+
+\clearpage
+
+\lstinputlisting[label={appendix:code:evaluation:performance:performance},caption={performance.sh - Script for running a performance test with the specified parameters.}]{sourcecode/performance.sh}
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{User Survey Document}
+\includepdf[pages=-]{usertest/assignment.pdf}
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Proposal}
+\includepdf[pages=-]{proposal/proposal.pdf}
+
 
 \end{appendices}
