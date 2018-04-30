@@ -3,7 +3,7 @@
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
-\contentsline {lstlisting}{\numberline {2.1}Example Dockerfile}{17}{lstlisting.2.1}
+\contentsline {lstlisting}{\numberline {2.1}Example Dockerfile}{16}{lstlisting.2.1}
 \defcounter {refsection}{0}\relax 
 \contentsline {lstlisting}{\numberline {2.2}Commands for building and running the NGINX example container via the Docker CLI}{17}{lstlisting.2.2}
 \defcounter {refsection}{0}\relax 
@@ -48,3 +48,7 @@
 \contentsline {lstlisting}{\numberline {A.9}exec-perftests.sh - Script for running multiple performance tests with varying parameters. Calls the performance.sh script.}{115}{lstlisting.1.A.9}
 \defcounter {refsection}{0}\relax 
 \contentsline {lstlisting}{\numberline {A.10}performance.sh - Script for running a performance test with the specified parameters.}{116}{lstlisting.1.A.10}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }

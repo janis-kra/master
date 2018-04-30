@@ -11,15 +11,15 @@
 
 % copy from proposal:
 
-Best practices in software development changed dramatically since its origins in the 1950's~\cite{boehm2006view}.
+Best practices in software development changed dramatically since its origins in the 1950's.
 Software engineering in most of the 20th century was largely based on careful planning and specification, therefore also rather slow-paced and inflexible~\cite{boehm2006view}.
 For the last twenty years, however, these plan-driven development methods have been perceived as frustrating for many people because the influencing circumstances have been changing more and more rapidly, partly due to the growing importance of the internet~\cite{Williams2003}.
-As a result of this rapidly changing environment, product features which were perfectly valid at the time of their envisioning can become outdated, irrelevant or otherwise undesirable while the feature is still being planned or implemented -- not to mention features that are in fact not desired by the customers in the first place.
+As a result of this rapidly changing environment, product features which were perfectly valid at the time of their envisioning can become outdated, irrelevant or otherwise undesirable while or after planning and implementation of the feature -- not to mention features that are in fact not desired by the customers in the first place.
 This insight is often only gained after the feature is shipped to the customer.
 As a consequence, short release cycles and fast customer feedback have steadily become more important.
 These values are emphasized in \acf{CSE}~\cite{Bosch2014}, which adopts and extends the principles from DevOps and agile software development~\cite{Fitzgerald2017,fowler2001agile}.
 
-Adopting the core premises of \ac{CSE} is considered to be a gradual process, which is describe as the \emph{Stairway to Heaven} by \citet{Olsson2012} (see~\cref{fig:stairway}).
+Adopting the core premises of \ac{CSE} is considered to be a gradual process, which is described as the \emph{Stairway to Heaven} by \citet{Olsson2012} (see~\cref{fig:stairway}).
 Starting from classical software development, the next step is agile software development, which focuses on flexibility, efficiency, and speed.
 This step is followed by continuous integration, in which integration of the developed software is frequently verified by automated builds and tests~\cite[Maintaining Model Integrity, pp.~341~ff.]{evans2004domain}.
 An extension of this is continuous deployment, where the software is automatically deployed to production in continuous cycles.
@@ -35,21 +35,21 @@ Such an experiment system allows for quicker responses to market changes and mor
         \label{fig:stairway}
 \end{figure}
 
-The last step in the Stairway to Heaven requires frequent gathering and analysis of customer feedback, because otherwise the hypotheses that the experiments were executed for could neither be verified nor refuted.
+The last step in the Stairway to Heaven requires frequent gathering and analysis of customer feedback, because otherwise the hypotheses that the experiments are based on could neither be verified nor refuted.
 Such feedback may be gathered using active or passive methods.
 Active user feedback can yield useful qualitative observations about the product.
 The fact that the user has to explicitly take time for giving their feedback, e.g. in form of a survey or an interview, can prove to be problematic in terms of time and effort on both sides.
-Passive user feedback, on the other hand, avoids this problem by automatically collecting feedback while the user works with the system as they usually do.
+Passive user feedback, on the other hand, avoids this problem by automatically collecting feedback while the user works with the system as usual.
 It is thus obtained \emph{implicitly}, hence the equivalent term \emph{implicit user feedback}.
 %An example for implicit user feedback is measuring the time a user needs to perform certain actions in the software.
 
 Both approaches for collecting user feedback have their individual advantages and disadvantages.
-When experimentation is an integral part of the software engineering process however, the speed and frequency of user feedback becomes more and more important, as \citet{lindgren2015software} have discovered in a study about the state of experimentation in software engineering.
+When experimentation is an integral part of the software engineering process however, the speed and frequency of user feedback becomes more and more important, as \citeauthor{lindgren2015software} have discovered in a study about the state of experimentation in software engineering~\cite{lindgren2015software}.
 They further state that most techniques which the survey's participants use for feedback gathering are the more familiar \emph{active} techniques, such as stakeholder interviews and usability tests.
 Passive techniques are used rarer and in a less systematic manner, although their advantages are recognized by the survey's participants.
 A well-known example for post-deployment passive user feedback collection are A/B tests, where the experiment system automatically reports users' decisions and the variant that they were experiencing.
 The results of such an A/B test allow for data-driven decision making about the users' acceptance of a developed feature.
-This is opposed to deciding based on active user feedback, which would be too time-consuming to collect in order to allow for a data-driven decision, and an \emph{opinion}-based decision by individuals with stakes in the project.
+This is opposed to deciding based on active user feedback -- which would be too time-consuming to collect in order to allow for a data-driven decision -- and doing an \emph{opinion}-based decision by individuals with stakes in the project~\cite{Bosch2012}.
 %, but in software development -- and especially in the post-deployment stage -- most user feedback is collected using passive techniques~\cite{Olsson2014}.
 
 While the overall area of experimentation in software development is well researched, most papers are either more of a report about the state of the art, or a rather abstract description of an architecture.
@@ -57,7 +57,7 @@ While the overall area of experimentation in software development is well resear
 While these reports are very practice-oriented, they lack a more general view on the problem at hand, and the other way around for the more architecture-focused papers.
 That is problematic for potential adopters of experimentation techniques in general and \ac{CSE} in particular, because it leaves a gap between theory and current practice.
 
-Therefore, the aim of this thesis is to bridge this gap and provide a more holistic view on collecting, aggregating and analyzing passive user feedback.
+Therefore, the aim of this thesis is to help bridge this gap and provide a more holistic view on collecting, aggregating and analyzing passive user feedback.
 %This will enable applicants to implement their own experiment systems as described in \ac{CSE}, based on a proven architecture.
 %
 %This thesis aims at taking a more holistic approach to the experiment system concept from \ac{CSE} by designing and implementing a system that allows for easy collection of passive user feedback (\cref{sec:intro:goals} describes the objectives in more detail).
@@ -81,17 +81,17 @@ It facilitates the execution of various tasks related to experiment systems, inc
 A famous success story for software development with a focus on experimentation -- especially A/B testing -- is that of the movie and TV series streaming service Netflix~\cite{WEB:Netflix:2016}.
 Big changes such as UI redesigns as well as small ones such as the teaser images for their movies are tested using their experimentation platform.
 It manages experiments for the whole Netflix platform, which handles 150,000 to 450,000 requests per second (as of 2016).
-From the A/B server that handles, amongst others, the experiment metadata, to the application responsible for the visualization, the presented platform spans at least eight different services.
-While this level of complexity is fine and probably needed for an application landscape as big as Netflix', it is not a suitable pattern in terms of cost and complexity for smaller businesses that want to get started with experimentation.
+From the A/B server that handles the experiment metadata, to the application responsible for the visualization, the presented platform spans at least eight different services.
+While this level of complexity is fine and probably needed for an application landscape as big as Netflix', it does not seem to be a suitable pattern in terms of cost and complexity for smaller businesses that want to get started with experimentation.
 \ac{IFAS} aims to fulfill this need by only using software available without charge and by reducing complexity through omitting service layers which are unnecessary for applications that do not expect such heavy load as Netflix does.
 
 % widening scope of innovation experiments by Bosch2012
-Cost is in general a factor when considering the acquisition and commissioning of additional software, and an experiment system -- e.g. \ac{IFAS} -- is no exception.
+Cost is in general a factor when considering the acquisition and commissioning of additional software, and an experiment system is no exception.
 \citet{Bosch2012} classifies different innovation experiment types as to whether they are suitable for non-commercial deployments or not (cf. \cref{table:intro:motivation:classification}).
 According to \citeauthor{Bosch2012}, a product being commercially deployed -- i.e. being profitable or at least expected to be profitable in the near future -- justifies the additional effort and cost to instrument an experiment system for A/B testing and metrics collection in order to improve monetization even more.
-These features are available when using \ac{IFAS} due to its functionality.
+These features are available when using \ac{IFAS} due to the functionality it provides.
 The fact that \ac{IFAS} is completely free makes these advanced experiments available for non-commercial deployments as well, which is initially not the case according to \citeauthor{Bosch2012}'s classification.
-Of course, this is also true for commercial deployments of smaller businesses who do not want to invest in an experiment system yet.
+Of course, this is also true for commercial deployments by smaller businesses who do not want to invest money in an experiment system yet.
 However, there is still some time effort attached to this, and although \ac{IFAS} is designed to be comfortable and time-efficient to use, this is hard to prove and thus such a proof is not attempted in this thesis.
 
 \begin{table}
@@ -112,13 +112,14 @@ Because the system is free and due to its flexibility, it also potentially enabl
 
 % Evolutionary architecture idea
 An additional motivation for this thesis was to build an experiment system specifically suited for evolutionary architectures.
-In essence, an evolutionary architecture is an architecture which is designed with future changes in mind~\cite{ford2017building,WEB:EvolArch:2016}.
+In essence, an evolutionary architecture is an architecture which is designed specifically with future changes in mind~\cite{ford2017building,WEB:EvolArch:2016}.
 This is opposed to more traditional approaches where the architecture is designed once and then fixed for the remainder of the project -- or at least only changed very reluctantly because it involves a lot of time and effort.
-\ac{IFAS} is designed with the principles of evolutionary architectures in mind, details can be found in \cref{ch:classifications}.
-Using event sourcing for the data storage was part of the initial considerations for the system; nevertheless, a proper evaluation of possible alternative data storage solutions was made (cf. \cref{ch:classifications}).
+\ac{IFAS} is designed with the principles of evolutionary architectures in mind, details are given throughout the thesis.
+%Using event sourcing for the data storage was part of the initial considerations for the system due to its applicability for evolutionary architectures; nevertheless, a proper evaluation of possible alternative data storage solutions was made (cf. \cref{ch:classifications}).
 
-Several companies have published their findings about experimentation in the software development process, in the form of scientific papers or blog posts.
-Amongst others, Microsoft, LinkedIn, Google, Facebook, and Netflix issued reports about best practices and pitfalls that they experienced, all concluding that introducing experimentation into the software development process benefits both the choice about which features to implement as well as their quality~\cite{Kohavi2013,Xu2015,Tang2010,Bakshy2014,WEB:Netflix:2016}.
+Several companies have published their findings about experimentation in the software development process in the form of scientific papers or blog posts.
+Amongst others, Microsoft, LinkedIn, Google, Facebook, and Netflix issued reports about best practices and pitfalls that they experienced\cite{Kohavi2013,Xu2015,Tang2010,Bakshy2014,WEB:Netflix:2016}.
+They all conclude in some way or the other that introducing experimentation into the software development process benefits both the choice about which features to implement as well as their quality.
 In addition, several authors have published scientific papers in which they propose models and architectures for experimental software development~\cite{Fagerholm2014,Fagerholm2017,Johanssen2017,Lindgren2015}.
 Although practitioners in the software industry often claim that they embrace experimentation and innovation in their research and development process, these practices are still not fully adopted according to a study by \citet{lindgren2015software}.
 Especially the systematic and continuous aspects of experimentation lack adoption.
@@ -136,9 +137,9 @@ Especially the systematic and continuous aspects of experimentation lack adoptio
 The goal of the thesis is to design, implement and validate a system for processing passive user feedback with a more holistic view of the problem than in existing publications.
 Using this system, it shall be possible to visualize and analyze passive user feedback that was previously supplied to its storage layer.
 
-In order to accomplish this task, a system with the following functionalities has to be implemented (cf. \cref{fig:system:vision}).
+In order to accomplish this task, I have to implement a system with the following functionalities (cf. \cref{fig:system:vision}).
 First, a source of the passive user feedback sends data to the \ac{IFAS} storage.
-In the planning phase of this thesis, it was not clear whether this user feedback would be generated via usage of a customized web application or an existing data source~\cite{Deka:2017:Rico}.
+In the planning phase of this thesis, it was not clear whether this user feedback would be generated via usage of a customized web application or an existing data source by~\citet{Deka:2017:Rico}.
 An evaluation of the data source in question later yielded that it is not suitable for this use case.
 The aggregation service in \ac{IFAS} is able to gather relevant data on demand, e.g. using a time- or location-based aggregation.
 This data is then displayed in the data analysis application in a visualization of some kind, for example a bar chart or line graph.
@@ -148,26 +149,26 @@ The concrete objectives that follow from the desired functionality described unt
 \begin{enumerate}
 \item Classify and choose existing software solutions that implement the needed data storage, aggregation, and analysis functionalities.
 \item Design and implement a system that allows the collection of passive user feedback with considerably low effort.
-This part of the system is comprised of the storage layer, an aggregation service and a hypothetical client application which logs events to storage whenever the user performs certain actions (cf. 4.).
+This part of the system is comprised of the storage layer, an aggregation service and a hypothetical client application which logs events to storage whenever the user performs certain actions.
 %It also features two users: The end user of the client application, and the analyst who wants to evaluate the user feedback.
 These events can be purely UI related, such as click or hover events, but can also be related to the business logic, like executing transactions or creating content.
 In order to forward the user feedback data to the analysis application (cf. 3.), the aggregation service has to fetch the appropriate data from the store.
 %While making use of a caching mechanism during this step would certainly make sense, such a feature will presumably not be part of the final solution due to the additional complexity; if this is the case, the system shall be easily extensible for introducing such a feature.
 %This objective involves researching and assessing fitting infrastructure and tooling solutions.
-\item Design and implement this system such that it also allows analysis of collected user feedback.
+\item Design and implement this system such that it allows analysis of the collected user feedback.
 Feedback should \emph{usually} be ready for analysis within at most a minute.
-When someone wants to evaluate the collected user feedback via the analysis application, the application shall display the corresponding data in an appropriate format, which it fetches from the aggregation service.
-The best approach for displaying the data has yet to be evaluated but will involve some graphical representation in form of charts and/or graphs.
+When someone wants to evaluate the collected user feedback via the analysis application, the application shall display the corresponding data, which it fetches from the aggregation service, in an appropriate format.
+The best approach for displaying the data has yet to be chosen but will involve some graphical representation in form of charts and/or graphs.
 %This objective also implicates research and choosing of appropriate solutions that shall be used for this part of the system.
 \item Evaluate how this system performs, which involves collecting user feedback and analyzing it.
 Implementation of the client application itself will not be done for the purpose of this thesis.
 Instead, some existing application shall be extended in order to log the appropriate events or an existing data set such as the one presented by \citet{Deka:2017:Rico} shall be used.
 In the latter case, some application or script has to be written which imports the needed UI interaction data to the database.
-\item As an additional requirement, the developed system shall be platform independent, i.e. run on the most widely used operating systems Linux, MacOS, and Windows.
+\item As an additional requirement, the developed system shall be platform independent in the sense that it runs on the widely used operating systems Linux, MacOS, and Windows.
 \end{enumerate}
 
 \begin{figure}[ht]
-        \caption{Activity diagram displaying the actions that the envisioned system is able to perform.}
+        \caption{Simplified activity diagram displaying the actions that the envisioned system is able to perform.}
         \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/architecture-3.pdf}
         }
@@ -201,5 +202,5 @@ The second experiment tests the performance of \ac{IFAS} in three separate steps
 
 Possibilities for future work are given in their own chapter, followed by the conclusion (cf. \cref{ch:future-work,ch:conclusion}).
 The appendix at the end of the document contains source code and configuration files of the various applications and services as they are mentioned throughout this thesis.
-An enclosed DVD contains the full source code of all implementation work (also available via GitHub\footnote{\url{https://github.com/janis-kra/master-impl}}\todo{link to "final" tag when done}).
-The instructions that the test subjects were given during the case study that was part of the evaluation is attached after the appendix.
+An enclosed DVD contains the full source code of all implementation work (also available via GitHub\footnote{\url{https://github.com/janis-kra/IFAS/releases/tag/final}}).
+The instructions that the test subjects were given during the case study is also part of the appendix.

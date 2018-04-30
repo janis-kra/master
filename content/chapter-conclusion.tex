@@ -4,11 +4,11 @@
 \label{ch:conclusion}
 
 % two sentences: goal & results
-The goal of this thesis was to design and implement a system that facilitates the collection and analysis of passive user feedback.
+The goal of this thesis was to design and implement a system that facilitates the collection and analysis of implicit user feedback.
 This system was called \acf{IFAS}.
-\ac{IFAS} was intended to help taking the figurative last step in the ``Stairway to Heaven'' by \citet{Olsson2012} towards research and development as an experiment system.
+\ac{IFAS} was intended to help taking the figurative last step in the ``Stairway to Heaven''~\cite{Olsson2012} towards research and development as an experiment system.
 Additionally, \ac{IFAS} should be compatible with evolutionary software architectures.
-This was achieved by designing \ac{IFAS} as an evolutionary software itself, thus also improving future evolvability.
+This was achieved by designing \ac{IFAS} as an evolutionary architecture itself, thus also improving future evolvability.
 
 % what was the goal & how did this goal came to be
 The work on the creation if \ac{IFAS} can be split into three steps.
@@ -18,29 +18,30 @@ During this step, a decision was made to customize the web-based chat applicatio
 This application was later used in the evaluation.
 
 Second, the actual design of the architecture and implementation work was done.
+In addition to configuring the storage, aggregation, and analysis services, an additional bridge service between Event Store and Elasticsearch was required, which was implemented in C\#.
+All these services were implemented and configured as Docker services and then combined using Docker Compose in order to achieve platform independence and flexibility of deployment.
+
 As recommended when building evolutionary software architectures, several fitness functions were created, each measuring the fitness of a certain characteristic of the architecture.
 During the design and implementation phase as well as after the evaluation, these fitness functions were used to compare the current architecture with its desired state.
 These fitness functions can later also be used to evolve the architecture further.
-In addition to configuring the storage, aggregation, and analysis services, an additional bridge application between Event Store and Elasticsearch was required, which was implemented in C\#.
-All these services were implemented and configured as Docker services and then combined using Docker Compose in order to achieve platform independence and flexibility of deployment.
 
 The third step was to evaluate the implemented system in terms of validity for the intended use case and its performance.
 \ac{IFAS}' validity was evaluated via a case study, in which twelve test subjects were given a number of tasks that they had to execute on the customized Mattermost application.
 The generated passive user feedback was sent to \ac{IFAS}, where several Kibana visualizations had been prepared beforehand in order to allow for analysis of the users' actions.
 This passive user feedback data was then compared with the active user feedback collected in a questionnaire that the users answered as part of the case study.
-The results are that the results from the active and passive user feedback mostly conform with each other, which allows for the conclusion that \ac{IFAS} can indeed be used to collect passive user feedback.
+The results from the active and passive user feedback mostly conform with each other, which allows for the conclusion that \ac{IFAS} can indeed be used to collect passive user feedback.
 
-In addition to the validity test, a performance test was done, which was split into three parts.
+In addition to the case study, a performance test was done, which was split into three parts.
 First, the speed of event processing from Event Store via the bridge application to Elasticsearch was tested, with various configurations for the persistent subscription in Event Store.
 This test yielded some puzzling results regarding Event Store's performance that could not be explained completely, but nevertheless a configuration was found that achieves an acceptable event processing rate of about 5,000 events per second.
 Next, the indexing duration of Elasticsearch was monitored.
 This experiment revealed that Elasticsearch in its given configuration is able to index about 16,000 events per second -- making the Event Store subscription the bottleneck in the current \ac{IFAS} setup.
 Last, the speed at which Kibana is able to visualize the data from Elasticsearch was measured.
 The measured total mean rendering duration was 1535ms, already including the duration of the query to Elasticsearch which, in this case, hit 120 million documents.
-In total, the total processing time -- i.e. the duration from entrance of the event in Event Store to its appearance in one of Kibana's visualizations -- when 150,000 events are supplied to \ac{IFAS} is usually at most 46.5 seconds.
-This is an acceptable time, as the initial goal was to reach a processing time of under 60 seconds.
+The total duration from entrance of the event in Event Store to its appearance in one of Kibana's visualizations, when 150,000 events are supplied to \ac{IFAS}, is usually at most 46.5 seconds.
+This is an acceptable time, as the initial goal was to reach a total processing time of under 60 seconds.
 
 % what are opportunities for future work
 Opportunities for future work include improvement of the implementation and some performance tweaking, especially related to the speed at which Event Store processes its persistent subscriptions.
-The created fitness functions further indicate that \ac{IFAS}' scalability and availability should be improved as well, for example by setting up Event Store and Elasticsearch clusters.
+The created fitness functions further indicate that \ac{IFAS}' scalability and availability should be improved as well, first of all by setting up Event Store and Elasticsearch clusters.
 Additionally, \ac{IFAS} could be extended by a module for creating experiment definitions which client applications can then poll, in order to further automate the experimentation process.

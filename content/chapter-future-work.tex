@@ -3,21 +3,21 @@
 \chapter{Future Work}
 \label{ch:future-work}
 
-Although the goals for this thesis were fulfilled, \ac{IFAS} opens up several possibilities for future work.
+Although the goals for this thesis were fulfilled, \ac{IFAS} still opens up several possibilities for future work.
 These are discussed in this chapter.
 
-First, there are several opportunities for improving the implementation of the bridge application (cf. \cref{subsec:implementation:client:problems}).
+First, there are several opportunities for improving the implementation of the bridge service (cf. \cref{subsec:implementation:client:problems}).
 The implementation done for this thesis focuses on efficiency, but lacks in extensibility and documentation.
 Especially when considering usage of \ac{IFAS} in a production environment, this area of the system should be revisited.
 
 Another more practical area of possible improvement is the performance of the Event Store's persistent subscriptions.
 As mentioned in \cref{sec:evaluation:performance}, Event Store seems to have problems delivering more than 5,000 events per second over the subscription, which can be problematic for large systems.
-This challenge could possibly be solved by finding a better configuration for the persistent subscription or by using another type of subscription, but this would have to be further investigated.
+This challenge could possibly be solved by finding a better configuration for the persistent subscription or by using another type of subscription, but this would have to be investigated further.
 
 The aforementioned performance optimizations are also reflected in the current evaluation of the fitness functions that were defined for \ac{IFAS} (cf. \cref{sec:evaluation:fitness}), where \ac{IFAS}' current throughput is rated with three out of five possible points.
 In its current implementation, the system also has room for improvement in other areas:
 Scalability, latency, and especially availability can presumably be improved a great deal by setting up Event Store and Elasticsearch clusters within \ac{IFAS}.
-In general, the defined fitness functions can help when evolving the \ac{IFAS} architecture further and should be revisited regularly.
+In general, the defined fitness functions can help when evolving the \ac{IFAS} architecture further and should thus be revisited regularly.
 
 Several studies have identified additional problems on the organizational level and related to the actual instrumentation of experiment systems~\cite{Lindgren2015,lindgren2015software,gutbrod2017software}.
 Extending \ac{IFAS} with a service for defining experiments via a web application and fetching the resulting experiment definitions via an \ac{API} by client applications could further facilitate continuous experimentation.

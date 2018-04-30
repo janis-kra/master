@@ -20,8 +20,8 @@ Existing studies about best practices and pitfalls of running controlled experim
 \label{sec:evaluation:user}
 
 In order to test the validity of \ac{IFAS} for collecting and analyzing implicit user feedback, a confirmatory case study was prepared and executed.
-A confirmatory case study is used to confirm or reject an existing theory~\cite{Easterbrook2008} -- here, the theory is that \ac{IFAS} can be adequately used to gather passive user feedback.
-This is tested by comparing the results of the passive user feedback, as displayed in Kibana, with active user feedback collected via a survey.
+A confirmatory case study is used to approve or reject an existing theory~\cite{Easterbrook2008} -- here, the theory is that \ac{IFAS} can be adequately used to gather passive user feedback.
+This is tested by comparing the results of the passive user feedback, as displayed in Kibana, with active user feedback collected via a questionnaire.
 The passive user feedback is collected by having twelve users carry out a number of different tasks with the implemented client application that is connected to \ac{IFAS}.
 These tasks represent different cases that are being examined in the case study.
 
@@ -30,17 +30,17 @@ These tasks represent different cases that are being examined in the case study.
 %Instead, the results should show that \ac{IFAS} works as intended for implicit feedback in general and for controlled experiments in particular.
 %The test was conducted according to the ``Handbook of usability testing'' by \citet{rubin2008handbook}.
 
-Each user additionally filled out a separate post-test questionnaire at the end of the test.
-This data is used later in the evaluation process in order to compare the passive and active user feedback.
-In the ideal case, the data from the questionnaire and the data from \ac{IFAS} correlate strongly with each other, thus confirming the theory.
+%Each user additionally filled out a separate post-test questionnaire at the end of the test.
+%This data is used later in the evaluation process in order to compare the passive and active user feedback.
+%In the ideal case, the data from the questionnaire and the data from \ac{IFAS} correlate strongly with each other, thus confirming the theory.
 
 The experiment serves to prove three features of \ac{IFAS}.
 First, the system can be used to monitor application usage in general -- this is the first case of the study.
 This is shown by visualizing click events and data about sent chat messages.
 The second case is monitoring of the users' acceptance of specific application features.
-This is shown by capturing usage data of two different mechanics for achieving the same result (switching chat channels).
+This is shown by capturing usage data of two different mechanics for invoking the same functionality (switching chat channels).
 For the third case, it is tested whether \ac{IFAS} allows experimenters to perform A/B tests.
-It should be noted that while the sample size for this experiment is sufficient for a case study, it is way too low if a real world A/B test where to be executed because the collected data would be statistically irrelevant.
+It should be noted that while the sample size for this experiment is sufficient for a case study, it is way too low if a real world A/B test were to be executed because the collected data would be statistically irrelevant.
 This is not a problem because the experiment is merely used to prove that \ac{IFAS} allows for collection and analysis of A/B test data.
 The performance test (cf. \cref{sec:evaluation:performance}) proves that the system is also able to handle enough events for an A/B test to be statistically relevant.
 
@@ -59,16 +59,16 @@ While everyone stated in a short interview prior to the test that they had previ
 Setting up the experiment consisted of several steps:
 First, the client application was prepared such that the appropriate data is sent to \ac{IFAS}.
 In preparation of this step, several metrics for measuring properties of the system had to be chosen.
-Second, suitable visualizations in Kibana were created in order to visualize the gathered data.
+Second, suitable visualizations in Kibana were created.
 Third, a test document was created which instructs the test subjects what to do for each case in the study.
 This also includes a short post-test questionnaire with which the test subjects provided \emph{active} user feedback at the end.
 %The questionnaire's results were later compared with the results from \ac{IFAS} in order to validate the approach used in this thesis.
 
 \paragraph{Sending feedback to IFAS}
 
-For the experiment, the web version of the Mattermost client was modified in order to send the desired events to \ac{IFAS}.
-This involves both implicit feedback events in general as well as very specific events for controlled experiments.
-In detail, the following data is gathered during the experiment:
+For the experiment, the web version of the Mattermost client was modified to send the desired events to \ac{IFAS}.
+%This involves both implicit feedback events in general as well as very specific events for controlled experiments.
+In detail, the following data was gathered during the experiment:
 
 \begin{description}
 \label{list:cases}
@@ -86,12 +86,12 @@ These contain the scrolling's amount and duration.
 \item[Feature analysis]
 Two methods of switching channels exist in Mattermost: Clicking the channel name in the left-side menu and using the channel switcher, which is a more advanced method where the desired channel's name has to be typed in order to switch to it.
 As a representation of how \ac{IFAS} can be used to analyze how and to what extent application features are used by the users, the channel switching method is monitored.
-Whenever the user switches the channel, a \texttt{ChannelSwitcher} event is sent, which contains the method of channel switching and the channel that was switched to.
+Whenever the user switches the channel, a \texttt{ChannelSwitched} event is sent, which contains the method of channel switching and the channel that was switched to.
 \item[A/B test]
 When a new user logs into Mattermost for the first time, they are greeted with a short tutorial.
 An A/B test was prepared which styles the button for starting the tutorial in a different color depending on whether the user was assigned the control or treatment group.
 When the user decides to either start or skip the tutorial, an \texttt{ExperimentParticipated} event is sent to \ac{IFAS}, containing the user's group and decision.
-It should be noted that the sample size achieved via this experiment does not suffice for an A/B test to be statistically relevant.
+%It should be noted that the sample size achieved via this experiment does not suffice for an A/B test to be statistically relevant.
 
 \end{description}
 
@@ -111,7 +111,8 @@ In addition, the amount of sent messages in a channel is used as a metric for ev
 
 Gathering passive user feedback via eye tracking software is a valid alternative to the more traditional approaches via clickthrough data, but is not considered in this thesis for two reasons.
 First, requiring an eye tracker for gathering implicit user feedback of generic web applications would be impractical.
-Second, cursor movement was shown to be a good approximation of where the user's gaze is located~\cite{Huang2011}, thus it is expected that using an eye tracker would not yield significant additional insights in the given context anyway.
+Second, cursor movement was shown to be a good approximation of where the user's gaze is located~\cite{Huang2011}.
+Thus, I expect that using an eye tracker would not yield significant additional insights in the given context anyway.
 This could of course be different for other use cases.
 
 %\cite{Kelly:2003:IFI:959258.959260}
@@ -140,19 +141,16 @@ As each channel has a different URL in Mattermost, this can be used as an indica
 \item[Click analysis: User clicks over time]
 If the bars of the chart described above are split by user and not by URL, other information may be gathered:
 Now, the chart represents how active a user is in the application at which time.
-High click rates could also indicate other problems, for example problems with the UI because the user clicks around the application cluelessly.
+High click rates could also indicate problems, for example with the UI when a user clicks around the application cluelessly.
 
 \item[Channel usage (active): Messages per channel]  
-This horizontal bar chart that plots the amount of messages that were sent.
+This horizontal bar chart plots the amount of messages that were sent.
 Each bar represents a specific channel, thus giving information about the absolute amount of messages as well as the relative amount compared to other channels.
-
-This data is represented in a slightly different way in a line chart that plots the messages sent by all users over time.
-The x-axis shows the time, while the y-axis shows the amount of messages.
 
 \item[Channel usage (passive): Scrolling time per channel]  
 An alternative metric for comparing channel popularity is the amount of time that users scrolled in a specific channel.
 This is visualized in a horizontal bar chart, where the x-axis represents the total time spent scrolling by all users.
-Just as the bar chart for active channel usage, this chart is also split by channel -- in this case one for the ``Dogs'' and one for the ``Cats'' channel.
+Just as the bar chart for active channel usage, this chart is also split by channel.
 
 \item[A/B test: Results per group]
 The A/B test's results are displayed in a variety of charts, the first being a vertical bar chart.
@@ -161,14 +159,14 @@ Each bar is split by the relative amount of decisions that were taken in favor o
 By designing the chart in this manner, it becomes immediately visible how the two groups' decisions compare with each other.
 
 \item[A/B test: Group Assignment Proportion]
-For an A/B test's validity, it is of great importance that the distribution of users into the control and treatment groups is occurs evenly.
+For an A/B test's validity, it is of great importance that the distribution of users into the control and treatment groups occurs evenly.
 A pie chart displaying the relative size of each group helps to make this visible -- if each part of the chart takes up half of the circle, users are distributed evenly.
 
 \item[A/B test: Sample Size]
 In order for an A/B test to be statistically significant, the sample size has to be big enough.
 %There exist various formulae for computing the desired sample size, dependent on various variables, which are not delved into here.
 A gauge chart can help to display the current sample size in comparison with the desired sample size; if the gauge reaches 100\%, the results of the experiment can be assumed as statistically relevant.
-The gauge's threshold value has to be manually computed when setting up the visualization.
+The gauge's threshold value has to be manually computed before setting up the visualization.
 
 \item[Feature Analysis: Channel Switch Mode] 
 The question about which feature for switching channels, if any, is more popular among users is answered by this pie chart.
@@ -190,7 +188,7 @@ This is described in more detail in the results section.
 \paragraph{Writing the test document}
 
 In order to prepare the test subjects for the experiment and communicate the tasks that they are expected to perform, a test document was prepared.
-In addition to a general introduction into what is expected of the subjects in the test, this document contains various task scenarios like in a usability test document, as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
+In addition to a general introduction into what is expected of the subjects in the experiment, this document contains various task scenarios like in a usability test document, as described by \citet[Prepare Test Materials, pp.~182f]{rubin2008handbook}.
 These task scenarios in the experiment are as follows:
 
 \begin{description}
@@ -199,7 +197,8 @@ These task scenarios in the experiment are as follows:
 An account for each tester was created prior to their test.
 This task has no additional purpose aside from giving the user access to the chat application.
 
-\item [Tutorial] The test subject is greeted with a tutorial after logging in, with a slight modification of the tutorial button depending on their belonging to the control or treatment group for the tutorial button experiment.
+\item [Tutorial] The test subject is greeted with a tutorial after logging in.
+The tutorial button is colored blue or green, depending on their belonging to the control or treatment group for the tutorial button experiment.
 At this point, the test subject is prompted to either do the tutorial or skip it.
 This decision is recorded by \ac{IFAS}; both the decisions itself and the assignment ratio of the two groups can later be viewed via the corresponding visualization.
 The document contains a hint after this task which tells the test subject that writing messages and reading the chat history is allowed.
@@ -208,17 +207,17 @@ The document contains a hint after this task which tells the test subject that w
 
 \begin{enumerate}
 \item First, the user is made familiar with the method of switching channels via the left-side menu.
-This results in the test subject switching to a dog-themed channel.
-\item After that, the user changes back to the cat-themed channel via the channel switcher.
-\item Finally, they are tasked with once again switching to the dog-themed channel.
+This results in the test subject switching to the ``Dogs'' channel.
+\item After that, the user changes back to the ``Cats'' channel via the channel switcher.
+\item Finally, they are tasked with once again switching to the ``Dogs'' channel.
 This time however, the decision about switching via the left-side menu or the channel switcher is up to them.
 \end{enumerate}
 
 \item [Writing a message] As the last task of the experiment itself, the user is asked to write a message in their channel of choice.
-It is explicitly noted that the message's contents are not of importance in order to impose no unnecessary pressure.
+It is explicitly noted that the message's contents are not important.
 
-\item [Give active user feedback] A short questionnaire was generated via \url{typeform.com}, asking the user questions regarding the tasks they just completed.
-The questions were chosen such that their results can be used to compare with the data collected in \ac{IFAS}:
+\item [Give active user feedback] A short questionnaire, which was created via \url{typeform.com}, asks the user questions regarding the tasks they just completed.
+The questions were chosen such that their results can be used to compare with the passive feedback collected in \ac{IFAS}:
 
 \begin{enumerate}
 \item ``What was your username for the test?'' (open question):
@@ -229,14 +228,14 @@ The answers to this yes-or-no question yield a percentage of people who particip
 This value can be used to compare with the results of the A/B test.
 \item ``What color did the button for starting the tutorial have? Click ``don't know'' if you do not remember.'' (multiple choice):
 As the previous question about the tutorial does not take into account which group the test subjects were distributed to, this question aims to establish whether they were part of the control or treatment group.
-It is at the very least expected to be possible that the users will not remember which color the button had.
-Thus, the three possible answers to this question are: ``Blue'', ``Grey'', and ``don't know''.
-If this question \emph{does} yield conclusive results, it can be used make a more distinct comparison to the values of the A/B test in \ac{IFAS}.
+It is expected to be possible that the users will not remember which color the button had.
+Thus, the three possible answers to this question are ``Blue'', ``Grey'', and ``don't know''.
+If this question yields conclusive results, it can be used make a more distinct comparison to the values of the A/B test in \ac{IFAS}.
 \item ``Which was the most interesting channel?'' (multiple choice):
 This can be used to establish whether the metrics for measuring interest, in particular scrolling time, were chosen correctly.
 The two possible answers are ``Cats'' and ``Dogs'', as these were the two only channels in the testing environment.
 \item ``Which method for switching channels did you use more?'' (multiple choice):
-The answers to this question are used to validate the feature analysis data regarding the method for switching channels in \ac{IFAS}.
+The answers to this question are used to validate the feature analysis data regarding the method for switching channels.
 The participant can choose between ``Menu (left side)'' and ``Channel switcher (bottom left side)''.
 \item ``How many messages did you send?'' (open question, only number input allowed):
 This question is used to validate the amount of sent messages that are forwarded to \ac{IFAS}.
@@ -357,9 +356,8 @@ Instead of a 3 hour interval, as in the initial dashboard, the interval in this 
 \end{figure}
 
 Clicking on a bar on either chart applies a filter to the whole dashboard.
-For example, if the purple bar in the lower chart was clicked and the time interval was further refined to an even shorter timespan (cf. \cref{figure:evaluation:user:dashboard-clicks-zoom-user}), it is possible to retrace in great detail where the respective user was active at which point in time.
+For example, if the green bar in the lower chart was clicked and the time interval was further refined to an even shorter timespan (cf. \cref{figure:evaluation:user:dashboard-clicks-zoom-user}), it is possible to retrace in great detail where the respective user was active at which point in time.
 As the click events also contain data about the click coordinates and the window size, it would even be possible to reconstruct where exactly the user clicked.
-Such a visualization was not implemented for the purpose of this thesis however.
 
 \FloatBarrier
 
@@ -431,16 +429,16 @@ Users are probably not aware of the subtle differences that an A/B test introduc
 This becomes apparent in the question about the button for starting the tutorial, where most users were not able to say with confidence which color the button had.
 As this question is essential for the result of the A/B test, it would be impractical to conduct such a test using active user feedback.
 It would of course be possible to make note of which group the user is assigned while the test is being supervised, but this would be too much work for the sample sizes that are needed in order to come up with a statistically relevant result.
-In contrast, the amount of people in total who started the tutorial, which is 7, is the same both in the survey and in \ac{IFAS}.
+The amount of people across both variants who started the tutorial is 7 according to both the survey and \ac{IFAS}.
 
 In order to allow the experimenter to view all important experiment parameters at one glance, two additional visualizations were added to the dashboard, the first one being a pie chart displaying the distribution between the treatment and control groups.
 In this case, the distribution between treatment and control is exactly 50:50 -- exactly how it is supposed to be.
 Again, this could not be reliably measured using the questionnaire.
 
 The second additional visualization for the A/B test is a gauge that represents how large the current sample size is in comparison to the desired sample size.
-In this case, the gauge is set to an exemplary desired sample size of 20 and thus the gauge shows that the current sample size is 60\% of the desired value.
-This would of course have to be increased for a real life A/B test.
-Using the questionnaire's results, the same data could be retrieved by just counting the total number of participants of the questionnaire.
+In this case, the gauge is set to an exemplary desired sample size of 20 and thus the gauge shows that the current sample size is $12/20=60\%$ of the desired value.
+%This would of course have to be increased for a real life A/B test.
+%Using the questionnaire's results, the same data could be retrieved by just counting the total number of participants of the questionnaire.
 
 
 %\paragraph{A/B test: Results per group}
@@ -455,13 +453,14 @@ Using the questionnaire's results, the same data could be retrieved by just coun
 
 \paragraph{Feature Analysis: Channel Switch Mode} 
 
-The results for the feature analysis regarding the preferred mode of channel switching were rather surprising in the sense that a preference for channel switching via the sidebar was expected.
+The results for the feature analysis regarding the preferred mode of channel switching were rather surprising in the sense that the expected preference for channel switching via the sidebar is not reflected in the results.
 This is displayed in a pie chart (cf. \cref{figure:evaluation:user:visualization-feature-analysis}) that is filled according to the relative amount of channel switch operations that were done during experiment execution using either method.
 When hovering the mouse over the chart, the absolute and relative values for the respective method are displayed.
 
-Contrary to initial expectations, there was no clear preference for either method: \ac{IFAS} reports that in 53.5\% of the cases, the channel was switched via the sidebar.
-This corresponds with the results from the post-test questionnaire, in which exactly half of the users claimed that they had mostly used the channel switcher.
-These results legitimize on the one hand the presence of both channel switching methods in the Mattermost application, and on the other hand the accuracy of the data that \ac{IFAS} has gathered and now displays.
+Contrary to initial expectations, there was no clear preference for either method: \ac{IFAS} reports that in 53.5\% of all channel switching operations, the channel was switched via the sidebar.
+This corresponds with the results from the post-test questionnaire, in which exactly 50\% of the users claimed that they had mostly used the channel switcher.
+This result legitimizes the accuracy of the data that \ac{IFAS} reported.
+If a statistically relevant amount of test subjects had participated in the experiment, such a result would also legitimize the presence of both channel switching methods in the Mattermost application.
 
 \begin{figure}[t]
         \caption[Pie chart visualizing the proportions between channel switching actions.]{
@@ -498,12 +497,11 @@ However, external validity is at least problematic for this case study.
 On the one hand, the test subjects come from different professional backgrounds and are rather diverse in both gender and age, which improves external validity.
 But on the other hand, the sample size of twelve test subjects is rather small and affected by the fact that all of them are acquaintances of the experimenter.
 Thus, other results could probably turn up for different test subjects.
-This problem was known from the start, but could not be circumvented because the time constraints did not allow for a bigger and more representative sample size.
+%This problem was known from the start, but could not be circumvented because the time constraints did not allow for a bigger and more representative sample size.
 
 Reliability cannot be measured as of now, as \ac{IFAS} was created specifically for this thesis and thus no other researcher was able to examine it.
-One possible problem regarding reliability is that the research has a stake in the software that is being evaluated.
-This is to some extent the case for \ac{IFAS}, but is mitigated by two factors:
-First, the fact that this potential problem was known from the start and, second, the success of a master's thesis does not necessarily rise or fall with the mere outcome of parts of the evaluation.
+One possible problem regarding reliability is that I have a stake in the software that is being evaluated, but this is mitigated by two factors:
+First, the fact that this potential problem was known from the start and, second, that the success of a master's thesis does not necessarily rise or fall with the mere outcome of parts of the evaluation.
 
 \section{Performance Test}
 \label{sec:evaluation:performance}
@@ -535,12 +533,13 @@ Both the tests for the indexing time of Elasticsearch and for the rendering time
 
 If not otherwise stated, all statistical analyses and plots in this section were done using the R language\footnote{\url{https://www.r-project.org/}} and ggplot2\footnote{\url{http://ggplot2.org/}}.
 
-\subsection{Client to Event Store to Elasticsearch}
+\subsection{Event Store to Elasticsearch}
 \label{subsec:evaluation:performance:evt-es-bridge}
 
 For the purpose of testing the performance of \ac{IFAS}, a predefined number of\linebreak \texttt{ExperimentParticipated} events are created and sent to the Event Store instance in rapid succession.
 This test makes use of the event generator program, the implementation of which is described in \cref{sec:implementation:event-generator}.
-A dedicated persistent subscription is created by the event generator, which the Event Store-Elasticsearch bridge listens on.
+After the events are generated and sent to Event Store, the bridge application is started.
+A dedicated persistent subscription is created by the event generator, which the Event Store-Elasticsearch bridge then listens on.
 These events in turn are fed into Elasticsearch as fast as possible by the bridge application.
 
 Thus, this experiment measures the time it takes to read a persistent subscription of fixed size from beginning to end and post the given events to Elasticsearch.
@@ -576,12 +575,12 @@ When executing the tests, the bridge application would sometimes stop receiving 
 The exact reason for this is unknown, but this behavior only occurred if the client-side buffer size was set to 1280 or higher, and never for values less than or equal to 640.
 For this reason, the client-side buffer size was fixed to 640 for all configurations.
 
-Instead of just incrementing the values for each configuration, it would in theory have been possible to test other combinations or even all possible permutations of the listed configurations.
-This was not done because it would have resulted in up to $10^3$ different configurations, which would have taken too long to execute and evaluate.
-They could however prove to be beneficial for identifying a better configuration, so this is a candidate for future work.
-
 For values higher than configuration level 9, the experiment suffered similar problems and thus configuration levels are capped to that number.
 Again, the reasons for this are unknown and could be implementation-specific, but are not further investigated because digging too deep into Event Store performance optimization is out of scope for this thesis (cf. \cref{ch:future-work}).
+
+Instead of just incrementing the values for each configuration, it would in theory have been possible to test other combinations or even all possible permutations of the listed configurations.
+This was not done because it would have resulted in up to $10^3$ different configurations, which would have taken too long to execute and evaluate.
+This could however prove to be beneficial for identifying a better configuration, so this is a candidate for future work.
 
 \begin{table}
 \caption{Table of all configurations used in the performance tests and their respective settings.}
@@ -615,8 +614,8 @@ Docker's memory was set to 4 GiB, with a swap space of 1 GiB.
 
 The experiment was executed using two custom bash scripts (cf. \cref{appendix:code:evaluation:performance:exec-perftests} and \cref{appendix:code:evaluation:performance:performance}).
 The \texttt{performance.sh} script starts the event generator and bridge application with a given set of configuration parameters, then saves the output of the latter to a CSV file.
-Just before connecting to the persistent subscription, the current timestamp is logged to the file, thus later allowing to compute the total duration of the operation for the respective configuration and size.
-Each subsequent line of this CSV file is generated by the bridge application for each bulk indexing operation that is sent to Elasticsearch.
+Just before connecting to the persistent subscription, the current timestamp is logged to the file, thus later allowing to compute the total duration event processing for the respective configuration and size.
+Subsequent lines of this CSV file are generated by the bridge application for each bulk indexing operation that is sent to Elasticsearch.
 The resulting CSV file has four columns:
 
 \begin{description}
@@ -631,7 +630,7 @@ This script loops over all possible combinations of size and configuration as gi
 This is repeated for a given amount of runs, in this case 15.
 
 A gradual decrease in performance was observed during the first runs of the experiment, which got worse the more experiments had already been executed.
-In order eliminate such crossover effects from other experiment runs, the \texttt{exec-perftest.sh} script invokes \texttt{docker-compose down} prior to executing the experiment, thus tearing down all relevant containers and volumes that existed before.
+In order to eliminate such crossover effects from other experiment runs, the \texttt{exec-perftest.sh} script invokes \texttt{docker-compose down} prior to executing the experiment, thus tearing down all relevant containers and volumes that existed before.
 This guarantees identical starting conditions for each experiment run.
 
 \subsubsection{Results}
@@ -700,7 +699,6 @@ This ideal configuration is configuration 8, with a buffer size and live buffer 
 With such a configuration \ac{IFAS} is able to handle up to 150k events in 30 seconds, i.e. 5,000 events per second.
 For more demanding use cases, more investigations into Event Store performance tuning would have to be conducted.
 
-
 \begin{table}
 \centering
 \caption[Median processing durations for the ideal configuration for all experiment sizes.]
@@ -713,6 +711,8 @@ For more demanding use cases, more investigations into Event Store performance t
 \end{tabular}
 \label{table:median-durations-config-8}
 \end{table}
+
+\FloatBarrier
 
 \paragraph{Event processing rate over time}
 
@@ -821,7 +821,7 @@ The results of the experiment yield that Elasticsearch needed about 7500 seconds
 This results in a little above 16,000 documents per second (find the exact numbers in \cref{table:elasticsearch-performance}).
 As evaluated in the performance test for Event Store and the bridge application, they process events with a rate of at most 5,000 events per second.
 
-Accordingly, Elasticsearch is well suited to handle the rate at which the rest of \ac{IFAS} prcoesses events.
+Accordingly, Elasticsearch is well suited to handle the rate at which the rest of \ac{IFAS} processes events.
 If needed, additional measures, such as increasing the heap size, can be taken in order to improve the indexing rate further.
 
 \begin{table}
@@ -950,7 +950,7 @@ For 150,000 events and the A/B test visualization, with a automatic refresh rate
 This is a worst case computation, because it assumes that each processing step of \ac{IFAS} runs sequentially, and it uses the average visualization duration for the Kibana visualization for 120 million hits.
 In practice, Elasticsearch does not begin indexing after all the 150,000 events are processed by the bridge application, but as soon as the first events come in.
 As Elasticsearch's indexing rate is more than three times faster than the processing rate of the persistent subscription, it will presumably have finished indexing very soon after the last events are processed by the bridge and sent over to Elasticsearch.
-When comparing this with the 150,000 events per second that the Netflix platform is able to handle~\cite{WEB:Netflix:2016}, \ac{IFAS} is about $1/46$ as fast.
+%When comparing this with the 150,000 events per second that the Netflix platform is able to handle~\cite{WEB:Netflix:2016}, \ac{IFAS} is about $1/46$ as fast.
 %With this assumption, the total processing time for 150,000 events comes very close to 30 seconds.
 
 \subsection{Validity}
@@ -1013,13 +1013,13 @@ See \cref{sec:implementation:fitness} for the initial definitions of the differe
 Regarding the desired latency of \ac{IFAS}, the current state of the architecture reaches one point each for reaching the 60s and 48s thresholds, respectively.
 The bottleneck of the current \ac{IFAS} implementation is the Event Store's persistent subscription, which reaches about 5,000 events per second; all other parts of the system are faster.
 This yields a score of three out of five for the throughput fitness function.
-None of the desired characteristics regarding high availability are reached in the current \ac{IFAS} implementation, thus a score of 0 is displayed for that fitness function.
-Both latency and especially availability are thus points in which \ac{IFAS} has plenty of room for improvement in its current state.
+None of the desired characteristics regarding high availability are reached in the current \ac{IFAS} implementation as no clustering is implemented yet, thus a score of 0 is displayed for that fitness function.
+Both latency and especially availability are thus points in which \ac{IFAS} has room for improvement in its current state.
 
 \begin{figure}[t]
-        \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the evalatuion was done.]{
-        Current state of \ac{IFAS} with respect to the defined fitness functions, after the implementation was done.
-        The results from the previous fitness function analysis in \cref{figure:implementation:fitness} are enhanced with the values for availability, throughput, and latency.
+        \caption[Current state of \ac{IFAS} with respect to the defined fitness functions, after the evaluation was done.]{
+        Current state of \ac{IFAS} with respect to the defined fitness functions, after the evaluation was done.
+        The results from the previous fitness function analysis in \cref{figure:implementation:fitness} are enhanced with the values for availability, throughput, and latency obtained during the performance tests.
         }
 \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/fitness-function-eval}

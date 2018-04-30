@@ -5,45 +5,45 @@
 
 This chapter describes details about the design, implementation, and configuration of \acf{IFAS}.
 Appendix \cref{ch:appendix:source} contains the source code of the services and applications as they are mentioned over the course of this chapter.
-The full source code is available via GitHub\footnote{\url{https://github.com/janis-kra/master-impl}}\todo{link to "final" tag when done}.
+The full source code is available via GitHub\footnote{\url{https://github.com/janis-kra/IFAS/releases/tag/final}}.
 %At the time of beginning the implementation, the current Elasticsearch and Kibana versions were 6.1.1, the current Event Store version was 4.1.
 
 %After consideration of the goals for the \acf{IFAS} and the results from the classifications made earlier (cf. \cref{ch:classifications}), the system was designed.
 %This activity includes specific decisions such as which data to collect and especially how to implement the Event Store-Elasticsearch bridge service, as well as working out the overall architecture of the whole system.
 
-\section{IFAS Fitness Functions}
+\section{Fitness Functions}
 \label{sec:implementation:fitness}
 
 As recommended when building an evolutionary architecture (cf. \cref{sec:fundamentals:evolutionary}), several fitness functions were created.
 These are based on the goals defined earlier in the introduction and when the different software solutions for \ac{IFAS} were evluated (cf. \cref{sec:intro:objectives,ch:classifications}).
-After all aspects of the systems architecture and implementation are explained, \cref{section:design:architecture} at the end of this chapter evaluates the architecture's conformance to the defined fitness functions in its current state and as far as possible.
+After all aspects of the systems architecture and implementation are explained, \cref{section:design:architecture} at the end of this chapter evaluates the architecture's conformance to the defined fitness functions in its current state.
 Further evaluation of the performance-related fitness functions is done at the end of the evaluation (cf. \cref{sec:evaluation:fitness}).
-As the idea behind fitness functions is to enable guided change -- in contrast to defining fulfillment criteria that have to be met as soon as the architecture is enacted -- not all criteria will be met 100\% when the \ac{IFAS} architecture and implementation is finished.
+As the idea behind fitness functions is to enable guided change -- in contrast to defining fulfillment criteria that have to be met as soon as the architecture is enacted -- not all criteria will be met 100\% when the implementation tasks are done.
 Instead, the fitness functions can be used to facilitate further development of the system and evolvement of the architecture (cf. \cref{ch:future-work}).
-Thus, the fitness also do \emph{not} constitute the objectives for the thesis -- these are still as described in \cref{sec:intro:objectives}.
+Thus, the fitness also do \emph{not} constitute objectives for the thesis -- these are still as described in \cref{sec:intro:objectives}.
 
 All fitness functions rate the architecture on a scale of 0 to 5, although some can only be measured binary (i.e. either 0 or 5).
-It should be noted that fitness functions in general are defined on a rather subjective point of view, with best practices in mind, and are thus subject to change as the architecture evolves.
+It should be noted that fitness functions in general are defined with a rather subjective point of view, with best practices in mind, and are thus subject to change as the architecture evolves.
 The fitness functions for \ac{IFAS} are as follows:
 
 \begin{description}
 \item[Low Latency] The system must achieve a latency -- i.e. the time from arrival of the user feedback to its visualization in Kibana -- of usually under one minute.
-Achieving this yields a score of 1, additional points are achieved for each subsequent 12 second speedup.
+Achieving this yields a score of 1, additional points are achieved for each subsequent 12 seconds speedup.
 A latency of 12 seconds or lower thus results in a score of 5.
 \item[High Throughput] The system must achieve a throughput of at least 1000 events per second.
 Achieving this yields a score of 1, additional points are achieved for 2500, 5000, 10000 and 25000 events per second.
-\item[High Availability] The system must be highly available, which means that user feedback can be supplied to it at all times even though individual services are down.
+\item[High Availability] The system must be highly available, which means that user feedback can be supplied to it at all times even when individual services are down.
 This can for example be achieved by setting up clusters for redundancy.
-One point each is achieved for: Redundancy clusters for Event Store and Elasticsearch, redundancy services for the bridge and Kibana, automatic reboot on system crash. 
+1 point each is achieved for: Redundancy clusters for Event Store and Elasticsearch, redundancy services for the bridge and Kibana, automatic reboot on system crash. 
 \item[Compatibility] The architecture must be available for integration into existing architectures.
 This is achieved if no restrictions are imposed upon the target system.
 An example for such a restriction would be the need for an native Event Store installation.
 \item[Evolvability] The architecture must be built with evolvability in mind, i.e. according to the principles of evolving architectures.
 \item[Scalability] The architecture must be horizontally scalable.
-One point each is achieved for: Horizontal scaling for Event Store, bridge service, and Elasticsearch.
-Two points are achieved if horizontal scaling is theoretically possible but not implemented yet.
+2 points are achieved if horizontal scaling is theoretically possible but not implemented yet.
+1 additional point each is achieved for: Horizontal scaling for Event Store, bridge service, and Elasticsearch.
 \item[Data Security] The user feedback data that is collected using \ac{IFAS} must not leave the server that it runs on, once they are received by the system (3 points).
-Both interfaces that \ac{IFAS} exposes must have password protection (2 points, 1 each).
+Both interfaces that \ac{IFAS} exposes must have password protection (1 point each).
 \item[Acquisition Cost] The software included in the system must have no acquisition cost whatsoever.
 \item[Legal Requirements] The software included in the system must be available for commercial use.
 \end{description}
@@ -58,7 +58,7 @@ This section first discusses the problems with implementing sending of implicit 
 \subsection{Challenges with Reliable Feedback Sending}
 \label{subsec:implementation:client:problems}
 
-When tracking user interactions in a web application, this is implemented using \ac{XHR} requests in JavaScript.
+When tracking user interactions in a web application, this is usually implemented using \ac{XHR} requests in JavaScript.
 The technical idiosyncrasies of \emph{reliably} sending data via \ac{XHR} requests can become problematic though.
 This is explained in this section via the concrete example of click tracking.
 For various reasons, which are discussed below, there are no valid alternatives to doing asynchronous \ac{XHR} requests for click tracking for this use case though.
@@ -68,32 +68,32 @@ This problem could be solved by doing a synchronous request instead of an asynch
 If the user's internet connection is slow -- e.g .when accessing the application on a mobile phone -- or the logging server is experiencing heavy load, this can introduce a noticeable and annoying delay.
 These delays can be a reason to make the user abandon the application altogether~\cite{Kohavi2010,Dmitriev2017}.
 
-In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used for this use case for two reasons.
+In order to mitigate these problems, the Navigator \ac{API} of modern browsers was extended with the \texttt{sendBeacon}\footnote{\url{https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon}} method, but this cannot be used here for two reasons.
 The concept of the \texttt{sendBeacon} method is that it can be used to asynchronously send a small amount of data to a server prior to the user leaving the page, in a reliable way.
 However, this is not yet implemented in all modern browsers\footnote{\url{https://caniuse.com/\#feat=beacon}}, especially Internet Explorer and the desktop and mobile Safari browsers.
 Also, when posting data to Event Store using its \ac{HTTP} \ac{API}, the \texttt{ES-EventId} header has to be attached to the request with a unique id -- attaching custom headers via the \texttt{sendBeacon} method is not supported though.
 
-Another possibility for delivering implicit user feedback is the web beacon technique, which works by sending a request for a special 1x1 pixel image on a server.
-While this was a very popular method a few years ago, improvements in web browsers and the JavaScript language make web beacons rather outdated.
+Another possibility for delivering implicit user feedback is the web beacon technique, which works by sending a request for a special 1x1 pixel image on a server~\cite{Kohavi2012}.
+This was a very popular method a few years ago, but improvements in web browsers and the JavaScript language make web beacons rather outdated.
 This alone would not be a valid reason for abandoning this technique, but \citet{Kohavi2012} report additional problems with browsers aborting requests made via the web beacon technique.
 Thus, web beacons are not a suitable alternative for sending the feedback to the server.
 
 For the reasons discussed above, a standard asynchronous \ac{XHR} is the best alternative.
 This would introduce click data being lost when the request is dropped on a traditional website, where such a request is often sent when the user navigates \emph{away} from the website.
-But as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem because the user never really leaves the website and thus the JavaScript execution context is only closed if the user explicitly closes the aplpication.
+But as the Mattermost chat application used as the client here is a \ac{SPA}, this is not a problem because the user very rarely leaves the website via a link in the application.
 
 %There exist three different click event types: \texttt{mousedown}, \texttt{mouseup} and \texttt{click}.
 %Capturing the event on \texttt{mousedown} would cause the event to fire earlier than the two other event types, but this is not necessary as problems with lost click events are not expected because Mattermost is a \ac{SPA}.
 
 \subsection{Feedback Sending Module}
 
-A small JavaScript module was implemented, which exports a function for sending the feedback data.
+I implemented a small JavaScript module that exports a function for sending the feedback data.
 The source code is listed in the appendix under \cref{appendix:code:implementation:mattermost:feedbackjs}.
 
 The feedback module exports one function, \texttt{initFeedback}, which takes a URL and a stream name as arguments.
 This function's return value is another function, called \texttt{feedback}, that sends the actual user feedback for a given event type.
 The \texttt{feedback} function sets the appropriate \ac{HTTP} headers and creates a unique id for the event, then sends the \ac{XHR} request to the Event Store at the URL previously set via \texttt{initFeedback}.
-This generic approach makes the module universally applicable for any client application that is written in JavaScript.
+This generic approach makes the module universally applicable for any client application that is written in JavaScript and wants to send data to \ac{IFAS}.
 
 The feedback module is used in various places throughout the Mattermost web application in order to send the user feedback as specified in \cref{sec:design:event-structure}.
 For most types of user feedback, additional data from the application's internal state was required.
@@ -115,9 +115,9 @@ It contains data about the channel that is switched to, as well as the method of
 \item[TutorialExperimentParticipated]
 This event contains information about the decision a newly registered user makes regarding the Mattermost tutorial:
 Either the user participates in the tutorial, or they skip it.
-As this event is used as the data source for an A/B test, it also contains information about the group that the user was assigned to, which is either control or treatment.
+As this event is used as the data source for an A/B test, it also contains information about the variant that the user was exposed to (control or treatment).
 \item[PostCreated]
-Every time a message is sent in Mattermost, a new \texttt{PostCreated} event is fired.
+Every time a message is sent in Mattermost, a \texttt{PostCreated} event is sent.
 This event contains extensive data about the message itself, such as its contents and the sender's id, as well as a lot of metadata such as the channel the message was posted to and the time it was created.
 The resulting data is used to compute metrics regarding active channel usage via sent messages.
 \item[UserClicked]
@@ -129,7 +129,6 @@ Using this information, the analyst can exactly identify the position where the 
 \item[WindowScrolled]
 Whenever a user scrolls up or down in the chat window, a \texttt{WindowScrolled} event is sent to \ac{IFAS}.
 This event encaspulates information about the URL at which the scrolling occured, as well as the duration and amount of the scrolling.
-Using this event's data, the scrolling amount metric can be computed.
 \end{description}
 
 Parts of the data contained in these events may be redundant or unspecific in some cases, but help to recreate the user's steps if this is needed.
@@ -146,11 +145,12 @@ An officially maintained Docker image\footnote{\url{https://hub.docker.com/r/eve
 At the time of implementation, the current Event Store version was 4.1.0.
 
 The Event Store service definition is contained in the Compose file printed in the appendix under \cref{appendix:code:docker:docker-compose}.
-This configuration starts up an Event Store container with mostly default settings, which exposes port 2113 in order to allow the client application to send events over the \ac{HTTP} interface.
+This configuration starts up an Event Store container with mostly default settings and exposes port 2113 in order to allow the client application to send events over the \ac{HTTP} interface.
 In order to not lose critical data when a container is removed, two volumes \texttt{eventstoredata} and \texttt{eventstoreconfig} are created and mounted to the respective folders within the container's file system.
-This stores the data and configuration in separate Docker volumes, which are preserved when the container is removed, which would be the case for example if a new version of the Event Store image is used.
+This stores the data and configuration in separate Docker volumes, which are preserved when the container is removed.
+Container removal for example happens when a new version of the Event Store image is used.
 
-This service definition also makes the Event Store's \ac{TCP} and \ac{HTTP} interfaces available via ports 1113 and 2113 for all services in the \texttt{IFAS-net} network.
+This service definition also implicitly makes the Event Store's \ac{TCP} and \ac{HTTP} interfaces available via ports 1113 and 2113 for all services in the \texttt{IFAS-net} network.
 The container can be accessed by other containers via its name, \texttt{eventstore}.
 Thus, the bridge to the aggregation service (cf. \cref{sec:implementation:bridge}) listens to new events via the \ac{TCP} address \url{tcp://eventstore:1113}.
 The client application however has to post events to the publicly available URL because it is not part of the \texttt{IFAS-net} network; in the case where both \ac{IFAS} and the client are run on the same machine the URL is \url{http://127.0.0.1:2113}.
@@ -168,9 +168,9 @@ Intuitively, it seems problematic that Event Store and Elasticsearch have differ
 On the one hand, Event Store data is stored as events in streams; each event always has an event type and a unique id within that stream.
 On the other hand, in Elasticsearch, data is managed in indices which contain documents; each Elasticsearch document is assigned a document type.
 
-The bridge spans the gap between the two concepts by subscribing to all events that are posted to the user feedback stream and posting them to Elasticsearch.
+The bridge spans the gap between the two concepts by subscribing to all events that are posted to the user feedback stream and forwarding them to Elasticsearch.
 As Elasticsearch does not allow multiple document types in the same index since the release of the most recent major version\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html}}, each event type has to have its own Elasticsearch index.
-Thus, \ac{IFAS} in its current state has five Elasticsearch indices, one for each event type.
+Thus, \ac{IFAS} in its current state and with the event types described in \cref{sec:design:event-structure} has five Elasticsearch indices, one for each event type.
 The index names always have the Event Store stream's name as the prefix and the event type as the suffix, divided by an underscore.
 In conclusion, each stream maps to the prefix of an index, each event type maps to the suffix of an index, and each event maps to a document (cf. \cref{table:design:bridge}).
 The event type is automatically also the document type.
@@ -189,16 +189,16 @@ Event & Document
 \end{tabular}
 \end{table}
 
-One possible and seemingly convenient solution would be using Logstash\footnote{\url{https://www.elastic.co/products/logstash}} as the bridge, which is not applicable in this exact scenario though.
+One possible and seemingly convenient solution would be using Logstash\footnote{\url{https://www.elastic.co/products/logstash}} as the bridge.
 Logstash is another application from the Elastic stack; it serves the exact purpose to integrate data from various sources into Elasticsearch.
-It is possible to consume Atom feeds via Logstash's \ac{RSS} plugin, which Event Store offers an interface for.
-This is not feasible in this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which Event Store does.
+It is possible to consume Atom feeds via Logstash's \ac{RSS} plugin, and Event Store offers the possibility to read events via Atom feeds.
+This is not feasible in this scenario as Logstash's \ac{RSS} plugin is not able to handle feeds which require authentication, which is required by Event Store.
 Also, Event Store's persistent subscriptions are not compatible with Atom feeds, which is another reason to disregard Logstash as a possible solution.
 
 Instead of using an existing service that listens to Atom feeds such as Logstash, a custom implementation is the better approach here.
-This is the case because the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} can be used, which allows for usage of persistent subscriptions and more efficient communication over a dedicated protocol built on top of \ac{TCP}.
+This allows for usage of the official .NET Core Event Store client \ac{API}\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}}, which has support for persistent subscriptions and a more efficient communication protocol built on top of \ac{TCP}.
 The \ac{TCP} protocol variant is faster than the alternative via Atom feeds, which is built on top of \ac{HTTP}~\cite{WEB:EvtSt-Which-Api}.
-However, the \ac{API} can also communicate via \ac{HTTP} if a service requires this.
+However, the Event Store client \ac{API} is also able to communicate via \ac{HTTP}, should a service require this.
 Mixing different protocols for communication between services is not a problem due to the heterogenous technology landscape that a microservice architecture allows~\cite[Key Benefits,pp.~4f]{newman2015building}.
 %It should be noted that, although using \ac{TCP} instead of \ac{HTTP} contradicts the requirement for an \ac{HTTP} interface as stated in \cref{sec:design:goals}, this is not a problem at all
 
@@ -206,7 +206,7 @@ Mixing different protocols for communication between services is not a problem d
 Assuming the Event Store stream already exists, setting up the bridge to transfer new events to an Elasticsearch index would then be a two-step process.
 First, a persistent subscription has to be created within the Event Store administration overlay.
 Then, an instance of the bridge service has to be started and configured to listen to the newly created subscription.
-This would cause the bridge to transfer all existing events which were not read previously to the respective Elasticsearch indices, and then also posting all subsequently received events to this index.
+This would cause the bridge to transfer all existing events which were not read previously to the respective Elasticsearch indices, and then also posting all events that are received in the future to this index.
 
 It would also be possible to implement the bridge in a way that allows the service to listen to multiple subscriptions simultaneously.
 This would require a more complex service which introduces two problems.
@@ -220,7 +220,7 @@ This advanced use case is not considered further though.
 
 When a persistent subscription is created -- which the bridge assumes has already happened -- it expects a stream name and a \emph{subscription group} as parameters.
 There can be multiple persistent subscriptions of different groups listening to the same stream; the subscriptions then operate independently of each other.
-This pattern is rather useful if the data from a given stream is used by another application alongside \ac{IFAS}.
+This pattern could be rather useful if the data from a given stream is used by another application alongside \ac{IFAS}.
 
 %\subsection{Mapping Event Store Rebuilds to Elasticsearch}
 %\label{subsec:design:bridge:mapping}
@@ -242,9 +242,9 @@ The solution to this problem is the capability of the Elasticsearch Index \ac{AP
 Whenever a new event is sent to the bridge, it is added to an empty collection of events and a timer starts counting down from a configurable number of milliseconds (default is 1000).
 If additional events are received by the bridge within this interval, they are added to the same collection that the initial event is already part of.
 When the timer has finished counting down, all events that were added to the collection in the meantime are sent to Elasticsearch in a single bulk indexing request.
-Measurements in the performance tests (cf. \cref{sec:evaluation:performance}) show that these bulk indexing requests contain up to 8.000 events.
+Measurements in the performance tests (cf. \cref{sec:evaluation:performance}) show that these bulk indexing requests contain up to 8,000 events.
 
-\section{Elasticsearch Service Configuration}
+\section{Elasticsearch Configuration}
 \label{sec:implementation:aggregation}
 
 In compliance with the results from the classification of data aggregation services (cf. \cref{sec:classifications:aggregation}), the aggregation service is realized by Elasticsearch.
@@ -254,7 +254,7 @@ Additional configuration is supplied to the image mostly via a configuration fil
 The file's contents can be viewed in the appendix under \cref{appendix:code:implementation:docker:elasticsearch-yml}.
 It is necessary to enable \ac{CORS} in the configuration file in order to allow the bridge service to query the Index \ac{API} via \ac{HTTP}.
 In addition to the settings from the \texttt{elasticsearch.yml} configuration file, the minimum and maximum Java heap sizes are set via an environment variable in the service definition.
-The heap size is set to 512 MB, which is a rather low setting and can safely be increased in a production environment to a higher value in order to improve performance.
+The heap size is set to 512 MB, which is a rather low setting and can safely be increased in a production environment to a higher value if needed.
 % WRONG As a security measure, Elasticsearch's \texttt{ulimit} is set to 1 in order to avoid any additional processes besides the Elasticsearch process begin run in the container.
 
 As with the Event Store service, Elasticsearch also uses a volume to store data externally instead of in the container itself.
@@ -262,37 +262,37 @@ This prevents data loss in cases where the container is removed or changed, for 
 
 The service definition also adds Elasticsearch to the \texttt{IFAS-net} network.
 Elasticsearch opens up port 9200 for communication via its \ac{REST} \ac{API} and port 9300 for communication with other nodes in a cluster via \ac{TCP}.
-It exposes no ports outside of the \ac{IFAS} application, as communication only occurs with \ac{IFAS}-internal services, namely the bridge and Kibana.
+It exposes no ports outside of the \ac{IFAS} application, as communication only occurs with \ac{IFAS}-internal services (the bridge and Kibana).
 
-\section{Kibana Service Configuration}
+\section{Kibana Configuration}
 \label{sec:implementation:analysis}
 
 Kibana, which is used as the data analysis service, is configured in a similar way to the Elasticsearch service as they are originally distributed as part of the same software stack.
 The service definition for Kibana can be found in the main \ac{IFAS} Compose file that is referenced in the appendix under \cref{appendix:code:docker:docker-compose}.
 As with the other services, the Kibana service definition is based on the official Kibana Docker image \footnote{\url{https://www.elastic.co/guide/en/kibana/current/docker.html}}, also with version 6.1.1.
 
-Again, Kibana's data is saved to a Docker volume instead of in the container itself.
+Kibana's data is saved to a Docker volume instead of in the container itself.
 The configuration file \texttt{kibana.yml} (cf. \cref{appendix:code:implementation:docker:kibana-yml}), which is mounted into the container's file system, tells the service at which address the Elasticsearch service can be found: \url{http://elasticsearch:9200/}.
 In order for Kibana to be able to communicate with Elasticsearch, it is added to the \texttt{IFAS-net} network.
-The service is configured to expose port 5601 such that the Kibana web application can be interacted with from the outside.
+The service is configured to expose port 5601 such that the Kibana web application can be accessed from the outside.
 
 \section{Event Generator Implementation}
 \label{sec:implementation:event-generator}
 
 An event generator application was implemented for the performance test (cf. \cref{sec:evaluation:performance}).
-The purpose of this application is to generate a given number of \texttt{ExperimentParticipated} events and send them to \ac{IFAS}, namely its Event Store.
+The purpose of this application is to generate a given number of \texttt{ExperimentParticipated} events and send them to \ac{IFAS}.
 In the performance tests, the number of generated events per run range from 50,000 to 120,000,000.
 
 The event generator application is implemented in C\# and ASP.NET Core.
-It makes use of the official EventStore .NET Core client\footnote{\url{https://github.com/EventStore/ClientAPI.NetCore}} for posting the events, which uses the Event Store's \ac{TCP} interface for improved performance.
-Instead of sending every single event separately though -- which would introduce a huge overhead for all the resulting \ac{TCP} requests -- events are batched into arrays of size 50 and then sent collectively.
+It makes use of the official EventStore .NET Core client for posting the events, which uses the Event Store's \ac{TCP} interface for improved performance.
+Instead of sending every single event separately though -- which would introduce a huge overhead for all the resulting \ac{TCP} requests -- events are batched into groups of size 50 and then sent together in one request.
 
 Usually, the bridge application assumes that the persistent subscription already exists when it is started, because this is an administrative task that involves a few parameters to be set for the subscription.
-When doing the performance tests however, manually creating the subscription each time would be inefficient.
-Instead, the subscription is created automatically, possibly with different settings, each time the event generator is run in order to make the tests run as fast as possible.
+When doing the performance tests however, manually creating the subscription each time would be inefficient as the configurations change for each run.
+Instead, the subscription is created automatically with supplied configuration parameters each time the event generator is run in order to make the tests run as fast as possible.
 
 The event generator is again packaged in a Docker container for ease of deployment.
-Its Dockerfile uses the official Microsoft image\footnote{\url{https://hub.docker.com/r/microsoft/aspnetcore-build/}} for building ASP.NET Core applications inside a Docker container (cf. \cref{appendix:code:implementation:docker:eventgenerator-dockerfile}).
+Its Dockerfile uses the official Microsoft image for building ASP.NET Core applications inside a Docker container (cf. \cref{appendix:code:implementation:docker:eventgenerator-dockerfile}).
 The service definition for the event generator using this Dockerfile is contained in the \ac{IFAS} Compose file in \cref{appendix:code:docker:docker-compose}.
 A few environment variables set the Event Store's service name, username and password such that the event generator can login and post events.
 
@@ -305,18 +305,20 @@ A second Compose file defines the services of the Mattermost application (cf. \c
 
 \subsection{Operating the System}
 
-The final setup of \ac{IFAS} enables the following Compose commands, which can either be issued with a specific service name, or without this parameter which causes the command to be executed for all applicable services:
+The final setup of \ac{IFAS} enables several Compose commands to be executed via a terminal.
+If the service name parameter is omitted, the command is executed for all applicable services.
+The commands are as follows:
 
 \begin{itemize}
-\item Create and start containers for the services defined in the Compose file, via \texttt{docker-compose up [service]}; the additional \texttt{-d} parameter runs the containers in detached mode, i.e. in the background
+\item Create and start containers for the services defined in the Compose file, via \texttt{docker-compose up [-d] [service] }; the additional optional \texttt{-d} parameter runs the containers in detached mode, i.e. in the background
 \item Start the containers that are already created, via \texttt{docker-compose start [service]}
 \item Stop and remove containers defined in the Compose file, as well as their volumes and networks, via \texttt{docker-compose down}
 \item Stop containers defined in the Compose file, via \texttt{docker-compose stop}
-\item Show logging information for a container, via \texttt{docker-compose logs [service]}; the additional \texttt{-f} parameter follows the logs as new ones appear, instead of just printing them once to the  console
+\item Show a container's logs, via \texttt{docker-compose logs [-f] [service]}; the additional \texttt{-f} parameter follows the logs as new ones appear, instead of just printing them once to the  console
 \end{itemize}
 
 A user of \ac{IFAS} would usually create and start the containers via \texttt{docker-compose up -d} and then optionally attach to the logs via \texttt{docker-compose logs -f}.
-If the system or specific services would have to be taken offline, this could be done via \texttt{docker-compose down}.
+If the system or specific services would have to be taken offline, this could be done via \texttt{docker-compose stop}.
 For example, the Elasticsearch container would be stopped via \texttt{docker-compose stop elasticsearch}.
 Subsequently, the Elasticsearch container would be started again via the \texttt{start} command if no changes to the container are made, e.g. via its service definition, or via the \texttt{up} command if the container has to be recreated.
 The \texttt{down} command should only be used if a backup of the relevant Docker volumes was made -- otherwise, all data would be lost.
@@ -327,21 +329,21 @@ Docker allows to assign each container a custom network which allows for virtual
 %This is done via the \texttt{networks} setting for all container definitions, in this case setting the network to \texttt{IFAS-net}.
 Two networks were defined for the implemented system: \texttt{IFAS-net} and \texttt{mattermost-net}.
 
-The two networks exist in order to separate \ac{IFAS} functionality more cleanly from the client application -- the only point at which the two interact with each other is when the Mattermost web application sends user feedback events to \ac{IFAS}' Event Store (cf. \cref{figure:implementation:orchestration:network}).
+The two networks exist in order to separate \ac{IFAS}' functionality more cleanly from the client application -- the only point at which the two interact with each other is when the Mattermost web application sends user feedback events to \ac{IFAS}' Event Store (cf. \cref{figure:implementation:orchestration:network}).
 Both networks are default bridge networks, which means that they use a software bridge running in the Docker host to communicate with containers connected to the same bridge.
 Communication may occur via another container's IP address or name; for example, the bridge can query data for indexing in Elasticsearch via the base URL \texttt{http://elasticsearch:9200}, where the 9200 denotes the port at which the Elasticsearch container exposes its \ac{HTTP} interface.
 
 This configuration enables Event Store, Elasticsearch, Kibana and the bridge application to freely communicate with each other using the respective service's name.
 Hence, neither are the \ac{IFAS} services able to establish communications with a service from the \texttt{mattermost-net} network, nor the other way around.
-The exception to this rule is when the Mattermost web application communicates with the Event Store service in the \texttt{IFAS-net} network, but this is only possible as the Event Store service definition explicitly defines that port 2113 shall be exposed publicly.
+The exception to this rule is when the Mattermost web application communicates with the Event Store service in the \texttt{IFAS-net} network, but this is only possible as the Event Store service definition explicitly defines port 2113 to be exposed publicly.
 \ac{IFAS} also exposes the Kibana web application on port 5601 and the Mattermost network serves the chat application on port 80.
 
 \begin{figure}[ht]
 \caption[Network diagram of the final architecture of \ac{IFAS}.]{
 	Network diagram of the final architecture of \ac{IFAS}.
-        Hexagons represent Docker services, the switch icons represent a Docker bridge network.
-        Services connected to a bridge network via solid lines can communicate with each other freely within the network.
-        Dashed lines represent (possible) connections from the outside of the network, with the opened port being written at the receiving end of the connection.}
+        Hexagons represent Docker services, the switch images represent a Docker bridge network.
+        Services connected to a bridge network via solid lines can communicate freely with each other within the network.
+        Dashed lines represent (possible) connections from outside of the network, with the opened port being written at the receiving end of the connection.}
         \makebox[\textwidth][c]{
         \includegraphics[width=1.2\textwidth]{gfx/network-architecture}
 }
@@ -351,10 +353,10 @@ The exception to this rule is when the Mattermost web application communicates w
 \subsection{Clustering}
 \label{sec:implementation:orchestration:clustering}
 
-Both Event Store and Elasticsearch offer clustering support, but these were deliberately \emph{not} used for this version of \ac{IFAS}.
+Both Event Store and Elasticsearch offer clustering support, but these were deliberately not used for this version of \ac{IFAS}.
 The reason for this decision is that the performance boost and especially the failover safety introduced by setting up a cluster of Event Store or Elasticsearch nodes is not necessary for \ac{IFAS} at this stage of development, but would introduce additional complexity during implementation and evaluation.
 However, this will very likely become relevant when setting up the system for production usage.
-For this reason, the following section contains a short description as to how to make use of clustering in \ac{IFAS}.
+For this reason, this section contains a short description as to how to make use of clustering in \ac{IFAS}.
 
 \paragraph{Clustering in Event Store}
 In order to improve availability and read performance, a cluster of multiple Event Store nodes can be set up.
@@ -363,7 +365,7 @@ The latter is part of the commercial features of Event Store and thus not furthe
 \Cref{appendix:code:implementation:docker:clustering:eventstore} in the appendix shows the source code of a Compose file setting up an Event Store cluster consisting of three database nodes.
 This is very similar to the single-node version used in \ac{IFAS}, except for two environment variables which pass the cluster size and its DNS address to every node, so the nodes are able to find each other and vote for a master node.
 The documentation\footnote{\url{appendix:code:implementation:docker:clustering:eventstore}} recommends that an odd number of nodes is used, as Event Store uses a quorum based voting protocol (there cannot be a tie if an odd number of nodes is expected to take part in the voting procedure).
-When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in front of the cluster in order to distribute the burden equally over all nodes.
+When the cluster gets its data via the \ac{HTTP} interface, the documentation further recommends that a load balancer be put in front of the cluster.
 
 \paragraph{Clustering in Elasticsearch}
 As described in Elasticsearch's documentation\footnote{\url{https://www.elastic.co/guide/en/elasticsearch/guide/master/distributed-cluster.html}}, an integral concept concerning an Elasticsearch cluster are \emph{shards}.
@@ -374,8 +376,8 @@ When a cluster is run in single-node mode, all primary shards are stored on this
 As soon as a second node is added to the cluster, replica shards are automatically added in order to improve failover safety.
 If a third node is added, primary shards are re-allocated from the first node onto the other nodes, thus improving horizontal scalability.
 All this happens automatically, as long as all nodes are given the same \texttt{cluster\_name}.
-Thus, the Compose configuration is similar to the one for the Event Store cluster.
 
+\paragraph{Clustering with the Bridge}
 The Event Store-Elasticsearch bridge is designed to profit from this as well.
 Additional instances of the bridge can be created to listen to the same persistent subscription without interfering with each other because Event Store's persistent subscriptions support the competing consumers messaging pattern.
 Running multiple bridge instances improves failover safety because the other instances can stand in for the failing one.
@@ -399,7 +401,7 @@ The services that implement the main functionality of \ac{IFAS} are the three in
 The bridge connects to the Event Store container via its port 1113 over \ac{TCP}, and to Elasticsearch via port 9200 over \ac{HTTP}.
 Kibana also communicates with Elasticsearch over the same port.
 All this communication occurs exclusively over the internal network of the \ac{IFAS} Docker application, but two ports are exposed such that the system can properly be interacted with.
-These are Event Store's port 2113 -- i.e. the \ac{HTTP} interface -- in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
+These are Event Store's port 2113 in order to allow the client application to send data to \ac{IFAS}, and Kibana's port 5601 which exposes the Kibana application for usage via a web browser.
 
 This Docker application also includes the services running the Mattermost client.
 The diagram displays an abstraction of the client component, which internally consists of three services:
